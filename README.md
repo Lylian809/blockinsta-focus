@@ -95,6 +95,10 @@ Current host access:
 
 The extension stores only local user preferences such as enabled or disabled blocking options.
 
+More privacy notes:
+
+- see [PRIVACY.md](./PRIVACY.md)
+
 ## Project structure
 
 - `manifest.json` - extension manifest
@@ -126,6 +130,10 @@ Any Chromium-based browser with Manifest V3 support should work.
 4. Upload the zip in the Chrome Web Store dashboard
 5. Fill out the listing, privacy, and distribution fields
 6. Submit for review
+
+To make submission easier:
+
+- see [STORE_SUBMISSION.md](./STORE_SUBMISSION.md)
 
 ## Notes for contributors
 
