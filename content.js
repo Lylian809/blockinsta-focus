@@ -66,6 +66,9 @@ const YOUTUBE_SELECTORS = {
 let settings = { ...DEFAULT_SETTINGS };
 let observerStarted = false;
 let navigationHooksStarted = false;
+let redirectScheduled = false;
+let lastRedirectTarget = "";
+let applyQueued = false;
 
 function detectSite() {
   const host = window.location.hostname;
@@ -250,12 +253,29 @@ function hideOverlay() {
   overlay.innerHTML = "";
 }
 
+function queueApplyAll() {
+  if (applyQueued) {
+    return;
+  }
+
+  applyQueued = true;
+  requestAnimationFrame(() => {
+    applyQueued = false;
+    applyAll();
+  });
+}
+
 function pathAllowedInInstagramMessagesOnly(path) {
   return INSTAGRAM_ALLOWED_PREFIXES.some((prefix) => path.startsWith(prefix));
 }
 
 function applyInstagram() {
   document.body?.classList.remove("focus-shield-hide-instagram");
+
+  if (window.location.pathname === INBOX_PATH) {
+    redirectScheduled = false;
+    lastRedirectTarget = "";
+  }
 
   if (settings.instagramBlockAll) {
     renderOverlay({
@@ -318,7 +338,14 @@ function applyInstagram() {
   if (!allowed && settings.instagramRedirectHomeToInbox) {
     const isSafeToRedirect = !["/accounts/login", "/challenge"].some((prefix) => path.startsWith(prefix));
 
-    if (isSafeToRedirect && path !== INBOX_PATH) {
+    if (
+      isSafeToRedirect &&
+      path !== INBOX_PATH &&
+      !redirectScheduled &&
+      lastRedirectTarget !== path
+    ) {
+      redirectScheduled = true;
+      lastRedirectTarget = path;
       window.location.replace(INBOX_PATH);
     }
   }
@@ -392,7 +419,7 @@ function startObserver() {
   }
 
   const observer = new MutationObserver(() => {
-    applyAll();
+    queueApplyAll();
   });
 
   observer.observe(document.documentElement, {
@@ -412,14 +439,14 @@ function startNavigationHooks() {
     const original = history[methodName];
     history[methodName] = function wrappedHistoryState(...args) {
       const result = original.apply(this, args);
-      queueMicrotask(applyAll);
+      queueMicrotask(queueApplyAll);
       return result;
     };
   };
 
   wrap("pushState");
   wrap("replaceState");
-  window.addEventListener("popstate", applyAll);
+  window.addEventListener("popstate", queueApplyAll);
   navigationHooksStarted = true;
 }
 
@@ -449,7 +476,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     settings[key] = changes[key].newValue;
   });
 
-  applyAll();
+  queueApplyAll();
 });
 
 initialize();
