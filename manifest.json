@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Fokus",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Block distracting parts of Instagram, YouTube and TikTok with per-site focus controls.",
   "icons": {
     "16": "icons/icon16.png",
