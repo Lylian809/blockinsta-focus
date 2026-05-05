@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "BlockInsta Focus",
+  "version": "0.1.0",
+  "description": "Hide Instagram Reels, Stories, feed and Explore so you can keep only messages.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.instagram.com/*",
+    "https://instagram.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.instagram.com/*",
+        "https://instagram.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_title": "BlockInsta Focus",
+    "default_popup": "popup.html"
+  }
+}

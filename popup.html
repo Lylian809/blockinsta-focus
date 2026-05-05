@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BlockInsta Focus</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <p class="eyebrow">Instagram focus</p>
+        <h1>Messages only</h1>
+        <p class="subtitle">Coupe Stories, Reels et feed pour garder une boite de reception propre.</p>
+      </header>
+
+      <section class="panel">
+        <label class="toggle">
+          <input type="checkbox" name="messagesOnly">
+          <span>
+            <strong>Mode messages only</strong>
+            <small>Autorise surtout la messagerie Instagram.</small>
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" name="redirectHomeToInbox">
+          <span>
+            <strong>Rediriger vers les messages</strong>
+            <small>Quand on ouvre Instagram hors DM.</small>
+          </span>
+        </label>
+      </section>
+
+      <section class="panel">
+        <label class="toggle">
+          <input type="checkbox" name="blockStories">
+          <span>
+            <strong>Bloquer Stories</strong>
+            <small>Cache le tray et les pages Stories.</small>
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" name="blockReels">
+          <span>
+            <strong>Bloquer Reels</strong>
+            <small>Cache le bouton et les pages Reels.</small>
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" name="blockExplore">
+          <span>
+            <strong>Bloquer Explore</strong>
+            <small>Supprime Discover et la recherche Explore.</small>
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" name="blockFeed">
+          <span>
+            <strong>Bloquer feed</strong>
+            <small>Masque les posts du home.</small>
+          </span>
+        </label>
+
+        <label class="toggle">
+          <input type="checkbox" name="blockSearch">
+          <span>
+            <strong>Bloquer recherche</strong>
+            <small>Cache l'acces rapide a la recherche.</small>
+          </span>
+        </label>
+      </section>
+
+      <p class="footnote" id="status">Parametres charges.</p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
