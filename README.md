@@ -10,6 +10,8 @@ It helps reduce distracting parts of:
 
 The goal is simple: keep the useful parts, block the addictive parts.
 
+Current release version: `0.2.1`
+
 ## What Fokus can do
 
 ### Instagram
@@ -134,6 +136,17 @@ Any Chromium-based browser with Manifest V3 support should work.
 To make submission easier:
 
 - see [STORE_SUBMISSION.md](./STORE_SUBMISSION.md)
+- see [STORE_CLICKPATH.md](./STORE_CLICKPATH.md)
+
+## Build a clean release ZIP
+
+Run:
+
+```powershell
+./build-release.ps1
+```
+
+This creates a clean Chrome Web Store upload package in `dist/`.
 
 ## Notes for contributors
 
