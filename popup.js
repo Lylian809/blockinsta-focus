@@ -1,27 +1,80 @@
 const DEFAULT_SETTINGS = {
-  messagesOnly: true,
-  blockReels: true,
-  blockStories: true,
-  blockExplore: true,
-  blockFeed: true,
-  blockSearch: true,
-  redirectHomeToInbox: true
+  instagramBlockAll: false,
+  instagramMessagesOnly: true,
+  instagramBlockReels: true,
+  instagramBlockStories: true,
+  instagramBlockExplore: true,
+  instagramBlockFeed: true,
+  instagramBlockSearch: true,
+  instagramRedirectHomeToInbox: true,
+  youtubeBlockAll: false,
+  youtubeHideThumbnails: true,
+  youtubeSearchOnlyHome: false,
+  tiktokBlockAll: false
+};
+
+const GROUP_DEPENDENCIES = {
+  instagramBlockAll: [
+    "instagramMessagesOnly",
+    "instagramBlockReels",
+    "instagramBlockStories",
+    "instagramBlockExplore",
+    "instagramBlockFeed",
+    "instagramBlockSearch",
+    "instagramRedirectHomeToInbox"
+  ],
+  youtubeBlockAll: [
+    "youtubeHideThumbnails",
+    "youtubeSearchOnlyHome"
+  ]
 };
 
 const statusNode = document.getElementById("status");
 const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
+const fieldMap = new Map(fields.map((field) => [field.name, field]));
 
-const renderStatus = (message) => {
+function renderStatus(message) {
   statusNode.textContent = message;
-};
+}
 
-const saveSetting = async (event) => {
-  const { name, checked } = event.target;
-  await chrome.storage.sync.set({ [name]: checked });
+function applyDependencies() {
+  Object.entries(GROUP_DEPENDENCIES).forEach(([masterName, dependentNames]) => {
+    const master = fieldMap.get(masterName);
+    const locked = Boolean(master?.checked);
+
+    dependentNames.forEach((name) => {
+      const field = fieldMap.get(name);
+      if (!field) {
+        return;
+      }
+
+      field.disabled = locked;
+      field.closest(".toggle")?.classList.toggle("is-disabled", locked);
+    });
+  });
+
+  const instagramMessagesOnly = fieldMap.get("instagramMessagesOnly");
+  const instagramRedirect = fieldMap.get("instagramRedirectHomeToInbox");
+  const redirectLocked = !instagramMessagesOnly?.checked || fieldMap.get("instagramBlockAll")?.checked;
+
+  if (instagramRedirect) {
+    instagramRedirect.disabled = Boolean(redirectLocked);
+    instagramRedirect.closest(".toggle")?.classList.toggle("is-disabled", Boolean(redirectLocked));
+  }
+}
+
+async function persistField(field) {
+  await chrome.storage.sync.set({ [field.name]: field.checked });
+}
+
+async function saveSetting(event) {
+  const field = event.target;
+  await persistField(field);
+  applyDependencies();
   renderStatus("Parametres enregistres.");
-};
+}
 
-const initialize = async () => {
+async function initialize() {
   const settings = await chrome.storage.sync.get(DEFAULT_SETTINGS);
 
   fields.forEach((field) => {
@@ -29,7 +82,8 @@ const initialize = async () => {
     field.addEventListener("change", saveSetting);
   });
 
+  applyDependencies();
   renderStatus("Parametres charges.");
-};
+}
 
 initialize();

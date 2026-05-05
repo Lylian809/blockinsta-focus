@@ -1,24 +1,32 @@
 const DEFAULT_SETTINGS = {
-  messagesOnly: true,
-  blockReels: true,
-  blockStories: true,
-  blockExplore: true,
-  blockFeed: true,
-  blockSearch: true,
-  redirectHomeToInbox: true
+  instagramBlockAll: false,
+  instagramMessagesOnly: true,
+  instagramBlockReels: true,
+  instagramBlockStories: true,
+  instagramBlockExplore: true,
+  instagramBlockFeed: true,
+  instagramBlockSearch: true,
+  instagramRedirectHomeToInbox: true,
+  youtubeBlockAll: false,
+  youtubeHideThumbnails: true,
+  youtubeSearchOnlyHome: false,
+  tiktokBlockAll: false
 };
 
-const STYLE_ID = "blockinsta-focus-style";
-const OVERLAY_ID = "blockinsta-focus-overlay";
+const SITE = detectSite();
+const STYLE_ID = "focus-shield-style";
+const OVERLAY_ID = "focus-shield-overlay";
+const HIDDEN_ATTR = "data-focus-shield-hidden";
 const INBOX_PATH = "/direct/inbox/";
-const ALLOWED_PREFIXES = [
+
+const INSTAGRAM_ALLOWED_PREFIXES = [
   "/direct",
   "/accounts/login",
   "/challenge",
   "/session"
 ];
 
-const selectors = {
+const INSTAGRAM_SELECTORS = {
   main: "main, [role='main']",
   feedArticles: "article",
   storyTray: "div[data-pagelet='story_tray'], section main canvas + div, [aria-label*='Stories']",
@@ -26,36 +34,58 @@ const selectors = {
   navLinks: {
     reels: "a[href*='/reels/']",
     explore: "a[href='/explore/'], a[href^='/explore/']",
-    home: "a[href='/'], a[href='/' i]",
-    search: "a[href='/explore/'], a[href^='/explore/']",
-    create: "a[href='/create/select/'], a[href*='/create/']",
-    notifications: "a[href*='/accounts/activity/']"
+    search: "a[href='/explore/'], a[href^='/explore/']"
   }
+};
+
+const YOUTUBE_SELECTORS = {
+  homeFeed: [
+    "ytd-browse[page-subtype='home']",
+    "ytd-rich-grid-renderer",
+    "ytd-two-column-browse-results-renderer",
+    "#contents.ytd-rich-grid-renderer"
+  ].join(", "),
+  sidebars: [
+    "ytd-guide-renderer",
+    "ytd-mini-guide-renderer",
+    "#guide",
+    "#mini-guide"
+  ].join(", "),
+  thumbnails: [
+    "ytd-thumbnail",
+    "a#thumbnail",
+    "yt-image-banner-view-model",
+    "ytd-playlist-thumbnail",
+    "yt-lockup-view-model-wiz__content-image",
+    "yt-thumbnail-view-model",
+    "ytd-hero-playlist-thumbnail",
+    "ytd-reel-shelf-renderer"
+  ].join(", ")
 };
 
 let settings = { ...DEFAULT_SETTINGS };
 let observerStarted = false;
 let navigationHooksStarted = false;
 
-const hideElements = (selector) => {
-  document.querySelectorAll(selector).forEach((node) => {
-    node.style.setProperty("display", "none", "important");
-    node.setAttribute("data-blockinsta-hidden", "true");
-  });
-};
+function detectSite() {
+  const host = window.location.hostname;
 
-const resetHiddenElements = () => {
-  document.querySelectorAll("[data-blockinsta-hidden='true']").forEach((node) => {
-    node.style.removeProperty("display");
-    node.removeAttribute("data-blockinsta-hidden");
-  });
-};
+  if (host.includes("instagram.com")) {
+    return "instagram";
+  }
 
-const pathAllowedInMessagesOnly = (path) => {
-  return ALLOWED_PREFIXES.some((prefix) => path.startsWith(prefix));
-};
+  if (host.includes("youtube.com")) {
+    return "youtube";
+  }
 
-const ensureStyle = () => {
+  if (host.includes("tiktok.com")) {
+    return "tiktok";
+  }
+
+  return "other";
+}
+
+function ensureStyle() {
   if (document.getElementById(STYLE_ID)) {
     return;
   }
@@ -63,14 +93,52 @@ const ensureStyle = () => {
   const style = document.createElement("style");
   style.id = STYLE_ID;
   style.textContent = `
-    [data-blockinsta-hidden="true"] {
+    [${HIDDEN_ATTR}="true"] {
       display: none !important;
     }
 
-    body.blockinsta-messages-only main,
-    body.blockinsta-messages-only section main,
-    body.blockinsta-messages-only article {
+    body.focus-shield-hide-instagram main,
+    body.focus-shield-hide-instagram section main,
+    body.focus-shield-hide-instagram article {
       visibility: hidden !important;
+    }
+
+    body.focus-shield-youtube-thumbnails-off ytd-thumbnail,
+    body.focus-shield-youtube-thumbnails-off a#thumbnail,
+    body.focus-shield-youtube-thumbnails-off yt-image-banner-view-model,
+    body.focus-shield-youtube-thumbnails-off ytd-playlist-thumbnail,
+    body.focus-shield-youtube-thumbnails-off yt-thumbnail-view-model,
+    body.focus-shield-youtube-thumbnails-off ytd-hero-playlist-thumbnail {
+      display: none !important;
+    }
+
+    body.focus-shield-youtube-thumbnails-off ytd-video-renderer,
+    body.focus-shield-youtube-thumbnails-off ytd-grid-video-renderer,
+    body.focus-shield-youtube-thumbnails-off ytd-rich-item-renderer,
+    body.focus-shield-youtube-thumbnails-off ytd-compact-video-renderer,
+    body.focus-shield-youtube-thumbnails-off ytd-playlist-renderer,
+    body.focus-shield-youtube-thumbnails-off ytd-radio-renderer {
+      display: block !important;
+      margin-left: 0 !important;
+      padding-left: 0 !important;
+      min-height: auto !important;
+    }
+
+    body.focus-shield-youtube-thumbnails-off ytd-rich-grid-media,
+    body.focus-shield-youtube-thumbnails-off #dismissible.ytd-rich-grid-media,
+    body.focus-shield-youtube-thumbnails-off #details {
+      display: block !important;
+    }
+
+    body.focus-shield-youtube-search-only ytd-browse[page-subtype='home'],
+    body.focus-shield-youtube-search-only ytd-rich-grid-renderer,
+    body.focus-shield-youtube-search-only ytd-two-column-browse-results-renderer,
+    body.focus-shield-youtube-search-only #contents.ytd-rich-grid-renderer,
+    body.focus-shield-youtube-search-only ytd-guide-renderer,
+    body.focus-shield-youtube-search-only ytd-mini-guide-renderer,
+    body.focus-shield-youtube-search-only #guide,
+    body.focus-shield-youtube-search-only #mini-guide {
+      display: none !important;
     }
 
     #${OVERLAY_ID} {
@@ -92,8 +160,8 @@ const ensureStyle = () => {
       display: none !important;
     }
 
-    #${OVERLAY_ID} .blockinsta-card {
-      max-width: 460px;
+    #${OVERLAY_ID} .focus-shield-card {
+      max-width: 480px;
       width: 100%;
       padding: 28px;
       border-radius: 20px;
@@ -131,100 +199,194 @@ const ensureStyle = () => {
   `;
 
   document.documentElement.appendChild(style);
-};
+}
 
-const ensureOverlay = () => {
+function hideElements(selector) {
+  document.querySelectorAll(selector).forEach((node) => {
+    node.style.setProperty("display", "none", "important");
+    node.setAttribute(HIDDEN_ATTR, "true");
+  });
+}
+
+function resetHiddenElements() {
+  document.querySelectorAll(`[${HIDDEN_ATTR}='true']`).forEach((node) => {
+    node.style.removeProperty("display");
+    node.removeAttribute(HIDDEN_ATTR);
+  });
+}
+
+function ensureOverlay() {
   let overlay = document.getElementById(OVERLAY_ID);
+
   if (!overlay) {
     overlay = document.createElement("div");
     overlay.id = OVERLAY_ID;
     overlay.hidden = true;
-    overlay.innerHTML = `
-      <div class="blockinsta-card">
-        <h1>Instagram verrouille en mode messages</h1>
-        <p>
-          Les Stories, Reels, l'Explore et le feed sont masques pour garder
-          uniquement la messagerie.
-        </p>
-        <a href="${INBOX_PATH}">Ouvrir les messages</a>
-      </div>
-    `;
     document.documentElement.appendChild(overlay);
   }
+
   return overlay;
-};
+}
 
-const applyMessagesOnlyMode = () => {
+function renderOverlay({ title, body, ctaHref, ctaLabel }) {
   const overlay = ensureOverlay();
+  const linkMarkup = ctaHref && ctaLabel
+    ? `<a href="${ctaHref}">${ctaLabel}</a>`
+    : "";
+
+  overlay.innerHTML = `
+    <div class="focus-shield-card">
+      <h1>${title}</h1>
+      <p>${body}</p>
+      ${linkMarkup}
+    </div>
+  `;
+  overlay.hidden = false;
+}
+
+function hideOverlay() {
+  const overlay = ensureOverlay();
+  overlay.hidden = true;
+  overlay.innerHTML = "";
+}
+
+function pathAllowedInInstagramMessagesOnly(path) {
+  return INSTAGRAM_ALLOWED_PREFIXES.some((prefix) => path.startsWith(prefix));
+}
+
+function applyInstagram() {
+  document.body?.classList.remove("focus-shield-hide-instagram");
+
+  if (settings.instagramBlockAll) {
+    renderOverlay({
+      title: "Instagram est bloque",
+      body: "Cette surface est coupee pour garder ton attention la ou tu l'as decidee."
+    });
+    document.body?.classList.add("focus-shield-hide-instagram");
+    return;
+  }
+
+  hideOverlay();
+
+  hideElements(INSTAGRAM_SELECTORS.navLinks.reels);
+  hideElements(INSTAGRAM_SELECTORS.navLinks.explore);
+
+  if (settings.instagramBlockSearch) {
+    hideElements(INSTAGRAM_SELECTORS.navLinks.search);
+    hideElements(INSTAGRAM_SELECTORS.searchInputs);
+  }
+
+  if (settings.instagramBlockStories) {
+    hideElements(INSTAGRAM_SELECTORS.storyTray);
+    if (window.location.pathname.startsWith("/stories")) {
+      hideElements(INSTAGRAM_SELECTORS.main);
+    }
+  }
+
+  if (settings.instagramBlockReels && window.location.pathname.startsWith("/reels")) {
+    hideElements(INSTAGRAM_SELECTORS.main);
+  }
+
+  if (settings.instagramBlockExplore && window.location.pathname.startsWith("/explore")) {
+    hideElements(INSTAGRAM_SELECTORS.main);
+  }
+
+  if (settings.instagramBlockFeed && window.location.pathname === "/") {
+    hideElements(INSTAGRAM_SELECTORS.feedArticles);
+    hideElements(INSTAGRAM_SELECTORS.main);
+  }
+
+  if (!settings.instagramMessagesOnly) {
+    return;
+  }
+
   const path = window.location.pathname;
-  const allowed = pathAllowedInMessagesOnly(path);
+  const allowed = pathAllowedInInstagramMessagesOnly(path);
+  document.body?.classList.toggle("focus-shield-hide-instagram", !allowed);
 
-  document.body?.classList.toggle("blockinsta-messages-only", !allowed);
-  overlay.hidden = allowed;
+  if (!allowed) {
+    renderOverlay({
+      title: "Instagram verrouille en mode messages",
+      body: "Stories, Reels, Explore et feed sont caches pour garder surtout la messagerie.",
+      ctaHref: INBOX_PATH,
+      ctaLabel: "Ouvrir les messages"
+    });
+  } else {
+    hideOverlay();
+  }
 
-  if (!allowed && settings.redirectHomeToInbox) {
-    const isSafeToRedirect = ![
-      "/accounts/login",
-      "/challenge"
-    ].some((prefix) => path.startsWith(prefix));
+  if (!allowed && settings.instagramRedirectHomeToInbox) {
+    const isSafeToRedirect = !["/accounts/login", "/challenge"].some((prefix) => path.startsWith(prefix));
 
-    if (isSafeToRedirect && window.location.pathname !== INBOX_PATH) {
+    if (isSafeToRedirect && path !== INBOX_PATH) {
       window.location.replace(INBOX_PATH);
     }
   }
-};
+}
 
-const applyFeatureBlocks = () => {
-  resetHiddenElements();
+function applyYouTube() {
+  document.body?.classList.remove("focus-shield-youtube-thumbnails-off");
+  document.body?.classList.remove("focus-shield-youtube-search-only");
 
-  hideElements(selectors.navLinks.reels);
-  hideElements(selectors.navLinks.explore);
-
-  if (settings.blockSearch) {
-    hideElements(selectors.navLinks.search);
-    hideElements(selectors.searchInputs);
+  if (settings.youtubeBlockAll) {
+    renderOverlay({
+      title: "YouTube est bloque",
+      body: "Tu peux couper totalement YouTube ou revenir plus tard via le popup de l'extension."
+    });
+    hideElements("ytd-app");
+    return;
   }
 
-  if (settings.blockStories) {
-    hideElements(selectors.storyTray);
-    if (window.location.pathname.startsWith("/stories")) {
-      hideElements(selectors.main);
-    }
+  hideOverlay();
+
+  if (settings.youtubeHideThumbnails) {
+    document.body?.classList.add("focus-shield-youtube-thumbnails-off");
+    hideElements(YOUTUBE_SELECTORS.thumbnails);
   }
 
-  if (settings.blockReels && window.location.pathname.startsWith("/reels")) {
-    hideElements(selectors.main);
+  if (settings.youtubeSearchOnlyHome && window.location.pathname === "/") {
+    document.body?.classList.add("focus-shield-youtube-search-only");
+    hideElements(YOUTUBE_SELECTORS.homeFeed);
+    hideElements(YOUTUBE_SELECTORS.sidebars);
+  }
+}
+
+function applyTikTok() {
+  if (settings.tiktokBlockAll) {
+    renderOverlay({
+      title: "TikTok est bloque",
+      body: "TikTok est completement coupe dans cette configuration."
+    });
+    hideElements("body > *:not(#focus-shield-overlay):not(style)");
+    return;
   }
 
-  if (settings.blockExplore && window.location.pathname.startsWith("/explore")) {
-    hideElements(selectors.main);
-  }
+  hideOverlay();
+}
 
-  if (settings.blockFeed && window.location.pathname === "/") {
-    hideElements(selectors.feedArticles);
-    hideElements(selectors.main);
+function applySiteRules() {
+  if (SITE === "instagram") {
+    applyInstagram();
+  } else if (SITE === "youtube") {
+    applyYouTube();
+  } else if (SITE === "tiktok") {
+    applyTikTok();
   }
-};
+}
 
-const applyAll = () => {
+function applyAll() {
   ensureStyle();
-  applyFeatureBlocks();
+  resetHiddenElements();
+  hideOverlay();
+  applySiteRules();
+}
 
-  if (settings.messagesOnly) {
-    applyMessagesOnlyMode();
-  } else {
-    const overlay = ensureOverlay();
-    overlay.hidden = true;
-    document.body?.classList.remove("blockinsta-messages-only");
-  }
-};
-
-const readSettings = async () => {
+async function readSettings() {
   const stored = await chrome.storage.sync.get(DEFAULT_SETTINGS);
   settings = { ...DEFAULT_SETTINGS, ...stored };
-};
+}
 
-const startObserver = () => {
+function startObserver() {
   if (observerStarted) {
     return;
   }
@@ -239,9 +401,9 @@ const startObserver = () => {
   });
 
   observerStarted = true;
-};
+}
 
-const startNavigationHooks = () => {
+function startNavigationHooks() {
   if (navigationHooksStarted) {
     return;
   }
@@ -259,9 +421,13 @@ const startNavigationHooks = () => {
   wrap("replaceState");
   window.addEventListener("popstate", applyAll);
   navigationHooksStarted = true;
-};
+}
 
-const initialize = async () => {
+async function initialize() {
+  if (SITE === "other") {
+    return;
+  }
+
   await readSettings();
   ensureStyle();
   startObserver();
@@ -272,7 +438,7 @@ const initialize = async () => {
   } else {
     applyAll();
   }
-};
+}
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== "sync") {

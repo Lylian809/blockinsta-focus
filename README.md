@@ -1,24 +1,22 @@
-# BlockInsta Focus
+# Fokus
 
-Extension MV3 pour Chrome/Brave/Edge qui rend Instagram beaucoup moins addictif, avec un mode par defaut centre sur la messagerie.
+Extension MV3 pour Chrome/Brave/Edge qui réduit les surfaces distractives d'Instagram, YouTube et TikTok avec des réglages par site.
 
 ## Ce que fait cette version
 
-- mode `messagesOnly` active par defaut
-- cache les Stories
-- cache les Reels
-- cache Explore
-- cache le feed principal
-- peut rediriger automatiquement vers `/direct/inbox/`
+- Instagram : mode messages seulement, blocage complet, Stories/Reels/Explore/feed/recherche, redirection vers les DM
+- YouTube : blocage complet, suppression des miniatures, accueil en mode recherche uniquement
+- TikTok : blocage complet
 
 ## Installation
 
 1. Ouvrir `chrome://extensions`
-2. Activer le mode developpeur
+2. Activer le mode développeur
 3. Cliquer sur `Load unpacked`
-4. Selectionner ce dossier
+4. Sélectionner ce dossier
 
 ## Notes
 
-- L'interface web Instagram change souvent, donc certains selecteurs devront etre ajustes dans le temps.
-- Le but ici est une base simple, lisible et modifiable rapidement.
+- L'interface web de ces plateformes change souvent, donc certains sélecteurs devront être ajustés dans le temps.
+- L'extension ne dépend d'aucune clé API ni d'aucun backend.
+- Les réglages sont stockés via `chrome.storage`.
