@@ -58,6 +58,7 @@ const DISABLED_REASONS = {
 };
 
 const statusNode = document.getElementById("status");
+const srStatusNode = document.getElementById("sr-status");
 const resetDefaultsButton = document.getElementById("reset-defaults");
 const defaultStateCopyNode = document.getElementById("default-state-copy");
 const summaryTitleNode = document.getElementById("summary-title");
@@ -82,6 +83,88 @@ const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
 const fieldMap = new Map(fields.map((field) => [field.name, field]));
 
 let activeStorageArea = "sync";
+let screenReaderAnnouncementFrame = 0;
+
+function getFieldLabel(field) {
+  return field.closest(".toggle")?.querySelector("strong")?.textContent?.trim() ?? field.name;
+}
+
+function getFieldDescriptionIds(field) {
+  const ids = [];
+  const toggle = field.closest(".toggle");
+  const helpCopy = toggle?.querySelector("small:not(.dependency-note)");
+  const dependencyNote = toggle?.querySelector(".dependency-note");
+  const site = field.closest("[data-group]")?.dataset.group;
+  const contextNote = site ? contextNoteNodes[site] : null;
+
+  if (helpCopy?.id) {
+    ids.push(helpCopy.id);
+  }
+
+  if (dependencyNote?.id) {
+    ids.push(dependencyNote.id);
+  }
+
+  if (contextNote?.id) {
+    ids.push(contextNote.id);
+  }
+
+  return ids;
+}
+
+function syncFieldAccessibility(field) {
+  const toggle = field.closest(".toggle");
+  const heading = toggle?.querySelector("strong");
+  const descriptionIds = getFieldDescriptionIds(field);
+
+  if (heading?.id) {
+    field.setAttribute("aria-labelledby", heading.id);
+  }
+
+  if (descriptionIds.length) {
+    field.setAttribute("aria-describedby", descriptionIds.join(" "));
+  } else {
+    field.removeAttribute("aria-describedby");
+  }
+
+  field.setAttribute("aria-disabled", String(field.disabled));
+  field.setAttribute("aria-checked", String(field.checked));
+}
+
+function initializeFieldAccessibility() {
+  fields.forEach((field) => {
+    const toggle = field.closest(".toggle");
+
+    if (!toggle) {
+      return;
+    }
+
+    const heading = toggle.querySelector("strong");
+    const helpCopy = toggle.querySelector("small:not(.dependency-note)");
+
+    if (heading && !heading.id) {
+      heading.id = `${field.name}-label`;
+    }
+
+    if (helpCopy && !helpCopy.id) {
+      helpCopy.id = `${field.name}-help`;
+    }
+
+    syncFieldAccessibility(field);
+  });
+}
+
+function announceScreenReader(message) {
+  if (!srStatusNode || !message) {
+    return;
+  }
+
+  srStatusNode.textContent = "";
+  cancelAnimationFrame(screenReaderAnnouncementFrame);
+  screenReaderAnnouncementFrame = requestAnimationFrame(() => {
+    srStatusNode.textContent = message;
+  });
+}
 
 function renderStatus(message) {
   statusNode.textContent = message;
@@ -437,16 +520,19 @@ function setDisabledState(field, disabled, reason = "") {
 
   if (!disabled || !reason) {
     note?.remove();
+    syncFieldAccessibility(field);
     return;
   }
 
   if (!note) {
     note = document.createElement("small");
     note.className = "dependency-note";
+    note.id = `${field.name}-dependency-note`;
     toggle.querySelector("span")?.appendChild(note);
   }
 
   note.textContent = reason;
+  syncFieldAccessibility(field);
 }
 
 function applyDependencies() {
@@ -493,6 +579,8 @@ function applyDependencies() {
     setDisabledState(instagramRedirect, Boolean(redirectLocked), reason);
   }
 
+  fields.forEach(syncFieldAccessibility);
+
   renderSummary();
   renderDefaultPresetState();
 }
@@ -512,10 +600,12 @@ async function saveSetting(event) {
     await persistField(field);
     applyDependencies();
     renderStatus(`R\u00E9glage enregistr\u00E9${getStorageStatusSuffix()}.`);
+    announceScreenReader(`${getFieldLabel(field)} ${field.checked ? "activ\u00E9" : "d\u00E9sactiv\u00E9"}. ${statusNode.textContent}`);
   } catch (error) {
     field.checked = !field.checked;
     applyDependencies();
     renderStatus("Impossible d'enregistrer ce r\u00E9glage.");
+    announceScreenReader(`Impossible de modifier ${getFieldLabel(field)}.`);
     console.error("Fokus: popup save failed", error);
   }
 }
@@ -530,8 +620,10 @@ async function resetDefaults() {
 
     applyDependencies();
     renderStatus(`R\u00E9glages Fokus r\u00E9appliqu\u00E9s${getStorageStatusSuffix()}.`);
+    announceScreenReader("Les r\u00E9glages Fokus recommand\u00E9s sont de nouveau actifs.");
   } catch (error) {
     renderStatus("Impossible de r\u00E9initialiser les r\u00E9glages.");
+    announceScreenReader("Impossible de r\u00E9initialiser les r\u00E9glages Fokus.");
     console.error("Fokus: popup reset failed", error);
   }
 }
@@ -546,6 +638,7 @@ async function initialize() {
       field.addEventListener("change", saveSetting);
     });
 
+    initializeFieldAccessibility();
     resetDefaultsButton?.addEventListener("click", resetDefaults);
     applyDependencies();
     renderStatus(
@@ -574,6 +667,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     }
 
     field.checked = Boolean(changes[field.name].newValue);
+    syncFieldAccessibility(field);
   });
 
   applyDependencies();

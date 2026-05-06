@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Improved popup accessibility so each toggle now exposes its helper copy, dependency lock reason, and site context to assistive technologies, while Fokus also announces setting changes and reset actions more clearly for screen-reader users
 - Improved blocked-surface accessibility so Fokus overlays now expose dialog semantics, move keyboard focus to the main action, and announce the YouTube calm-home note more reliably for assistive technologies
 - Fixed the popup protection headline so helper behavior like Instagram redirect-to-inbox no longer counts as a separate active protection, keeping the summary metric aligned with the real blocking and filtering currently in effect
 - Added live contextual help under the Instagram and YouTube popup controls so users now see the real effect of redirect-to-inbox and search-only home settings without having to infer why pages redirect or look intentionally empty
@@ -53,7 +54,7 @@ Core principles:
 ## Next Best Opportunities
 
 - Improve real-world robustness of Instagram selectors
-- Extend accessibility polish to the popup toggles and summaries, especially around screen-reader phrasing for live state changes
+- Extend popup accessibility review to interactive grouping and keyboard flow details, especially if new controls or onboarding steps are added
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
 - Continue normalizing any remaining user-facing French copy to encoding-safe patterns across docs and store assets
 - Review popup summary metrics whenever new helper-only options are added so status counts stay tied to real focus protections
