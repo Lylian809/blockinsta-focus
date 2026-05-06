@@ -30,8 +30,8 @@ const GROUP_DEPENDENCIES = {
 };
 
 const DISABLED_REASONS = {
-  instagramBlockAll: "Desactive car Instagram est entierement bloque.",
-  youtubeBlockAll: "Desactive car YouTube est entierement bloque.",
+  instagramBlockAll: "Désactivé car Instagram est entièrement bloqué.",
+  youtubeBlockAll: "Désactivé car YouTube est entièrement bloqué.",
   instagramRedirectHomeToInbox: "Disponible seulement quand le mode messages seulement est actif."
 };
 
@@ -105,7 +105,7 @@ async function saveSetting(event) {
   const field = event.target;
   await persistField(field);
   applyDependencies();
-  renderStatus("Reglage enregistre.");
+  renderStatus("Réglage enregistré.");
 }
 
 async function resetDefaults() {
@@ -116,7 +116,7 @@ async function resetDefaults() {
   });
 
   applyDependencies();
-  renderStatus("Reglages Fokus reappliques.");
+  renderStatus("Réglages Fokus réappliqués.");
 }
 
 async function initialize() {
@@ -129,7 +129,7 @@ async function initialize() {
 
   resetDefaultsButton?.addEventListener("click", resetDefaults);
   applyDependencies();
-  renderStatus("Parametres charges.");
+  renderStatus("Paramètres chargés.");
 }
 
 chrome.storage.onChanged.addListener((changes, areaName) => {

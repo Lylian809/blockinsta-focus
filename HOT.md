@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Polished the French user-facing copy in the popup and in-page Fokus overlays so the extension feels more deliberate and less rough in everyday use
 - Expanded manifest host matching to cover common user-facing subdomains like m.instagram.com, m.youtube.com, music.youtube.com, and m.tiktok.com so Fokus runs on more real-world entry points
 - Multi-platform blocking support for Instagram, YouTube, and TikTok
 - Instagram messages-only flow
@@ -38,7 +39,7 @@ Core principles:
 
 - Improve real-world robustness of Instagram selectors
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
-- Improve wording consistency and localization quality across popup and docs
+- Continue improving wording consistency and localization quality across docs and store assets
 - Add lightweight inline help for more setting interactions beyond disabled-state explanations
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
 - Add browser-side safeguards around repeated redirects or site DOM churn

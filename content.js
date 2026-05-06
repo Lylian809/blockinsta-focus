@@ -331,7 +331,7 @@ function showYouTubeHomeNote() {
   note.innerHTML = `
     <p class="focus-shield-inline-eyebrow">Fokus</p>
     <h2>Accueil YouTube calme</h2>
-    <p>Les recommandations sont masquees ici. Utilise la barre de recherche pour ouvrir uniquement ce dont tu as besoin.</p>
+    <p>Les recommandations sont masquées ici. Utilise la barre de recherche pour ouvrir uniquement ce dont tu as besoin.</p>
   `;
   note.hidden = false;
 }
@@ -396,9 +396,9 @@ function applyInstagram() {
 
   if (settings.instagramBlockAll) {
     renderOverlay({
-      title: "Instagram est coupe pour l'instant",
-      body: "Fokus bloque cette surface pour t'aider a rester hors du flux.",
-      note: "Tu peux modifier ce choix a tout moment depuis le popup de l'extension."
+      title: "Instagram est coupé pour l'instant",
+      body: "Fokus bloque cette surface pour t'aider à rester hors du flux.",
+      note: "Tu peux modifier ce choix à tout moment depuis le popup de l'extension."
     });
     document.body?.classList.add("focus-shield-hide-instagram");
     return;
@@ -451,10 +451,10 @@ function applyInstagram() {
     renderOverlay({
       title: "Mode messages actif",
       body: "Seule la messagerie reste accessible dans cette configuration Fokus.",
-      detail: "Le feed, Explore, Stories et Reels restent masques pour limiter les detours.",
+      detail: "Le feed, Explore, Stories et Reels restent masqués pour limiter les détours.",
       ctaHref: INBOX_PATH,
       ctaLabel: "Ouvrir la messagerie",
-      note: "Desactive ce mode dans le popup si tu veux retrouver le reste d'Instagram."
+      note: "Désactive ce mode dans le popup si tu veux retrouver le reste d'Instagram."
     });
   } else {
     hideOverlay();
@@ -484,7 +484,7 @@ function applyYouTube() {
   if (settings.youtubeBlockAll) {
     renderOverlay({
       title: "YouTube est en pause",
-      body: "Cette surface est bloquee pour eviter les recommandations et l'enchainement passif.",
+      body: "Cette surface est bloquée pour éviter les recommandations et l'enchaînement passif.",
       note: "Tu peux rouvrir YouTube depuis le popup Fokus quand tu en as vraiment besoin."
     });
     hideElements("ytd-app");
@@ -509,9 +509,9 @@ function applyYouTube() {
 function applyTikTok() {
   if (settings.tiktokBlockAll) {
     renderOverlay({
-      title: "TikTok est coupe",
-      body: "Fokus bloque TikTok entierement dans cette configuration.",
-      note: "Tu peux reautoriser l'acces plus tard depuis le popup si ton besoin change."
+      title: "TikTok est coupé",
+      body: "Fokus bloque TikTok entièrement dans cette configuration.",
+      note: "Tu peux réautoriser l'accès plus tard depuis le popup si ton besoin change."
     });
     hideElements("body > *:not(#focus-shield-overlay):not(style)");
     return;
