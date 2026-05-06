@@ -247,11 +247,11 @@ function getSupportedTabSite(hostname) {
   return SUPPORTED_TAB_SITES.find((site) => site.matcher(hostname)) ?? null;
 }
 
-function setActiveTabContextForSupportedSite(site) {
+function setActiveTabContextForSupportedSite(site, labelOverride = "") {
   activeTabContext = {
     canReload: true,
     isSupported: true,
-    label: site.label,
+    label: labelOverride || site.label,
     siteKey: site.key,
     reason: ""
   };
@@ -412,6 +412,20 @@ function getSiteShortcutLabel(siteKey) {
 
   const site = SUPPORTED_TAB_SITES.find((candidate) => candidate.key === siteKey);
   return site?.label ?? siteKey;
+}
+
+function getSiteShortcutContext(siteKey) {
+  const site = SUPPORTED_TAB_SITES.find((candidate) => candidate.key === siteKey);
+
+  if (!site) {
+    return null;
+  }
+
+  return {
+    ...site,
+    destinationLabel: getSiteShortcutLabel(siteKey),
+    targetUrl: getSiteShortcutUrl(siteKey)
+  };
 }
 
 function renderSiteShortcutLabels() {
@@ -968,13 +982,13 @@ async function refreshActiveTab() {
 async function openSupportedSite(event) {
   const button = event.currentTarget;
   const siteKey = button?.dataset.siteShortcut;
-  const site = SUPPORTED_TAB_SITES.find((candidate) => candidate.key === siteKey);
+  const siteContext = getSiteShortcutContext(siteKey);
 
-  if (!site) {
+  if (!siteContext) {
     return;
   }
 
-  const targetUrl = getSiteShortcutUrl(site.key);
+  const { destinationLabel, key, label, targetUrl } = siteContext;
 
   siteShortcutButtons.forEach((shortcutButton) => {
     shortcutButton.disabled = true;
@@ -984,17 +998,17 @@ async function openSupportedSite(event) {
     const updatedTab = await callTabs("update", { url: targetUrl });
 
     if (!setActiveTabContextFromTab(updatedTab)) {
-      setActiveTabContextForSupportedSite(site);
+      setActiveTabContextForSupportedSite(siteContext, destinationLabel);
     }
 
     renderActiveSiteState();
     renderRefreshState();
     scheduleActiveTabContextRefresh();
-    renderStatus(`${site.label} ouvert dans l'onglet actif.`);
-    announceScreenReader(`${site.label} ouvert dans l'onglet actif.`);
+    renderStatus(`${destinationLabel} ouvert dans l'onglet actif.`);
+    announceScreenReader(`${destinationLabel} ouvert dans l'onglet actif.`);
   } catch (error) {
-    renderStatus(`Impossible d'ouvrir ${site.label}.`);
-    announceScreenReader(`Impossible d'ouvrir ${site.label}.`);
+    renderStatus(`Impossible d'ouvrir ${label}.`);
+    announceScreenReader(`Impossible d'ouvrir ${label}.`);
     console.error("Fokus: supported site shortcut failed", error);
   } finally {
     renderSiteShortcuts();

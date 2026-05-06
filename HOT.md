@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Made the popup quick-open success state and optimistic active-tab context use the real destination label, so Instagram quick-open now stays consistent with `Messagerie Instagram` when messages-only redirection targets the inbox instead of falling back to the generic site name
 - Made unsupported-tab quick-open labels reflect the real Fokus destination, so Instagram now surfaces as `Messagerie Instagram` when messages-only mode redirects there instead of implying the generic homepage
 - Reconciled popup active-tab context against the real tab URL after quick-open navigation, so active-site emphasis, refresh guidance, and unsupported-tab recovery now settle back to Chromium's actual destination instead of relying only on optimistic popup state
 - Kept the popup active-tab context in sync immediately after using an unsupported-tab quick-open shortcut, so the refresh card, summary note, and active-site emphasis now switch to the newly opened Instagram, YouTube, or TikTok tab state without requiring the popup to be reopened
@@ -63,7 +64,7 @@ Core principles:
 
 ## Next Best Opportunities
 
-- Validate the renamed unsupported-tab quick-open labels against Instagram messages-only and standard-home flows so the shortcut wording always matches the actual destination users land on
+- Validate the full unsupported-tab quick-open flow against Instagram messages-only and standard-home flows so the shortcut label, optimistic popup status, and delayed Chromium URL reconciliation all match the actual destination users land on
 - Validate the reconciled quick-open flow on supported tabs, unsupported tabs, and browser-owned pages so the popup's delayed URL re-check still matches real Chromium navigation timing on slower transitions
 - Validate the new active-tab site emphasis against supported tabs, unsupported tabs, and browser-owned pages so the popup stays helpful without over-dimming unrelated site cards
 - Validate the supported-tab-only refresh card against already-open Instagram, YouTube, TikTok, and browser-owned tabs so popup feedback matches real Chromium behavior
@@ -80,7 +81,7 @@ Core principles:
 
 ## Risks / Known Issues
 
-- The unsupported-tab quick-open labels are now dynamic, so they still need browser-side validation to ensure the popup wording always matches the real Chromium destination when Instagram message redirection is toggled on or off
+- The unsupported-tab quick-open flow now uses dynamic destination labels in both the buttons and popup success state, so it still needs browser-side validation to ensure the optimistic wording and final Chromium destination stay aligned when Instagram message redirection is toggled on or off
 - The unsupported-tab quick-open flow now does an optimistic switch plus a delayed real-URL reconciliation after `chrome.tabs.update`, so it still needs browser-side validation to ensure Chromium navigation timing does not leave the popup briefly out of sync on slower tab transitions
 - The new active-tab site emphasis depends on popup-side tab detection and visual deemphasis, so it still needs browser-side validation to ensure unsupported-tab states remain readable and not misleading
 - Supported websites change their DOM frequently
