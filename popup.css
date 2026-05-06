@@ -288,7 +288,10 @@ body {
 }
 
 .options {
-  margin-top: 16px;
+  margin: 16px 0 0;
+  min-width: 0;
+  margin-inline: 0;
+  border: 0;
   background: rgba(255, 255, 255, 0.58);
   border-radius: 12px;
   padding: 0 14px;
@@ -307,6 +310,19 @@ body {
 
 .toggle + .toggle {
   border-top: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.toggle:focus-within {
+  position: relative;
+}
+
+.toggle:focus-within::after {
+  content: "";
+  position: absolute;
+  inset: 6px -8px;
+  border: 2px solid rgba(74, 46, 200, 0.18);
+  border-radius: 12px;
+  pointer-events: none;
 }
 
 .toggle input {

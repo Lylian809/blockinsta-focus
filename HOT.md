@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added semantic popup control grouping with real per-site headings, fieldsets, and clearer keyboard focus states so Instagram, YouTube, and TikTok settings are easier to navigate with assistive tech and by keyboard alone
 - Improved popup accessibility so each toggle now exposes its helper copy, dependency lock reason, and site context to assistive technologies, while Fokus also announces setting changes and reset actions more clearly for screen-reader users
 - Improved blocked-surface accessibility so Fokus overlays now expose dialog semantics, move keyboard focus to the main action, and announce the YouTube calm-home note more reliably for assistive technologies
 - Fixed the popup protection headline so helper behavior like Instagram redirect-to-inbox no longer counts as a separate active protection, keeping the summary metric aligned with the real blocking and filtering currently in effect
@@ -54,7 +55,7 @@ Core principles:
 ## Next Best Opportunities
 
 - Improve real-world robustness of Instagram selectors
-- Extend popup accessibility review to interactive grouping and keyboard flow details, especially if new controls or onboarding steps are added
+- Verify the popup accessibility pass against a real keyboard-only flow and screen reader on Chromium, especially if new controls or onboarding steps are added
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
 - Continue normalizing any remaining user-facing French copy to encoding-safe patterns across docs and store assets
 - Review popup summary metrics whenever new helper-only options are added so status counts stay tied to real focus protections

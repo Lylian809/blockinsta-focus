@@ -33,7 +33,7 @@
         </p>
       </section>
 
-      <section class="site-card site-card-instagram" data-group="instagram">
+      <section class="site-card site-card-instagram" data-group="instagram" aria-labelledby="instagram-heading" aria-describedby="instagram-context-note">
         <div class="site-band"></div>
         <div class="site-head">
           <div class="site-title-row">
@@ -45,7 +45,7 @@
               </svg>
             </span>
             <div>
-              <p class="site-kicker">Instagram</p>
+              <h2 class="site-kicker" id="instagram-heading">Instagram</h2>
               <p class="site-mode-copy">
                 Mode actuel :
                 <span class="site-mode-badge" id="instagram-mode">Chargement...</span>
@@ -57,7 +57,8 @@
           </div>
         </div>
 
-        <div class="options">
+        <fieldset class="options" aria-describedby="instagram-context-note">
+          <legend class="sr-only">R&eacute;glages Instagram</legend>
           <label class="toggle">
             <input type="checkbox" name="instagramBlockAll">
             <span>
@@ -121,14 +122,14 @@
               <small>Masque l'acc&egrave;s &agrave; la recherche.</small>
             </span>
           </label>
-        </div>
+        </fieldset>
 
         <p class="context-note" id="instagram-context-note">
           Fokus pr&eacute;cise ici comment Instagram se comporte avec ces r&eacute;glages.
         </p>
       </section>
 
-      <section class="site-card site-card-youtube" data-group="youtube">
+      <section class="site-card site-card-youtube" data-group="youtube" aria-labelledby="youtube-heading" aria-describedby="youtube-context-note">
         <div class="site-band"></div>
         <div class="site-head">
           <div class="site-title-row">
@@ -139,7 +140,7 @@
               </svg>
             </span>
             <div>
-              <p class="site-kicker">YouTube</p>
+              <h2 class="site-kicker" id="youtube-heading">YouTube</h2>
               <p class="site-mode-copy">
                 Mode actuel :
                 <span class="site-mode-badge" id="youtube-mode">Chargement...</span>
@@ -151,7 +152,8 @@
           </div>
         </div>
 
-        <div class="options">
+        <fieldset class="options" aria-describedby="youtube-context-note">
+          <legend class="sr-only">R&eacute;glages YouTube</legend>
           <label class="toggle">
             <input type="checkbox" name="youtubeBlockAll">
             <span>
@@ -175,14 +177,14 @@
               <small>Masque les recommandations sur l'accueil et dans la barre lat&eacute;rale.</small>
             </span>
           </label>
-        </div>
+        </fieldset>
 
         <p class="context-note" id="youtube-context-note">
           Fokus pr&eacute;cise ici comment YouTube se comporte avec ces r&eacute;glages.
         </p>
       </section>
 
-      <section class="site-card site-card-tiktok" data-group="tiktok">
+      <section class="site-card site-card-tiktok" data-group="tiktok" aria-labelledby="tiktok-heading">
         <div class="site-band"></div>
         <div class="site-head">
           <div class="site-title-row">
@@ -192,7 +194,7 @@
               </svg>
             </span>
             <div>
-              <p class="site-kicker">TikTok</p>
+              <h2 class="site-kicker" id="tiktok-heading">TikTok</h2>
               <p class="site-mode-copy">
                 Mode actuel :
                 <span class="site-mode-badge" id="tiktok-mode">Chargement...</span>
@@ -204,7 +206,8 @@
           </div>
         </div>
 
-        <div class="options">
+        <fieldset class="options">
+          <legend class="sr-only">R&eacute;glages TikTok</legend>
           <label class="toggle">
             <input type="checkbox" name="tiktokBlockAll">
             <span>
@@ -212,7 +215,7 @@
               <small>Coupe totalement l'acc&egrave;s &agrave; TikTok.</small>
             </span>
           </label>
-        </div>
+        </fieldset>
       </section>
 
       <section class="support-card" aria-label="Soutenir Fokus">
