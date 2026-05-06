@@ -236,6 +236,11 @@ body {
   line-height: 1.35;
 }
 
+.dependency-note {
+  color: #6f647f;
+  font-weight: 600;
+}
+
 .toggle.is-disabled {
   opacity: 0.42;
   cursor: not-allowed;

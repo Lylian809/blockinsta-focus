@@ -31,13 +31,14 @@ Core principles:
 - Popup settings now stay in sync with storage changes while the popup is open
 - YouTube search-only home mode now explains the empty homepage state instead of leaving users on an ambiguous blank screen
 - Added a browser regression checklist for popup, Instagram, YouTube, and TikTok flows to reduce accidental release regressions
+- Popup settings that are disabled by stronger Fokus modes now explain why instead of appearing silently unavailable
 
 ## Next Best Opportunities
 
 - Improve real-world robustness of Instagram selectors
 - Improve YouTube thumbnail removal consistency on more page layouts
-- Add a small in-popup explanation for settings that disable related options automatically
 - Improve wording consistency and localization quality across popup and docs
+- Add lightweight inline help for more setting interactions beyond disabled-state explanations
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
 - Add browser-side safeguards around repeated redirects or site DOM churn
 - Refine support/donation flow UX

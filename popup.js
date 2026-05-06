@@ -29,6 +29,12 @@ const GROUP_DEPENDENCIES = {
   ]
 };
 
+const DISABLED_REASONS = {
+  instagramBlockAll: "Desactive car Instagram est entierement bloque.",
+  youtubeBlockAll: "Desactive car YouTube est entierement bloque.",
+  instagramRedirectHomeToInbox: "Disponible seulement quand le mode messages seulement est actif."
+};
+
 const statusNode = document.getElementById("status");
 const resetDefaultsButton = document.getElementById("reset-defaults");
 const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
@@ -36,6 +42,32 @@ const fieldMap = new Map(fields.map((field) => [field.name, field]));
 
 function renderStatus(message) {
   statusNode.textContent = message;
+}
+
+function setDisabledState(field, disabled, reason = "") {
+  field.disabled = disabled;
+  const toggle = field.closest(".toggle");
+
+  if (!toggle) {
+    return;
+  }
+
+  toggle.classList.toggle("is-disabled", disabled);
+
+  let note = toggle.querySelector(".dependency-note");
+
+  if (!disabled || !reason) {
+    note?.remove();
+    return;
+  }
+
+  if (!note) {
+    note = document.createElement("small");
+    note.className = "dependency-note";
+    toggle.querySelector("span")?.appendChild(note);
+  }
+
+  note.textContent = reason;
 }
 
 function applyDependencies() {
@@ -49,8 +81,7 @@ function applyDependencies() {
         return;
       }
 
-      field.disabled = locked;
-      field.closest(".toggle")?.classList.toggle("is-disabled", locked);
+      setDisabledState(field, locked, locked ? DISABLED_REASONS[masterName] : "");
     });
   });
 
@@ -59,8 +90,10 @@ function applyDependencies() {
   const redirectLocked = !instagramMessagesOnly?.checked || fieldMap.get("instagramBlockAll")?.checked;
 
   if (instagramRedirect) {
-    instagramRedirect.disabled = Boolean(redirectLocked);
-    instagramRedirect.closest(".toggle")?.classList.toggle("is-disabled", Boolean(redirectLocked));
+    const reason = fieldMap.get("instagramBlockAll")?.checked
+      ? DISABLED_REASONS.instagramBlockAll
+      : DISABLED_REASONS.instagramRedirectHomeToInbox;
+    setDisabledState(instagramRedirect, Boolean(redirectLocked), reason);
   }
 }
 
