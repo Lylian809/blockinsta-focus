@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added popup quick-open shortcuts for unsupported or browser-internal tabs so users can jump the current tab directly to Instagram, YouTube, or TikTok instead of hitting a dead-end when refresh is unavailable
 - Added active-tab site emphasis in the popup so the currently open supported site is highlighted directly in the settings UI, while unsupported or browser-internal tabs keep all site cards available with clearer context
 - Tightened the popup refresh action so it now enables reloading only on supported active tabs and clearly tells users to switch to Instagram, YouTube, or TikTok instead of offering a meaningless reload on unsupported pages
 - Made the popup refresh action aware of the active tab so it now identifies supported sites, explains when the current page is unsupported, and disables the reload button on browser-internal or otherwise non-reloadable tabs
@@ -59,6 +60,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Validate the new unsupported-tab quick-open shortcuts on supported tabs, unsupported tabs, and browser-owned pages so the popup guidance and current-tab navigation stay aligned with real Chromium behavior
 - Validate the new active-tab site emphasis against supported tabs, unsupported tabs, and browser-owned pages so the popup stays helpful without over-dimming unrelated site cards
 - Validate the supported-tab-only refresh card against already-open Instagram, YouTube, TikTok, and browser-owned tabs so popup feedback matches real Chromium behavior
 - Improve real-world robustness of Instagram selectors
@@ -74,6 +76,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The new unsupported-tab quick-open shortcuts depend on popup-side `chrome.tabs.update` behavior, so they still need browser-side validation to ensure the current tab is reused reliably from normal pages and browser-owned pages
 - The new active-tab site emphasis depends on popup-side tab detection and visual deemphasis, so it still needs browser-side validation to ensure unsupported-tab states remain readable and not misleading
 - Supported websites change their DOM frequently
 - Some copy is still split between English docs and French product UI

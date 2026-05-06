@@ -594,6 +594,56 @@ body {
   color: #245466;
 }
 
+.site-shortcuts {
+  margin: 12px 0 0;
+}
+
+.site-shortcuts-label {
+  margin: 0 0 10px;
+  color: #4f4660;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.site-shortcuts-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.site-shortcut-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(15, 95, 117, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #0f5f75;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+.site-shortcut-button:hover {
+  background: #ffffff;
+  border-color: rgba(15, 95, 117, 0.3);
+}
+
+.site-shortcut-button:active {
+  transform: translateY(1px);
+}
+
+.site-shortcut-button:disabled {
+  border-color: rgba(17, 24, 39, 0.08);
+  background: #f4f4f5;
+  color: #8a8a8a;
+  cursor: not-allowed;
+}
+
 .secondary-button {
   display: inline-flex;
   align-items: center;
@@ -630,6 +680,7 @@ body {
 
 .secondary-button:focus-visible,
 .support-button:focus-visible,
+.site-shortcut-button:focus-visible,
 .toggle input:focus-visible {
   outline: 2px solid rgba(74, 46, 200, 0.34);
   outline-offset: 2px;

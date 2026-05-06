@@ -57,9 +57,24 @@ const DISABLED_REASONS = {
   instagramRedirectHomeToInbox: "Disponible seulement quand le mode messages seulement est actif."
 };
 const SUPPORTED_TAB_SITES = [
-  { key: "instagram", label: "Instagram", matcher: (hostname) => hostname.includes("instagram.com") },
-  { key: "youtube", label: "YouTube", matcher: (hostname) => hostname.includes("youtube.com") },
-  { key: "tiktok", label: "TikTok", matcher: (hostname) => hostname.includes("tiktok.com") }
+  {
+    key: "instagram",
+    label: "Instagram",
+    homeUrl: "https://www.instagram.com/",
+    matcher: (hostname) => hostname.includes("instagram.com")
+  },
+  {
+    key: "youtube",
+    label: "YouTube",
+    homeUrl: "https://www.youtube.com/",
+    matcher: (hostname) => hostname.includes("youtube.com")
+  },
+  {
+    key: "tiktok",
+    label: "TikTok",
+    homeUrl: "https://www.tiktok.com/",
+    matcher: (hostname) => hostname.includes("tiktok.com")
+  }
 ];
 
 const statusNode = document.getElementById("status");
@@ -68,6 +83,7 @@ const resetDefaultsButton = document.getElementById("reset-defaults");
 const refreshActiveTabButton = document.getElementById("refresh-active-tab");
 const refreshStateCopyNode = document.getElementById("refresh-state-copy");
 const refreshTabContextNode = document.getElementById("refresh-tab-context");
+const siteShortcutsNode = document.getElementById("site-shortcuts");
 const defaultStateCopyNode = document.getElementById("default-state-copy");
 const summaryTitleNode = document.getElementById("summary-title");
 const summaryBodyNode = document.getElementById("summary-body");
@@ -93,6 +109,7 @@ const contextNoteNodes = {
 const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
 const fieldMap = new Map(fields.map((field) => [field.name, field]));
 const siteCards = Array.from(document.querySelectorAll(".site-card[data-group]"));
+const siteShortcutButtons = Array.from(document.querySelectorAll("[data-site-shortcut]"));
 
 let activeStorageArea = "sync";
 let screenReaderAnnouncementFrame = 0;
@@ -302,6 +319,7 @@ function renderRefreshState() {
   if (!activeTabContext.canReload) {
     refreshStateCopyNode.textContent = activeTabContext.reason;
     refreshActiveTabButton.disabled = true;
+    renderSiteShortcuts();
     return;
   }
 
@@ -310,8 +328,42 @@ function renderRefreshState() {
       ? `Recharge ${contextLabel} pour lui faire reprendre les r\u00E9glages stock\u00E9s localement sur cet appareil.`
       : `Recharge ${contextLabel} si la page \u00E9tait d\u00E9j\u00E0 ouverte avant Fokus ou n'a pas encore repris tes derniers r\u00E9glages.`;
     refreshActiveTabButton.disabled = false;
+    renderSiteShortcuts();
     return;
   }
+}
+
+function getSiteShortcutUrl(siteKey) {
+  const site = SUPPORTED_TAB_SITES.find((candidate) => candidate.key === siteKey);
+
+  if (!site) {
+    return "";
+  }
+
+  const currentSettings = getCurrentSettingsSnapshot();
+
+  if (
+    siteKey === "instagram" &&
+    currentSettings.instagramMessagesOnly &&
+    currentSettings.instagramRedirectHomeToInbox
+  ) {
+    return "https://www.instagram.com/direct/inbox/";
+  }
+
+  return site.homeUrl;
+}
+
+function renderSiteShortcuts() {
+  if (!siteShortcutsNode || !siteShortcutButtons.length) {
+    return;
+  }
+
+  const showShortcuts = !activeTabContext.isSupported;
+  siteShortcutsNode.hidden = !showShortcuts;
+
+  siteShortcutButtons.forEach((button) => {
+    button.disabled = !showShortcuts;
+  });
 }
 
 function renderActiveSiteState() {
@@ -836,6 +888,34 @@ async function refreshActiveTab() {
   }
 }
 
+async function openSupportedSite(event) {
+  const button = event.currentTarget;
+  const siteKey = button?.dataset.siteShortcut;
+  const site = SUPPORTED_TAB_SITES.find((candidate) => candidate.key === siteKey);
+
+  if (!site) {
+    return;
+  }
+
+  const targetUrl = getSiteShortcutUrl(site.key);
+
+  siteShortcutButtons.forEach((shortcutButton) => {
+    shortcutButton.disabled = true;
+  });
+
+  try {
+    await callTabs("update", { url: targetUrl });
+    renderStatus(`${site.label} ouvert dans l'onglet actif.`);
+    announceScreenReader(`${site.label} ouvert dans l'onglet actif.`);
+  } catch (error) {
+    renderStatus(`Impossible d'ouvrir ${site.label}.`);
+    announceScreenReader(`Impossible d'ouvrir ${site.label}.`);
+    console.error("Fokus: supported site shortcut failed", error);
+  } finally {
+    renderSiteShortcuts();
+  }
+}
+
 async function initialize() {
   try {
     await detectStorageArea();
@@ -850,6 +930,9 @@ async function initialize() {
     initializeFieldAccessibility();
     resetDefaultsButton?.addEventListener("click", resetDefaults);
     refreshActiveTabButton?.addEventListener("click", refreshActiveTab);
+    siteShortcutButtons.forEach((button) => {
+      button.addEventListener("click", openSupportedSite);
+    });
     applyDependencies();
     renderStatus(
       activeStorageArea === "local"
@@ -861,6 +944,10 @@ async function initialize() {
       field.disabled = true;
     });
     resetDefaultsButton?.setAttribute("disabled", "disabled");
+    refreshActiveTabButton?.setAttribute("disabled", "disabled");
+    siteShortcutButtons.forEach((button) => {
+      button.setAttribute("disabled", "disabled");
+    });
     renderStatus("Impossible de charger les r\u00E9glages.");
     console.error("Fokus: popup initialization failed", error);
   }
