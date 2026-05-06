@@ -72,7 +72,7 @@ async function saveSetting(event) {
   const field = event.target;
   await persistField(field);
   applyDependencies();
-  renderStatus("Parametres enregistres.");
+  renderStatus("Reglage enregistre.");
 }
 
 async function resetDefaults() {

@@ -20,6 +20,7 @@ Core principles:
 - TikTok full blocking option
 - Refined popup UI and branding
 - Popup support card and one-click reset to recommended Fokus defaults
+- Popup copy cleanup, clearer default-preset explanation, and accessible live status feedback
 - Chrome Web Store submission docs and privacy docs
 - Release packaging workflow
 - Fix for Instagram redirect throttling loop
@@ -29,14 +30,14 @@ Core principles:
 
 - Improve real-world robustness of Instagram selectors
 - Improve YouTube search-only behavior and thumbnail removal consistency
-- Improve wording consistency and localization quality across the popup and overlays
-- Add a lightweight first-run onboarding or preset explanation
+- Improve wording consistency and localization quality across the content-script overlays
+- Consider a dedicated first-run onboarding flow beyond the popup preset copy
 - Add browser-side safeguards around repeated redirects or site DOM churn
 - Refine support/donation flow UX
 
 ## Risks / Known Issues
 
 - Supported websites change their DOM frequently
-- Some UI copy still needs ongoing polish
+- Overlay copy still needs the same polish pass as the popup
 - Recurrent automation must avoid making low-value commits
 - Every change should stay small, safe, and genuinely useful
