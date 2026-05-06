@@ -101,6 +101,12 @@ More privacy notes:
 
 - see [PRIVACY.md](./PRIVACY.md)
 
+## Support Fokus
+
+If Fokus helps you, you can support the project here:
+
+- https://github.com/sponsors/Lylian809
+
 ## Project structure
 
 - `manifest.json` - extension manifest

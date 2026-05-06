@@ -19,6 +19,7 @@ Core principles:
 - YouTube thumbnail suppression and search-focused home mode
 - TikTok full blocking option
 - Refined popup UI and branding
+- Popup support card and one-click reset to recommended Fokus defaults
 - Chrome Web Store submission docs and privacy docs
 - Release packaging workflow
 - Fix for Instagram redirect throttling loop
@@ -28,8 +29,8 @@ Core principles:
 
 - Improve real-world robustness of Instagram selectors
 - Improve YouTube search-only behavior and thumbnail removal consistency
-- Add a lightweight options or onboarding experience
-- Improve wording consistency and localization quality
+- Improve wording consistency and localization quality across the popup and overlays
+- Add a lightweight first-run onboarding or preset explanation
 - Add browser-side safeguards around repeated redirects or site DOM churn
 - Refine support/donation flow UX
 

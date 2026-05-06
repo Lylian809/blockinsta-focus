@@ -241,6 +241,133 @@ body {
   cursor: not-allowed;
 }
 
+.support-card {
+  margin-bottom: 14px;
+  padding: 20px 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(74, 46, 200, 0.05) 0%, rgba(255, 255, 255, 1) 52%, rgba(74, 46, 200, 0.06) 100%);
+  box-shadow: 0 10px 26px rgba(10, 11, 36, 0.04);
+}
+
+.support-eyebrow {
+  margin: 0 0 6px;
+  color: var(--violet);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.support-card h2 {
+  margin: 0 0 8px;
+  color: #17131f;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.support-copy {
+  margin: 0 0 14px;
+  color: #554f60;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.support-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: var(--violet);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(74, 46, 200, 0.18);
+}
+
+.support-button:hover {
+  background: #3f26ae;
+}
+
+.action-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 26px rgba(10, 11, 36, 0.04);
+}
+
+.action-copy {
+  min-width: 0;
+}
+
+.action-eyebrow {
+  margin: 0 0 6px;
+  color: #6c647a;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.action-card h2 {
+  margin: 0 0 6px;
+  color: #17131f;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.action-text {
+  margin: 0;
+  color: #554f60;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 126px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid rgba(74, 46, 200, 0.2);
+  border-radius: 12px;
+  background: #f7f5ff;
+  color: var(--violet);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+.secondary-button:hover {
+  background: #efeafe;
+  border-color: rgba(74, 46, 200, 0.34);
+}
+
+.secondary-button:active {
+  transform: translateY(1px);
+}
+
+.secondary-button:focus-visible,
+.support-button:focus-visible,
+.toggle input:focus-visible {
+  outline: 2px solid rgba(74, 46, 200, 0.34);
+  outline-offset: 2px;
+}
+
 .footnote {
   margin: 8px 0 0;
   color: #8a8a8a;

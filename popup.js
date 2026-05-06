@@ -30,6 +30,7 @@ const GROUP_DEPENDENCIES = {
 };
 
 const statusNode = document.getElementById("status");
+const resetDefaultsButton = document.getElementById("reset-defaults");
 const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
 const fieldMap = new Map(fields.map((field) => [field.name, field]));
 
@@ -74,6 +75,17 @@ async function saveSetting(event) {
   renderStatus("Parametres enregistres.");
 }
 
+async function resetDefaults() {
+  await chrome.storage.sync.set(DEFAULT_SETTINGS);
+
+  fields.forEach((field) => {
+    field.checked = Boolean(DEFAULT_SETTINGS[field.name]);
+  });
+
+  applyDependencies();
+  renderStatus("Reglages Fokus reappliques.");
+}
+
 async function initialize() {
   const settings = await chrome.storage.sync.get(DEFAULT_SETTINGS);
 
@@ -82,6 +94,7 @@ async function initialize() {
     field.addEventListener("change", saveSetting);
   });
 
+  resetDefaultsButton?.addEventListener("click", resetDefaults);
   applyDependencies();
   renderStatus("Parametres charges.");
 }
