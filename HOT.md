@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Clarified Instagram popup logic so `Mode messages seulement` now disables redundant lower-level Instagram filters in the UI and removes them from the active protection recap, keeping the popup aligned with real effective behavior
 - Fixed the popup protection summary so stronger modes like full-site blocking no longer inflate the active protection count with disabled child toggles, keeping the recap aligned with the effective Fokus behavior
 - Normalized the YouTube search-only home note copy in `content.js` with Unicode escapes so this visible in-page Fokus message stays legible across editing environments
 - Normalized the remaining corrupted French copy in `content.js` overlays with Unicode escapes so shipped blocking messages stay legible across editing environments
@@ -46,6 +47,7 @@ Core principles:
 
 - Improve real-world robustness of Instagram selectors
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
+- Clean up visible encoding issues that still remain in contributor-facing docs like `README.md`
 - Continue normalizing any remaining user-facing French copy to encoding-safe patterns across docs and store assets
 - Add lightweight inline help for more setting interactions beyond the summary and per-site mode badges
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy

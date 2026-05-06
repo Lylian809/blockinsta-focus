@@ -26,12 +26,20 @@ const GROUP_DEPENDENCIES = {
   youtubeBlockAll: [
     "youtubeHideThumbnails",
     "youtubeSearchOnlyHome"
+  ],
+  instagramMessagesOnly: [
+    "instagramBlockReels",
+    "instagramBlockStories",
+    "instagramBlockExplore",
+    "instagramBlockFeed",
+    "instagramBlockSearch"
   ]
 };
 
 const DISABLED_REASONS = {
   instagramBlockAll: "D\u00E9sactiv\u00E9 car Instagram est enti\u00E8rement bloqu\u00E9.",
   youtubeBlockAll: "D\u00E9sactiv\u00E9 car YouTube est enti\u00E8rement bloqu\u00E9.",
+  instagramMessagesOnly: "D\u00E9sactiv\u00E9 car le mode messages seulement masque d\u00E9j\u00E0 ces surfaces.",
   instagramRedirectHomeToInbox: "Disponible seulement quand le mode messages seulement est actif."
 };
 
@@ -102,11 +110,11 @@ function getEffectiveSettings(settings) {
   return {
     ...settings,
     instagramMessagesOnly: settings.instagramBlockAll ? false : settings.instagramMessagesOnly,
-    instagramBlockReels: settings.instagramBlockAll ? false : settings.instagramBlockReels,
-    instagramBlockStories: settings.instagramBlockAll ? false : settings.instagramBlockStories,
-    instagramBlockExplore: settings.instagramBlockAll ? false : settings.instagramBlockExplore,
-    instagramBlockFeed: settings.instagramBlockAll ? false : settings.instagramBlockFeed,
-    instagramBlockSearch: settings.instagramBlockAll ? false : settings.instagramBlockSearch,
+    instagramBlockReels: settings.instagramBlockAll || settings.instagramMessagesOnly ? false : settings.instagramBlockReels,
+    instagramBlockStories: settings.instagramBlockAll || settings.instagramMessagesOnly ? false : settings.instagramBlockStories,
+    instagramBlockExplore: settings.instagramBlockAll || settings.instagramMessagesOnly ? false : settings.instagramBlockExplore,
+    instagramBlockFeed: settings.instagramBlockAll || settings.instagramMessagesOnly ? false : settings.instagramBlockFeed,
+    instagramBlockSearch: settings.instagramBlockAll || settings.instagramMessagesOnly ? false : settings.instagramBlockSearch,
     instagramRedirectHomeToInbox: settings.instagramBlockAll || !settings.instagramMessagesOnly
       ? false
       : settings.instagramRedirectHomeToInbox,
@@ -288,6 +296,24 @@ function applyDependencies() {
       setDisabledState(field, locked, locked ? DISABLED_REASONS[masterName] : "");
     });
   });
+
+  if (fieldMap.get("instagramBlockAll")?.checked) {
+    [
+      "instagramBlockReels",
+      "instagramBlockStories",
+      "instagramBlockExplore",
+      "instagramBlockFeed",
+      "instagramBlockSearch"
+    ].forEach((name) => {
+      const field = fieldMap.get(name);
+
+      if (!field) {
+        return;
+      }
+
+      setDisabledState(field, true, DISABLED_REASONS.instagramBlockAll);
+    });
+  }
 
   const instagramMessagesOnly = fieldMap.get("instagramMessagesOnly");
   const instagramRedirect = fieldMap.get("instagramRedirectHomeToInbox");
