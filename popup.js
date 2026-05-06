@@ -399,6 +399,35 @@ function getSiteShortcutUrl(siteKey) {
   return site.homeUrl;
 }
 
+function getSiteShortcutLabel(siteKey) {
+  const currentSettings = getCurrentSettingsSnapshot();
+
+  if (
+    siteKey === "instagram" &&
+    currentSettings.instagramMessagesOnly &&
+    currentSettings.instagramRedirectHomeToInbox
+  ) {
+    return "Messagerie Instagram";
+  }
+
+  const site = SUPPORTED_TAB_SITES.find((candidate) => candidate.key === siteKey);
+  return site?.label ?? siteKey;
+}
+
+function renderSiteShortcutLabels() {
+  siteShortcutButtons.forEach((button) => {
+    const siteKey = button.dataset.siteShortcut;
+
+    if (!siteKey) {
+      return;
+    }
+
+    const label = getSiteShortcutLabel(siteKey);
+    button.textContent = label;
+    button.setAttribute("aria-label", `Ouvrir ${label} dans l'onglet actif.`);
+  });
+}
+
 function renderSiteShortcuts() {
   if (!siteShortcutsNode || !siteShortcutButtons.length) {
     return;
@@ -406,6 +435,7 @@ function renderSiteShortcuts() {
 
   const showShortcuts = !activeTabContext.isSupported;
   siteShortcutsNode.hidden = !showShortcuts;
+  renderSiteShortcutLabels();
 
   siteShortcutButtons.forEach((button) => {
     button.disabled = !showShortcuts;
@@ -736,6 +766,7 @@ function renderSummary() {
   const effectiveSettings = getEffectiveSettings(currentSettings);
   const enabledCount = countActiveProtections(effectiveSettings);
 
+  renderSiteShortcutLabels();
   renderSiteModes(currentSettings);
   renderContextNotes(currentSettings);
 
