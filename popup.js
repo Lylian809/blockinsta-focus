@@ -52,6 +52,11 @@ const siteModeNodes = {
   youtube: document.getElementById("youtube-mode"),
   tiktok: document.getElementById("tiktok-mode")
 };
+const siteModeDetailNodes = {
+  instagram: document.getElementById("instagram-mode-detail"),
+  youtube: document.getElementById("youtube-mode-detail"),
+  tiktok: document.getElementById("tiktok-mode-detail")
+};
 const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
 const fieldMap = new Map(fields.map((field) => [field.name, field]));
 
@@ -212,11 +217,66 @@ function getTikTokMode(settings) {
     : { label: "Ouvert", tone: "off" };
 }
 
+function getInstagramModeDetail(settings) {
+  if (settings.instagramBlockAll) {
+    return "Aucun acc\u00E8s \u00E0 Instagram tant que ce blocage complet reste actif.";
+  }
+
+  if (settings.instagramMessagesOnly) {
+    return "Seule la messagerie reste accessible ; le reste d'Instagram est masqu\u00E9.";
+  }
+
+  const hiddenAreas = [
+    settings.instagramBlockStories && "Stories",
+    settings.instagramBlockReels && "Reels",
+    settings.instagramBlockExplore && "Explore",
+    settings.instagramBlockFeed && "feed",
+    settings.instagramBlockSearch && "recherche"
+  ].filter(Boolean);
+
+  if (!hiddenAreas.length) {
+    return "Tout Instagram reste accessible dans cette configuration.";
+  }
+
+  return `Instagram reste accessible, avec ${hiddenAreas.join(", ")} masqu\u00E9s.`;
+}
+
+function getYouTubeModeDetail(settings) {
+  if (settings.youtubeBlockAll) {
+    return "Aucun acc\u00E8s \u00E0 YouTube tant que ce blocage complet reste actif.";
+  }
+
+  if (settings.youtubeHideThumbnails && settings.youtubeSearchOnlyHome) {
+    return "YouTube reste accessible, mais les miniatures et l'accueil recommand\u00E9 sont masqu\u00E9s.";
+  }
+
+  if (settings.youtubeHideThumbnails) {
+    return "YouTube reste accessible, mais les miniatures sont masqu\u00E9es.";
+  }
+
+  if (settings.youtubeSearchOnlyHome) {
+    return "YouTube reste accessible, mais l'accueil recommand\u00E9 est masqu\u00E9.";
+  }
+
+  return "Tout YouTube reste accessible dans cette configuration.";
+}
+
+function getTikTokModeDetail(settings) {
+  return settings.tiktokBlockAll
+    ? "TikTok est enti\u00E8rement bloqu\u00E9 dans cette configuration."
+    : "TikTok reste accessible tant que le blocage complet n'est pas activ\u00E9.";
+}
+
 function renderSiteModes(settings) {
   const siteModes = {
     instagram: getInstagramMode(settings),
     youtube: getYouTubeMode(settings),
     tiktok: getTikTokMode(settings)
+  };
+  const siteModeDetails = {
+    instagram: getInstagramModeDetail(settings),
+    youtube: getYouTubeModeDetail(settings),
+    tiktok: getTikTokModeDetail(settings)
   };
 
   Object.entries(siteModeNodes).forEach(([site, node]) => {
@@ -228,6 +288,14 @@ function renderSiteModes(settings) {
     node.textContent = mode.label;
     node.classList.toggle("is-on", mode.tone === "on");
     node.classList.toggle("is-strong", mode.tone === "strong");
+  });
+
+  Object.entries(siteModeDetailNodes).forEach(([site, node]) => {
+    if (!node) {
+      return;
+    }
+
+    node.textContent = siteModeDetails[site];
   });
 }
 
