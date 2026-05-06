@@ -13,22 +13,30 @@
     "storage"
   ],
   "host_permissions": [
-    "https://www.instagram.com/*",
     "https://instagram.com/*",
-    "https://www.youtube.com/*",
+    "https://www.instagram.com/*",
+    "https://m.instagram.com/*",
     "https://youtube.com/*",
+    "https://www.youtube.com/*",
+    "https://m.youtube.com/*",
+    "https://music.youtube.com/*",
+    "https://tiktok.com/*",
     "https://www.tiktok.com/*",
-    "https://tiktok.com/*"
+    "https://m.tiktok.com/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "https://www.instagram.com/*",
         "https://instagram.com/*",
-        "https://www.youtube.com/*",
+        "https://www.instagram.com/*",
+        "https://m.instagram.com/*",
         "https://youtube.com/*",
+        "https://www.youtube.com/*",
+        "https://m.youtube.com/*",
+        "https://music.youtube.com/*",
+        "https://tiktok.com/*",
         "https://www.tiktok.com/*",
-        "https://tiktok.com/*"
+        "https://m.tiktok.com/*"
       ],
       "js": [
         "content.js"

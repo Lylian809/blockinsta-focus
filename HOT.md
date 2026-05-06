@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Expanded manifest host matching to cover common user-facing subdomains like m.instagram.com, m.youtube.com, music.youtube.com, and m.tiktok.com so Fokus runs on more real-world entry points
 - Multi-platform blocking support for Instagram, YouTube, and TikTok
 - Instagram messages-only flow
 - YouTube thumbnail suppression and search-focused home mode
@@ -35,6 +36,7 @@ Core principles:
 
 - Improve real-world robustness of Instagram selectors
 - Improve YouTube thumbnail removal consistency on more page layouts
+- Add a small in-popup explanation for settings that disable related options automatically
 - Improve wording consistency and localization quality across popup and docs
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
 - Add browser-side safeguards around repeated redirects or site DOM churn
@@ -44,6 +46,7 @@ Core principles:
 
 - Supported websites change their DOM frequently
 - Some copy is still split between English docs and French product UI
+- Wider host coverage means more mobile and alternate web variants are reached, so selector drift across those surfaces needs periodic regression checks
 - YouTube search-only mode still depends on DOM selectors that may vary across experiments and logged-in layouts
 - Recurrent automation must avoid making low-value commits
 - The new regression checklist is manual for now, so its value still depends on consistent use before release

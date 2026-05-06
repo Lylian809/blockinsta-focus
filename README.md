@@ -92,8 +92,15 @@ Current permissions:
 Current host access:
 
 - `instagram.com`
+- `www.instagram.com`
+- `m.instagram.com`
 - `youtube.com`
+- `www.youtube.com`
+- `m.youtube.com`
+- `music.youtube.com`
 - `tiktok.com`
+- `www.tiktok.com`
+- `m.tiktok.com`
 
 The extension stores only local user preferences such as enabled or disabled blocking options.
 
@@ -129,6 +136,7 @@ Any Chromium-based browser with Manifest V3 support should work.
 - Instagram, YouTube, and TikTok change their DOM regularly
 - some selectors may need updates over time
 - this extension is optimized for the web versions of these platforms
+- host coverage now includes the main mobile and alternate web entry points, but UI blocking still depends on each site's DOM structure
 
 ## Publish to the Chrome Web Store
 
