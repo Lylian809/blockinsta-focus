@@ -16,6 +16,8 @@ const DEFAULT_SETTINGS = {
 const SITE = detectSite();
 const STYLE_ID = "focus-shield-style";
 const OVERLAY_ID = "focus-shield-overlay";
+const OVERLAY_TITLE_ID = "focus-shield-overlay-title";
+const OVERLAY_BODY_ID = "focus-shield-overlay-body";
 const YOUTUBE_HOME_NOTE_ID = "focus-shield-youtube-home-note";
 const HIDDEN_ATTR = "data-focus-shield-hidden";
 const INBOX_PATH = "/direct/inbox/";
@@ -346,6 +348,10 @@ function ensureOverlay() {
   if (!overlay) {
     overlay = document.createElement("div");
     overlay.id = OVERLAY_ID;
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-live", "assertive");
+    overlay.tabIndex = -1;
     overlay.hidden = true;
     document.documentElement.appendChild(overlay);
   }
@@ -359,6 +365,8 @@ function ensureYouTubeHomeNote() {
   if (!note) {
     note = document.createElement("div");
     note.id = YOUTUBE_HOME_NOTE_ID;
+    note.setAttribute("role", "status");
+    note.setAttribute("aria-live", "polite");
     note.hidden = true;
     document.documentElement.appendChild(note);
   }
@@ -391,14 +399,27 @@ function renderOverlay({ title, body, detail, note, ctaHref, ctaLabel }) {
   overlay.innerHTML = `
     <div class="focus-shield-card">
       <p class="focus-shield-eyebrow">Fokus</p>
-      <h1>${title}</h1>
-      <p>${body}</p>
+      <h1 id="${OVERLAY_TITLE_ID}">${title}</h1>
+      <p id="${OVERLAY_BODY_ID}">${body}</p>
       ${detail ? `<p class="focus-shield-detail">${detail}</p>` : ""}
       ${linkMarkup ? `<div class="focus-shield-actions">${linkMarkup}</div>` : ""}
       ${note ? `<p class="focus-shield-note">${note}</p>` : ""}
     </div>
   `;
+  overlay.setAttribute("aria-labelledby", OVERLAY_TITLE_ID);
+  overlay.setAttribute("aria-describedby", OVERLAY_BODY_ID);
   overlay.hidden = false;
+
+  requestAnimationFrame(() => {
+    const primaryAction = overlay.querySelector("a");
+
+    if (primaryAction instanceof HTMLElement) {
+      primaryAction.focus();
+      return;
+    }
+
+    overlay.focus();
+  });
 }
 
 function hideOverlay() {

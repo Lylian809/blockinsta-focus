@@ -19,6 +19,7 @@ Test on a Chromium browser with the unpacked extension reloaded.
 ## Instagram
 
 - `Bloquer completement Instagram` shows the Fokus blocking overlay
+- The Instagram blocking overlay takes keyboard focus and announces its main message clearly
 - `Mode messages seulement` allows `/direct/inbox/`
 - `Mode messages seulement` blocks the home feed with the messaging CTA
 - `Rediriger vers les messages` sends blocked Instagram pages to `/direct/inbox/`
@@ -31,11 +32,13 @@ Test on a Chromium browser with the unpacked extension reloaded.
 ## YouTube
 
 - `Bloquer completement YouTube` shows the Fokus blocking overlay
+- The YouTube blocking overlay takes keyboard focus and announces its main message clearly
 - `Supprimer les miniatures` removes thumbnails on the home feed
 - `Supprimer les miniatures` removes thumbnails on search results
 - `Supprimer les miniatures` removes thumbnails on sidebar recommendations
 - `Accueil en mode recherche uniquement` hides the home recommendations
 - `Accueil en mode recherche uniquement` shows the calm home note on `/`
+- The calm home note is announced as a passive status update rather than trapping focus
 - Video watch pages remain usable when YouTube is not fully blocked
 
 ## TikTok
