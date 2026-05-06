@@ -13,6 +13,20 @@ const DEFAULT_SETTINGS = {
   tiktokBlockAll: false
 };
 
+const COUNTED_PROTECTION_SETTINGS = [
+  "instagramBlockAll",
+  "instagramMessagesOnly",
+  "instagramBlockReels",
+  "instagramBlockStories",
+  "instagramBlockExplore",
+  "instagramBlockFeed",
+  "instagramBlockSearch",
+  "youtubeBlockAll",
+  "youtubeHideThumbnails",
+  "youtubeSearchOnlyHome",
+  "tiktokBlockAll"
+];
+
 const GROUP_DEPENDENCIES = {
   instagramBlockAll: [
     "instagramMessagesOnly",
@@ -139,6 +153,13 @@ function getEffectiveSettings(settings) {
     youtubeHideThumbnails: settings.youtubeBlockAll ? false : settings.youtubeHideThumbnails,
     youtubeSearchOnlyHome: settings.youtubeBlockAll ? false : settings.youtubeSearchOnlyHome
   };
+}
+
+function countActiveProtections(settings) {
+  return COUNTED_PROTECTION_SETTINGS.reduce(
+    (count, name) => count + (settings[name] ? 1 : 0),
+    0
+  );
 }
 
 function getInstagramSummary(settings) {
@@ -350,7 +371,7 @@ function renderSummary() {
 
   const currentSettings = getCurrentSettingsSnapshot();
   const effectiveSettings = getEffectiveSettings(currentSettings);
-  const enabledCount = Object.values(effectiveSettings).filter(Boolean).length;
+  const enabledCount = countActiveProtections(effectiveSettings);
 
   renderSiteModes(currentSettings);
   renderContextNotes(currentSettings);

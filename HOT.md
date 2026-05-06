@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Fixed the popup protection headline so helper behavior like Instagram redirect-to-inbox no longer counts as a separate active protection, keeping the summary metric aligned with the real blocking and filtering currently in effect
 - Added live contextual help under the Instagram and YouTube popup controls so users now see the real effect of redirect-to-inbox and search-only home settings without having to infer why pages redirect or look intentionally empty
 - Cleaned up contributor-facing release docs so the README and Chrome Web Store submission instructions no longer show corrupted TikTok copy or stale `0.2.2` release ZIP references
 - Added a live preset-status badge and note inside the popup summary card so users can see immediately whether they are still on the recommended Fokus setup or have drifted into a custom configuration
@@ -53,6 +54,7 @@ Core principles:
 - Improve real-world robustness of Instagram selectors
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
 - Continue normalizing any remaining user-facing French copy to encoding-safe patterns across docs and store assets
+- Review popup summary metrics whenever new helper-only options are added so status counts stay tied to real focus protections
 - Add similar inline help for any future cross-toggle dependencies that become non-obvious in the popup
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
 - Add browser-side safeguards around repeated redirects or site DOM churn
@@ -63,6 +65,7 @@ Core principles:
 - Supported websites change their DOM frequently
 - Some copy is still split between English docs and French product UI
 - Terminal rendering can still make some UTF-8 text look noisier than it is, so copy edits should keep favoring encoding-safe patterns for shipped French strings
+- Helper settings can be easy to misclassify in popup summaries, so derived UI metrics need explicit review whenever settings evolve
 - Wider host coverage means more mobile and alternate web variants are reached, so selector drift across those surfaces needs periodic regression checks
 - YouTube search-only mode and thumbnail hiding still depend on DOM selectors that may vary across experiments and logged-in layouts
 - Recurrent automation must avoid making low-value commits

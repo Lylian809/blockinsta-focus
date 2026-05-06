@@ -9,6 +9,7 @@ Test on a Chromium browser with the unpacked extension reloaded.
 - Popup opens without layout break on Chrome or Brave
 - Current saved toggles render correctly on first open
 - Per-site mode badges match the saved state for Instagram, YouTube, and TikTok
+- The popup protection count reflects only real blocking or filtering protections, not helper behavior like Instagram redirect-to-inbox
 - Changing one toggle updates the status message
 - `Bloquer completement Instagram` disables the Instagram sub-options
 - `Mode messages seulement` enables or disables `Rediriger vers les messages` correctly
