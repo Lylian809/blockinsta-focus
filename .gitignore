@@ -4,3 +4,5 @@ Thumbs.db
 .DS_Store
 taap-*.css
 taap-*.html
+logs/
+.recurring-lock/
