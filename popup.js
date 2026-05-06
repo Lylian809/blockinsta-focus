@@ -73,6 +73,7 @@ const summaryTitleNode = document.getElementById("summary-title");
 const summaryBodyNode = document.getElementById("summary-body");
 const summaryStorageBadgeNode = document.getElementById("summary-storage-badge");
 const summaryStorageNoteNode = document.getElementById("summary-storage-note");
+const summaryTabNoteNode = document.getElementById("summary-tab-note");
 const summaryPresetBadgeNode = document.getElementById("summary-preset-badge");
 const summaryPresetNoteNode = document.getElementById("summary-preset-note");
 const siteModeNodes = {
@@ -91,6 +92,7 @@ const contextNoteNodes = {
 };
 const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
 const fieldMap = new Map(fields.map((field) => [field.name, field]));
+const siteCards = Array.from(document.querySelectorAll(".site-card[data-group]"));
 
 let activeStorageArea = "sync";
 let screenReaderAnnouncementFrame = 0;
@@ -310,6 +312,44 @@ function renderRefreshState() {
     refreshActiveTabButton.disabled = false;
     return;
   }
+}
+
+function renderActiveSiteState() {
+  const activeSiteKey = activeTabContext.isSupported ? activeTabContext.siteKey : null;
+
+  siteCards.forEach((card) => {
+    const isActiveSite = card.dataset.group === activeSiteKey;
+    const hasSupportedContext = Boolean(activeSiteKey);
+
+    card.classList.toggle("is-active-site", isActiveSite);
+    card.classList.toggle("is-inactive-site", hasSupportedContext && !isActiveSite);
+    if (isActiveSite) {
+      card.setAttribute("aria-current", "true");
+    } else {
+      card.removeAttribute("aria-current");
+    }
+  });
+
+  if (!summaryTabNoteNode) {
+    return;
+  }
+
+  if (activeSiteKey) {
+    summaryTabNoteNode.textContent = `Onglet actuel : ${activeTabContext.label}. Cette carte est mise en avant ci-dessous pour te permettre d'ajuster le bon site plus vite.`;
+    return;
+  }
+
+  if (activeTabContext.label === "page interne") {
+    summaryTabNoteNode.textContent = "Onglet actuel : page interne du navigateur. Fokus laisse toutes les cartes visibles car aucun site pris en charge n'est ouvert.";
+    return;
+  }
+
+  if (activeTabContext.label === "introuvable") {
+    summaryTabNoteNode.textContent = "Fokus ne rep\u00E8re pas l'onglet actif ; les r\u00E9glages restent disponibles pour Instagram, YouTube et TikTok.";
+    return;
+  }
+
+  summaryTabNoteNode.textContent = `Onglet actuel : ${activeTabContext.label}. Fokus garde les trois cartes visibles car ce site n'est pas encore pris en charge.`;
 }
 
 function getStorageArea(areaName = activeStorageArea) {
@@ -647,6 +687,7 @@ function renderDefaultPresetState() {
     : "Ta configuration s'\u00E9carte du pr\u00E9r\u00E9glage Fokus recommand\u00E9.";
   renderStorageSummaryState();
   renderPresetSummaryState();
+  renderActiveSiteState();
   renderRefreshState();
 }
 

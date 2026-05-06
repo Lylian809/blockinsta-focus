@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added active-tab site emphasis in the popup so the currently open supported site is highlighted directly in the settings UI, while unsupported or browser-internal tabs keep all site cards available with clearer context
 - Tightened the popup refresh action so it now enables reloading only on supported active tabs and clearly tells users to switch to Instagram, YouTube, or TikTok instead of offering a meaningless reload on unsupported pages
 - Made the popup refresh action aware of the active tab so it now identifies supported sites, explains when the current page is unsupported, and disables the reload button on browser-internal or otherwise non-reloadable tabs
 - Added a one-click active-tab refresh action in the popup so users can re-apply Fokus immediately on already-open pages or stale tabs without manually refreshing the site
@@ -58,6 +59,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Validate the new active-tab site emphasis against supported tabs, unsupported tabs, and browser-owned pages so the popup stays helpful without over-dimming unrelated site cards
 - Validate the supported-tab-only refresh card against already-open Instagram, YouTube, TikTok, and browser-owned tabs so popup feedback matches real Chromium behavior
 - Improve real-world robustness of Instagram selectors
 - Verify the new local-storage fallback UI against a browser profile where `chrome.storage.sync` is unavailable so the popup copy stays accurate and non-intrusive
@@ -72,6 +74,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The new active-tab site emphasis depends on popup-side tab detection and visual deemphasis, so it still needs browser-side validation to ensure unsupported-tab states remain readable and not misleading
 - Supported websites change their DOM frequently
 - Some copy is still split between English docs and French product UI
 - The supported-tab-only refresh action depends on popup-side `chrome.tabs.query` and `chrome.tabs.reload` behavior, so it still needs browser-side validation on supported tabs and browser-owned pages
