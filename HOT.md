@@ -32,11 +32,12 @@ Core principles:
 - YouTube search-only home mode now explains the empty homepage state instead of leaving users on an ambiguous blank screen
 - Added a browser regression checklist for popup, Instagram, YouTube, and TikTok flows to reduce accidental release regressions
 - Popup settings that are disabled by stronger Fokus modes now explain why instead of appearing silently unavailable
+- Fixed a malformed YouTube thumbnail selector so Fokus now hides preview images on more lockup-style YouTube cards
 
 ## Next Best Opportunities
 
 - Improve real-world robustness of Instagram selectors
-- Improve YouTube thumbnail removal consistency on more page layouts
+- Continue checking YouTube thumbnail removal consistency on additional experimental layouts
 - Improve wording consistency and localization quality across popup and docs
 - Add lightweight inline help for more setting interactions beyond disabled-state explanations
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
@@ -48,7 +49,7 @@ Core principles:
 - Supported websites change their DOM frequently
 - Some copy is still split between English docs and French product UI
 - Wider host coverage means more mobile and alternate web variants are reached, so selector drift across those surfaces needs periodic regression checks
-- YouTube search-only mode still depends on DOM selectors that may vary across experiments and logged-in layouts
+- YouTube search-only mode and thumbnail hiding still depend on DOM selectors that may vary across experiments and logged-in layouts
 - Recurrent automation must avoid making low-value commits
 - The new regression checklist is manual for now, so its value still depends on consistent use before release
 - Every change should stay small, safe, and genuinely useful

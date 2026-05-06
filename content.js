@@ -57,7 +57,7 @@ const YOUTUBE_SELECTORS = {
     "a#thumbnail",
     "yt-image-banner-view-model",
     "ytd-playlist-thumbnail",
-    "yt-lockup-view-model-wiz__content-image",
+    ".yt-lockup-view-model-wiz__content-image",
     "yt-thumbnail-view-model",
     "ytd-hero-playlist-thumbnail",
     "ytd-reel-shelf-renderer"
@@ -111,6 +111,7 @@ function ensureStyle() {
     body.focus-shield-youtube-thumbnails-off a#thumbnail,
     body.focus-shield-youtube-thumbnails-off yt-image-banner-view-model,
     body.focus-shield-youtube-thumbnails-off ytd-playlist-thumbnail,
+    body.focus-shield-youtube-thumbnails-off .yt-lockup-view-model-wiz__content-image,
     body.focus-shield-youtube-thumbnails-off yt-thumbnail-view-model,
     body.focus-shield-youtube-thumbnails-off ytd-hero-playlist-thumbnail {
       display: none !important;
