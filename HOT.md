@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added per-site mode badges in the popup so users can see at a glance whether Instagram is blocked, messages-only, filtered, or open without scanning every toggle
 - Added a storage fallback from `chrome.storage.sync` to `chrome.storage.local` so Fokus settings still load, save, and sync within the open popup even when sync storage is unavailable
 - Added a compact popup configuration summary so users can understand the currently active Fokus protections at a glance instead of parsing every toggle
 - Polished the French user-facing copy in the popup and in-page Fokus overlays so the extension feels more deliberate and less rough in everyday use
@@ -43,7 +44,7 @@ Core principles:
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
 - Normalize product copy encoding so French accents render consistently across source files, docs, and popup strings
 - Continue improving wording consistency and localization quality across docs and store assets
-- Add lightweight inline help for more setting interactions beyond the new high-level summary
+- Add lightweight inline help for more setting interactions beyond the summary and per-site mode badges
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
 - Add browser-side safeguards around repeated redirects or site DOM churn
 - Refine support/donation flow UX

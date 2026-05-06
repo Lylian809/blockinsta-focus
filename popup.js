@@ -39,6 +39,11 @@ const statusNode = document.getElementById("status");
 const resetDefaultsButton = document.getElementById("reset-defaults");
 const summaryTitleNode = document.getElementById("summary-title");
 const summaryBodyNode = document.getElementById("summary-body");
+const siteModeNodes = {
+  instagram: document.getElementById("instagram-mode"),
+  youtube: document.getElementById("youtube-mode"),
+  tiktok: document.getElementById("tiktok-mode")
+};
 const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
 const fieldMap = new Map(fields.map((field) => [field.name, field]));
 
@@ -138,6 +143,69 @@ function getTikTokSummary(settings) {
   return settings.tiktokBlockAll ? "TikTok coup\u00E9." : "TikTok libre.";
 }
 
+function getInstagramMode(settings) {
+  if (settings.instagramBlockAll) {
+    return { label: "Bloqu\u00E9", tone: "strong" };
+  }
+
+  if (settings.instagramMessagesOnly) {
+    return { label: "Messages seulement", tone: "on" };
+  }
+
+  const hasFiltering = [
+    settings.instagramBlockStories,
+    settings.instagramBlockReels,
+    settings.instagramBlockExplore,
+    settings.instagramBlockFeed,
+    settings.instagramBlockSearch
+  ].some(Boolean);
+
+  return hasFiltering
+    ? { label: "All\u00E9g\u00E9", tone: "on" }
+    : { label: "Ouvert", tone: "off" };
+}
+
+function getYouTubeMode(settings) {
+  if (settings.youtubeBlockAll) {
+    return { label: "Bloqu\u00E9", tone: "strong" };
+  }
+
+  if (settings.youtubeHideThumbnails && settings.youtubeSearchOnlyHome) {
+    return { label: "Prot\u00E9g\u00E9", tone: "on" };
+  }
+
+  if (settings.youtubeHideThumbnails || settings.youtubeSearchOnlyHome) {
+    return { label: "All\u00E9g\u00E9", tone: "on" };
+  }
+
+  return { label: "Ouvert", tone: "off" };
+}
+
+function getTikTokMode(settings) {
+  return settings.tiktokBlockAll
+    ? { label: "Bloqu\u00E9", tone: "strong" }
+    : { label: "Ouvert", tone: "off" };
+}
+
+function renderSiteModes(settings) {
+  const siteModes = {
+    instagram: getInstagramMode(settings),
+    youtube: getYouTubeMode(settings),
+    tiktok: getTikTokMode(settings)
+  };
+
+  Object.entries(siteModeNodes).forEach(([site, node]) => {
+    if (!node) {
+      return;
+    }
+
+    const mode = siteModes[site];
+    node.textContent = mode.label;
+    node.classList.toggle("is-on", mode.tone === "on");
+    node.classList.toggle("is-strong", mode.tone === "strong");
+  });
+}
+
 function renderSummary() {
   if (!summaryTitleNode || !summaryBodyNode) {
     return;
@@ -145,6 +213,8 @@ function renderSummary() {
 
   const currentSettings = getCurrentSettingsSnapshot();
   const enabledCount = Object.values(currentSettings).filter(Boolean).length;
+
+  renderSiteModes(currentSettings);
 
   if (enabledCount === 0) {
     summaryTitleNode.textContent = "Aucune protection active.";
