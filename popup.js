@@ -76,6 +76,7 @@ const SUPPORTED_TAB_SITES = [
     matcher: (hostname) => hostname.includes("tiktok.com")
   }
 ];
+const ACTIVE_TAB_CONTEXT_REFRESH_DELAY_MS = 350;
 
 const statusNode = document.getElementById("status");
 const srStatusNode = document.getElementById("sr-status");
@@ -113,6 +114,7 @@ const siteShortcutButtons = Array.from(document.querySelectorAll("[data-site-sho
 
 let activeStorageArea = "sync";
 let screenReaderAnnouncementFrame = 0;
+let activeTabContextRefreshTimeout = 0;
 let activeTabContext = {
   canReload: false,
   isSupported: false,
@@ -255,59 +257,99 @@ function setActiveTabContextForSupportedSite(site) {
   };
 }
 
+function getMissingActiveTabContext() {
+  return {
+    canReload: false,
+    isSupported: false,
+    label: "introuvable",
+    siteKey: null,
+    reason: "Fokus ne trouve pas d'onglet actif rechargeable dans cette fen\u00EAtre."
+  };
+}
+
+function getUnavailableActiveTabContext() {
+  return {
+    canReload: false,
+    isSupported: false,
+    label: "cet onglet",
+    siteKey: null,
+    reason: "Fokus ne peut pas identifier l'onglet actuel. Ouvre un onglet Instagram, YouTube ou TikTok puis r\u00E9essaie."
+  };
+}
+
+function getActiveTabContextFromUrl(url) {
+  if (!url) {
+    return getMissingActiveTabContext();
+  }
+
+  const parsedUrl = new URL(url);
+
+  if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+    return {
+      canReload: false,
+      isSupported: false,
+      label: "page interne",
+      siteKey: null,
+      reason: "Les pages internes du navigateur ou les onglets sp\u00E9ciaux ne peuvent pas \u00EAtre recharg\u00E9s utilement depuis Fokus."
+    };
+  }
+
+  const supportedSite = getSupportedTabSite(parsedUrl.hostname);
+
+  if (supportedSite) {
+    return {
+      canReload: true,
+      isSupported: true,
+      label: supportedSite.label,
+      siteKey: supportedSite.key,
+      reason: ""
+    };
+  }
+
+  return {
+    canReload: false,
+    isSupported: false,
+    label: parsedUrl.hostname.replace(/^www\./, ""),
+    siteKey: null,
+    reason: "Cet onglet n'utilise pas un site pris en charge par Fokus. Ouvre Instagram, YouTube ou TikTok pour appliquer un rechargement utile."
+  };
+}
+
+function setActiveTabContextFromTab(tab) {
+  const url = tab?.pendingUrl || tab?.url || "";
+
+  if (!url) {
+    activeTabContext = getMissingActiveTabContext();
+    return false;
+  }
+
+  activeTabContext = getActiveTabContextFromUrl(url);
+  return true;
+}
+
 async function detectActiveTabContext() {
   try {
     const tabs = await callTabs("query", { active: true, lastFocusedWindow: true });
     const tab = Array.isArray(tabs) ? tabs[0] : null;
-    const url = tab?.pendingUrl || tab?.url || "";
-
-    if (!url) {
-      activeTabContext = {
-        canReload: false,
-        isSupported: false,
-        label: "introuvable",
-        siteKey: null,
-        reason: "Fokus ne trouve pas d'onglet actif rechargeable dans cette fen\u00EAtre."
-      };
-      return;
-    }
-
-    const parsedUrl = new URL(url);
-
-    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
-      activeTabContext = {
-        canReload: false,
-        isSupported: false,
-        label: "page interne",
-        siteKey: null,
-        reason: "Les pages internes du navigateur ou les onglets sp\u00E9ciaux ne peuvent pas \u00EAtre recharg\u00E9s utilement depuis Fokus."
-      };
-      return;
-    }
-
-    const supportedSite = getSupportedTabSite(parsedUrl.hostname);
-
-    if (supportedSite) {
-      setActiveTabContextForSupportedSite(supportedSite);
-      return;
-    }
-
-    activeTabContext = {
-      canReload: false,
-      isSupported: false,
-      label: parsedUrl.hostname.replace(/^www\./, ""),
-      siteKey: null,
-      reason: "Cet onglet n'utilise pas un site pris en charge par Fokus. Ouvre Instagram, YouTube ou TikTok pour appliquer un rechargement utile."
-    };
+    setActiveTabContextFromTab(tab);
   } catch (error) {
-    activeTabContext = {
-      canReload: false,
-      isSupported: false,
-      label: "cet onglet",
-      siteKey: null,
-      reason: "Fokus ne peut pas identifier l'onglet actuel. Ouvre un onglet Instagram, YouTube ou TikTok puis r\u00E9essaie."
-    };
+    activeTabContext = getUnavailableActiveTabContext();
   }
+}
+
+async function refreshActiveTabContext() {
+  await detectActiveTabContext();
+  renderActiveSiteState();
+  renderRefreshState();
+}
+
+function scheduleActiveTabContextRefresh(delay = ACTIVE_TAB_CONTEXT_REFRESH_DELAY_MS) {
+  clearTimeout(activeTabContextRefreshTimeout);
+  activeTabContextRefreshTimeout = window.setTimeout(() => {
+    refreshActiveTabContext().catch((error) => {
+      console.error("Fokus: active tab context refresh failed", error);
+    });
+  }, delay);
 }
 
 function renderRefreshState() {
@@ -908,10 +950,15 @@ async function openSupportedSite(event) {
   });
 
   try {
-    await callTabs("update", { url: targetUrl });
-    setActiveTabContextForSupportedSite(site);
+    const updatedTab = await callTabs("update", { url: targetUrl });
+
+    if (!setActiveTabContextFromTab(updatedTab)) {
+      setActiveTabContextForSupportedSite(site);
+    }
+
     renderActiveSiteState();
     renderRefreshState();
+    scheduleActiveTabContextRefresh();
     renderStatus(`${site.label} ouvert dans l'onglet actif.`);
     announceScreenReader(`${site.label} ouvert dans l'onglet actif.`);
   } catch (error) {

@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Reconciled popup active-tab context against the real tab URL after quick-open navigation, so active-site emphasis, refresh guidance, and unsupported-tab recovery now settle back to Chromium's actual destination instead of relying only on optimistic popup state
 - Kept the popup active-tab context in sync immediately after using an unsupported-tab quick-open shortcut, so the refresh card, summary note, and active-site emphasis now switch to the newly opened Instagram, YouTube, or TikTok tab state without requiring the popup to be reopened
 - Added popup quick-open shortcuts for unsupported or browser-internal tabs so users can jump the current tab directly to Instagram, YouTube, or TikTok instead of hitting a dead-end when refresh is unavailable
 - Added active-tab site emphasis in the popup so the currently open supported site is highlighted directly in the settings UI, while unsupported or browser-internal tabs keep all site cards available with clearer context
@@ -61,7 +62,7 @@ Core principles:
 
 ## Next Best Opportunities
 
-- Validate the now-synced unsupported-tab quick-open flow on supported tabs, unsupported tabs, and browser-owned pages so the popup's optimistic active-tab state still matches real Chromium navigation timing
+- Validate the reconciled quick-open flow on supported tabs, unsupported tabs, and browser-owned pages so the popup's delayed URL re-check still matches real Chromium navigation timing on slower transitions
 - Validate the new active-tab site emphasis against supported tabs, unsupported tabs, and browser-owned pages so the popup stays helpful without over-dimming unrelated site cards
 - Validate the supported-tab-only refresh card against already-open Instagram, YouTube, TikTok, and browser-owned tabs so popup feedback matches real Chromium behavior
 - Improve real-world robustness of Instagram selectors
@@ -77,7 +78,7 @@ Core principles:
 
 ## Risks / Known Issues
 
-- The unsupported-tab quick-open flow now updates popup context optimistically after `chrome.tabs.update`, so it still needs browser-side validation to ensure Chromium navigation timing does not leave the popup briefly out of sync on slower tab transitions
+- The unsupported-tab quick-open flow now does an optimistic switch plus a delayed real-URL reconciliation after `chrome.tabs.update`, so it still needs browser-side validation to ensure Chromium navigation timing does not leave the popup briefly out of sync on slower tab transitions
 - The new active-tab site emphasis depends on popup-side tab detection and visual deemphasis, so it still needs browser-side validation to ensure unsupported-tab states remain readable and not misleading
 - Supported websites change their DOM frequently
 - Some copy is still split between English docs and French product UI
