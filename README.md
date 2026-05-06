@@ -62,7 +62,7 @@ Examples:
 
 - Instagram: enable `Mode messages seulement`
 - YouTube: enable `Supprimer les miniatures`
-- TikTok: enable `Bloquer complètement TikTok`
+- TikTok: enable `Bloquer completement TikTok`
 
 ## How it works
 

@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Cleaned up contributor-facing release docs so the README and Chrome Web Store submission instructions no longer show corrupted TikTok copy or stale `0.2.2` release ZIP references
 - Added a live preset-status badge and note inside the popup summary card so users can see immediately whether they are still on the recommended Fokus setup or have drifted into a custom configuration
 - Added a stateful default-preset note in the popup so the reset card now tells users whether the recommended Fokus configuration is already active and disables the reset button when it would do nothing
 - Added live per-site mode explanations in the popup so each Instagram, YouTube, and TikTok card now states plainly what remains accessible in the current configuration instead of relying only on badges and scattered toggles
@@ -50,7 +51,6 @@ Core principles:
 
 - Improve real-world robustness of Instagram selectors
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
-- Clean up visible encoding issues that still remain in contributor-facing docs like `README.md`
 - Continue normalizing any remaining user-facing French copy to encoding-safe patterns across docs and store assets
 - Add lightweight inline help for specific toggle interactions such as redirect behavior and YouTube search-only nuances
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy

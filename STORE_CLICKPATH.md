@@ -12,13 +12,13 @@ Make sure you have:
 
 Recommended file:
 
-- `dist/Fokus-v0.2.2-store.zip`
+- `dist/Fokus-v0.2.3-store.zip`
 
 ## Exact steps
 
 1. Open the Chrome Web Store Developer Dashboard
 2. Click `Add new item`
-3. Upload `Fokus-v0.2.2-store.zip`
+3. Upload `Fokus-v0.2.3-store.zip`
 4. Wait for the draft item to be created
 5. Open the draft listing
 
@@ -65,7 +65,7 @@ Check:
 
 - the ZIP opens correctly
 - `manifest.json` is at the ZIP root
-- the version matches `0.2.2`
+- the version matches `0.2.3`
 - the extension loads locally
 - the privacy form matches the real code
 

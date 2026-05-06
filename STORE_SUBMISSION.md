@@ -91,7 +91,7 @@ No.
    - open `https://www.youtube.com/`
    - confirm thumbnails are hidden
 5. On TikTok:
-   - enable `Bloquer complètement TikTok`
+   - enable `Bloquer completement TikTok`
    - open `https://www.tiktok.com/`
    - confirm the site is blocked by the extension
 
