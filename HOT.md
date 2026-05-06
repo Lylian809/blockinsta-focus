@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added a storage fallback from `chrome.storage.sync` to `chrome.storage.local` so Fokus settings still load, save, and sync within the open popup even when sync storage is unavailable
 - Added a compact popup configuration summary so users can understand the currently active Fokus protections at a glance instead of parsing every toggle
 - Polished the French user-facing copy in the popup and in-page Fokus overlays so the extension feels more deliberate and less rough in everyday use
 - Expanded manifest host matching to cover common user-facing subdomains like m.instagram.com, m.youtube.com, music.youtube.com, and m.tiktok.com so Fokus runs on more real-world entry points
@@ -40,6 +41,7 @@ Core principles:
 
 - Improve real-world robustness of Instagram selectors
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
+- Normalize product copy encoding so French accents render consistently across source files, docs, and popup strings
 - Continue improving wording consistency and localization quality across docs and store assets
 - Add lightweight inline help for more setting interactions beyond the new high-level summary
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
@@ -50,6 +52,7 @@ Core principles:
 
 - Supported websites change their DOM frequently
 - Some copy is still split between English docs and French product UI
+- Some source files still show encoding drift in terminal output, which makes French copy edits noisier than they should be
 - Wider host coverage means more mobile and alternate web variants are reached, so selector drift across those surfaces needs periodic regression checks
 - YouTube search-only mode and thumbnail hiding still depend on DOM selectors that may vary across experiments and logged-in layouts
 - Recurrent automation must avoid making low-value commits

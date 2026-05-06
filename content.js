@@ -70,6 +70,7 @@ let navigationHooksStarted = false;
 let redirectScheduled = false;
 let lastRedirectTarget = "";
 let applyQueued = false;
+let activeStorageArea = "sync";
 
 function detectSite() {
   const host = window.location.hostname;
@@ -87,6 +88,45 @@ function detectSite() {
   }
 
   return "other";
+}
+
+function getStorageArea(areaName = activeStorageArea) {
+  return chrome.storage?.[areaName] ?? null;
+}
+
+function callStorage(areaName, method, ...args) {
+  const area = getStorageArea(areaName);
+
+  if (!area || typeof area[method] !== "function") {
+    return Promise.reject(new Error(`Storage area ${areaName} is unavailable.`));
+  }
+
+  return new Promise((resolve, reject) => {
+    area[method](...args, (result) => {
+      const error = chrome.runtime?.lastError;
+
+      if (error) {
+        reject(new Error(error.message));
+        return;
+      }
+
+      resolve(result);
+    });
+  });
+}
+
+async function detectStorageArea() {
+  for (const areaName of ["sync", "local"]) {
+    try {
+      await callStorage(areaName, "get", {});
+      activeStorageArea = areaName;
+      return areaName;
+    } catch (error) {
+      continue;
+    }
+  }
+
+  throw new Error("No Chrome storage area is available.");
 }
 
 function ensureStyle() {
@@ -539,7 +579,7 @@ function applyAll() {
 }
 
 async function readSettings() {
-  const stored = await chrome.storage.sync.get(DEFAULT_SETTINGS);
+  const stored = await callStorage(activeStorageArea, "get", DEFAULT_SETTINGS);
   settings = { ...DEFAULT_SETTINGS, ...stored };
 }
 
@@ -585,20 +625,25 @@ async function initialize() {
     return;
   }
 
-  await readSettings();
-  ensureStyle();
-  startObserver();
-  startNavigationHooks();
+  try {
+    await detectStorageArea();
+    await readSettings();
+    ensureStyle();
+    startObserver();
+    startNavigationHooks();
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", applyAll, { once: true });
-  } else {
-    applyAll();
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", applyAll, { once: true });
+    } else {
+      applyAll();
+    }
+  } catch (error) {
+    console.error("Fokus: content initialization failed", error);
   }
 }
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName !== "sync") {
+  if (areaName !== activeStorageArea) {
     return;
   }
 

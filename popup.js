@@ -30,8 +30,8 @@ const GROUP_DEPENDENCIES = {
 };
 
 const DISABLED_REASONS = {
-  instagramBlockAll: "Désactivé car Instagram est entièrement bloqué.",
-  youtubeBlockAll: "Désactivé car YouTube est entièrement bloqué.",
+  instagramBlockAll: "D\u00E9sactiv\u00E9 car Instagram est enti\u00E8rement bloqu\u00E9.",
+  youtubeBlockAll: "D\u00E9sactiv\u00E9 car YouTube est enti\u00E8rement bloqu\u00E9.",
   instagramRedirectHomeToInbox: "Disponible seulement quand le mode messages seulement est actif."
 };
 
@@ -42,8 +42,49 @@ const summaryBodyNode = document.getElementById("summary-body");
 const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
 const fieldMap = new Map(fields.map((field) => [field.name, field]));
 
+let activeStorageArea = "sync";
+
 function renderStatus(message) {
   statusNode.textContent = message;
+}
+
+function getStorageArea(areaName = activeStorageArea) {
+  return chrome.storage?.[areaName] ?? null;
+}
+
+function callStorage(areaName, method, ...args) {
+  const area = getStorageArea(areaName);
+
+  if (!area || typeof area[method] !== "function") {
+    return Promise.reject(new Error(`Zone de stockage ${areaName} indisponible.`));
+  }
+
+  return new Promise((resolve, reject) => {
+    area[method](...args, (result) => {
+      const error = chrome.runtime?.lastError;
+
+      if (error) {
+        reject(new Error(error.message));
+        return;
+      }
+
+      resolve(result);
+    });
+  });
+}
+
+async function detectStorageArea() {
+  for (const areaName of ["sync", "local"]) {
+    try {
+      await callStorage(areaName, "get", {});
+      activeStorageArea = areaName;
+      return areaName;
+    } catch (error) {
+      continue;
+    }
+  }
+
+  throw new Error("Aucun stockage Chrome disponible.");
 }
 
 function getCurrentSettingsSnapshot() {
@@ -54,11 +95,11 @@ function getCurrentSettingsSnapshot() {
 
 function getInstagramSummary(settings) {
   if (settings.instagramBlockAll) {
-    return "Instagram coupé.";
+    return "Instagram coup\u00E9.";
   }
 
   if (settings.instagramMessagesOnly) {
-    return "Instagram limité aux messages.";
+    return "Instagram limit\u00E9 aux messages.";
   }
 
   const hiddenAreas = [
@@ -73,17 +114,17 @@ function getInstagramSummary(settings) {
     return "Instagram libre.";
   }
 
-  return `Instagram allégé : ${hiddenAreas.join(", ")} masqués.`;
+  return `Instagram all\u00E9g\u00E9 : ${hiddenAreas.join(", ")} masqu\u00E9s.`;
 }
 
 function getYouTubeSummary(settings) {
   if (settings.youtubeBlockAll) {
-    return "YouTube coupé.";
+    return "YouTube coup\u00E9.";
   }
 
   const protections = [
-    settings.youtubeHideThumbnails && "miniatures masquées",
-    settings.youtubeSearchOnlyHome && "accueil limité à la recherche"
+    settings.youtubeHideThumbnails && "miniatures masqu\u00E9es",
+    settings.youtubeSearchOnlyHome && "accueil limit\u00E9 \u00E0 la recherche"
   ].filter(Boolean);
 
   if (!protections.length) {
@@ -94,7 +135,7 @@ function getYouTubeSummary(settings) {
 }
 
 function getTikTokSummary(settings) {
-  return settings.tiktokBlockAll ? "TikTok coupé." : "TikTok libre.";
+  return settings.tiktokBlockAll ? "TikTok coup\u00E9." : "TikTok libre.";
 }
 
 function renderSummary() {
@@ -175,42 +216,73 @@ function applyDependencies() {
 }
 
 async function persistField(field) {
-  await chrome.storage.sync.set({ [field.name]: field.checked });
+  await callStorage(activeStorageArea, "set", { [field.name]: field.checked });
+}
+
+function getStorageStatusSuffix() {
+  return activeStorageArea === "local" ? " localement" : "";
 }
 
 async function saveSetting(event) {
   const field = event.target;
-  await persistField(field);
-  applyDependencies();
-  renderStatus("Réglage enregistré.");
+
+  try {
+    await persistField(field);
+    applyDependencies();
+    renderStatus(`R\u00E9glage enregistr\u00E9${getStorageStatusSuffix()}.`);
+  } catch (error) {
+    field.checked = !field.checked;
+    applyDependencies();
+    renderStatus("Impossible d'enregistrer ce r\u00E9glage.");
+    console.error("Fokus: popup save failed", error);
+  }
 }
 
 async function resetDefaults() {
-  await chrome.storage.sync.set(DEFAULT_SETTINGS);
+  try {
+    await callStorage(activeStorageArea, "set", DEFAULT_SETTINGS);
 
-  fields.forEach((field) => {
-    field.checked = Boolean(DEFAULT_SETTINGS[field.name]);
-  });
+    fields.forEach((field) => {
+      field.checked = Boolean(DEFAULT_SETTINGS[field.name]);
+    });
 
-  applyDependencies();
-  renderStatus("Réglages Fokus réappliqués.");
+    applyDependencies();
+    renderStatus(`R\u00E9glages Fokus r\u00E9appliqu\u00E9s${getStorageStatusSuffix()}.`);
+  } catch (error) {
+    renderStatus("Impossible de r\u00E9initialiser les r\u00E9glages.");
+    console.error("Fokus: popup reset failed", error);
+  }
 }
 
 async function initialize() {
-  const settings = await chrome.storage.sync.get(DEFAULT_SETTINGS);
+  try {
+    await detectStorageArea();
+    const settings = await callStorage(activeStorageArea, "get", DEFAULT_SETTINGS);
 
-  fields.forEach((field) => {
-    field.checked = Boolean(settings[field.name]);
-    field.addEventListener("change", saveSetting);
-  });
+    fields.forEach((field) => {
+      field.checked = Boolean(settings[field.name]);
+      field.addEventListener("change", saveSetting);
+    });
 
-  resetDefaultsButton?.addEventListener("click", resetDefaults);
-  applyDependencies();
-  renderStatus("Paramètres chargés.");
+    resetDefaultsButton?.addEventListener("click", resetDefaults);
+    applyDependencies();
+    renderStatus(
+      activeStorageArea === "local"
+        ? "Param\u00E8tres charg\u00E9s en stockage local."
+        : "Param\u00E8tres charg\u00E9s."
+    );
+  } catch (error) {
+    fields.forEach((field) => {
+      field.disabled = true;
+    });
+    resetDefaultsButton?.setAttribute("disabled", "disabled");
+    renderStatus("Impossible de charger les r\u00E9glages.");
+    console.error("Fokus: popup initialization failed", error);
+  }
 }
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName !== "sync") {
+  if (areaName !== activeStorageArea) {
     return;
   }
 
