@@ -309,6 +309,9 @@ function pathAllowedInInstagramMessagesOnly(path) {
 
 function applyInstagram() {
   document.body?.classList.remove("focus-shield-hide-instagram");
+  const shouldHideReelsEntry = settings.instagramBlockReels || settings.instagramMessagesOnly;
+  const shouldHideExploreEntry = settings.instagramBlockExplore || settings.instagramMessagesOnly;
+  const shouldHideSearchEntry = settings.instagramBlockSearch || settings.instagramMessagesOnly;
 
   if (window.location.pathname === INBOX_PATH) {
     redirectScheduled = false;
@@ -327,10 +330,15 @@ function applyInstagram() {
 
   hideOverlay();
 
-  hideElements(INSTAGRAM_SELECTORS.navLinks.reels);
-  hideElements(INSTAGRAM_SELECTORS.navLinks.explore);
+  if (shouldHideReelsEntry) {
+    hideElements(INSTAGRAM_SELECTORS.navLinks.reels);
+  }
 
-  if (settings.instagramBlockSearch) {
+  if (shouldHideExploreEntry) {
+    hideElements(INSTAGRAM_SELECTORS.navLinks.explore);
+  }
+
+  if (shouldHideSearchEntry) {
     hideElements(INSTAGRAM_SELECTORS.navLinks.search);
     hideElements(INSTAGRAM_SELECTORS.searchInputs);
   }

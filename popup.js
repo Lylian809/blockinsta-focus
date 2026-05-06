@@ -99,4 +99,20 @@ async function initialize() {
   renderStatus("Parametres charges.");
 }
 
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== "sync") {
+    return;
+  }
+
+  fields.forEach((field) => {
+    if (!(field.name in changes)) {
+      return;
+    }
+
+    field.checked = Boolean(changes[field.name].newValue);
+  });
+
+  applyDependencies();
+});
+
 initialize();

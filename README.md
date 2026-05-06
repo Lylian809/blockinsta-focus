@@ -10,7 +10,7 @@ It helps reduce distracting parts of:
 
 The goal is simple: keep the useful parts, block the addictive parts.
 
-Current release version: `0.2.2`
+Current release version: `0.2.3`
 
 ## What Fokus can do
 
