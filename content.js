@@ -436,9 +436,9 @@ function applyInstagram() {
 
   if (settings.instagramBlockAll) {
     renderOverlay({
-      title: "Instagram est coupé pour l'instant",
-      body: "Fokus bloque cette surface pour t'aider à rester hors du flux.",
-      note: "Tu peux modifier ce choix à tout moment depuis le popup de l'extension."
+      title: "Instagram est coup\u00E9 pour l'instant",
+      body: "Fokus bloque cette surface pour t'aider \u00E0 rester hors du flux.",
+      note: "Tu peux modifier ce choix \u00E0 tout moment depuis le popup de l'extension."
     });
     document.body?.classList.add("focus-shield-hide-instagram");
     return;
@@ -491,10 +491,10 @@ function applyInstagram() {
     renderOverlay({
       title: "Mode messages actif",
       body: "Seule la messagerie reste accessible dans cette configuration Fokus.",
-      detail: "Le feed, Explore, Stories et Reels restent masqués pour limiter les détours.",
+      detail: "Le feed, Explore, Stories et Reels restent masqu\u00E9s pour limiter les d\u00E9tours.",
       ctaHref: INBOX_PATH,
       ctaLabel: "Ouvrir la messagerie",
-      note: "Désactive ce mode dans le popup si tu veux retrouver le reste d'Instagram."
+      note: "D\u00E9sactive ce mode dans le popup si tu veux retrouver le reste d'Instagram."
     });
   } else {
     hideOverlay();
@@ -524,7 +524,7 @@ function applyYouTube() {
   if (settings.youtubeBlockAll) {
     renderOverlay({
       title: "YouTube est en pause",
-      body: "Cette surface est bloquée pour éviter les recommandations et l'enchaînement passif.",
+      body: "Cette surface est bloqu\u00E9e pour \u00E9viter les recommandations et l'encha\u00EEnement passif.",
       note: "Tu peux rouvrir YouTube depuis le popup Fokus quand tu en as vraiment besoin."
     });
     hideElements("ytd-app");
@@ -549,9 +549,9 @@ function applyYouTube() {
 function applyTikTok() {
   if (settings.tiktokBlockAll) {
     renderOverlay({
-      title: "TikTok est coupé",
-      body: "Fokus bloque TikTok entièrement dans cette configuration.",
-      note: "Tu peux réautoriser l'accès plus tard depuis le popup si ton besoin change."
+      title: "TikTok est coup\u00E9",
+      body: "Fokus bloque TikTok enti\u00E8rement dans cette configuration.",
+      note: "Tu peux r\u00E9autoriser l'acc\u00E8s plus tard depuis le popup si ton besoin change."
     });
     hideElements("body > *:not(#focus-shield-overlay):not(style)");
     return;
