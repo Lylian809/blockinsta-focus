@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added live contextual help under the Instagram and YouTube popup controls so users now see the real effect of redirect-to-inbox and search-only home settings without having to infer why pages redirect or look intentionally empty
 - Cleaned up contributor-facing release docs so the README and Chrome Web Store submission instructions no longer show corrupted TikTok copy or stale `0.2.2` release ZIP references
 - Added a live preset-status badge and note inside the popup summary card so users can see immediately whether they are still on the recommended Fokus setup or have drifted into a custom configuration
 - Added a stateful default-preset note in the popup so the reset card now tells users whether the recommended Fokus configuration is already active and disables the reset button when it would do nothing
@@ -52,7 +53,7 @@ Core principles:
 - Improve real-world robustness of Instagram selectors
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
 - Continue normalizing any remaining user-facing French copy to encoding-safe patterns across docs and store assets
-- Add lightweight inline help for specific toggle interactions such as redirect behavior and YouTube search-only nuances
+- Add similar inline help for any future cross-toggle dependencies that become non-obvious in the popup
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
 - Add browser-side safeguards around repeated redirects or site DOM churn
 - Refine support/donation flow UX

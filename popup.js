@@ -60,6 +60,10 @@ const siteModeDetailNodes = {
   youtube: document.getElementById("youtube-mode-detail"),
   tiktok: document.getElementById("tiktok-mode-detail")
 };
+const contextNoteNodes = {
+  instagram: document.getElementById("instagram-context-note"),
+  youtube: document.getElementById("youtube-context-note")
+};
 const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
 const fieldMap = new Map(fields.map((field) => [field.name, field]));
 
@@ -308,6 +312,37 @@ function renderSiteModes(settings) {
   });
 }
 
+function renderContextNotes(settings) {
+  const instagramContextNode = contextNoteNodes.instagram;
+  const youtubeContextNode = contextNoteNodes.youtube;
+
+  if (instagramContextNode) {
+    if (settings.instagramBlockAll) {
+      instagramContextNode.textContent = "Le blocage complet masque tout Instagram ; les autres r\u00E9glages Instagram n'ont plus d'effet tant qu'il reste actif.";
+    } else if (settings.instagramMessagesOnly && settings.instagramRedirectHomeToInbox) {
+      instagramContextNode.textContent = "Les pages Instagram bloqu\u00E9es te renverront directement vers la messagerie pour \u00E9viter un d\u00E9tour inutile.";
+    } else if (settings.instagramMessagesOnly) {
+      instagramContextNode.textContent = "Les pages Instagram hors messagerie afficheront une carte Fokus ; active aussi la redirection si tu veux arriver directement dans les messages.";
+    } else {
+      instagramContextNode.textContent = "Les filtres Instagram retirent seulement certaines surfaces ; le reste du site continue de fonctionner normalement.";
+    }
+  }
+
+  if (youtubeContextNode) {
+    if (settings.youtubeBlockAll) {
+      youtubeContextNode.textContent = "Le blocage complet masque tout YouTube ; les autres r\u00E9glages YouTube n'ont plus d'effet tant qu'il reste actif.";
+    } else if (settings.youtubeSearchOnlyHome && settings.youtubeHideThumbnails) {
+      youtubeContextNode.textContent = "L'accueil YouTube devient volontairement calme : recommandations masqu\u00E9es sur la page d'accueil et miniatures retir\u00E9es ailleurs.";
+    } else if (settings.youtubeSearchOnlyHome) {
+      youtubeContextNode.textContent = "La page d'accueil YouTube peut sembler presque vide : c'est normal, Fokus ne laisse que la recherche comme point d'entr\u00E9e.";
+    } else if (settings.youtubeHideThumbnails) {
+      youtubeContextNode.textContent = "YouTube reste utilisable, mais les aper\u00E7us visuels disparaissent pour rendre la navigation moins accrocheuse.";
+    } else {
+      youtubeContextNode.textContent = "Sans filtre YouTube actif, l'accueil, les recommandations et les miniatures restent visibles normalement.";
+    }
+  }
+}
+
 function renderSummary() {
   if (!summaryTitleNode || !summaryBodyNode) {
     return;
@@ -318,6 +353,7 @@ function renderSummary() {
   const enabledCount = Object.values(effectiveSettings).filter(Boolean).length;
 
   renderSiteModes(currentSettings);
+  renderContextNotes(currentSettings);
 
   if (enabledCount === 0) {
     summaryTitleNode.textContent = "Aucune protection active.";
