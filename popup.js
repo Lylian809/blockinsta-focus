@@ -48,6 +48,8 @@ const resetDefaultsButton = document.getElementById("reset-defaults");
 const defaultStateCopyNode = document.getElementById("default-state-copy");
 const summaryTitleNode = document.getElementById("summary-title");
 const summaryBodyNode = document.getElementById("summary-body");
+const summaryPresetBadgeNode = document.getElementById("summary-preset-badge");
+const summaryPresetNoteNode = document.getElementById("summary-preset-note");
 const siteModeNodes = {
   instagram: document.getElementById("instagram-mode"),
   youtube: document.getElementById("youtube-mode"),
@@ -331,6 +333,24 @@ function renderSummary() {
   ].join(" ");
 }
 
+function renderPresetSummaryState() {
+  if (!summaryPresetBadgeNode || !summaryPresetNoteNode) {
+    return;
+  }
+
+  const currentSettings = getCurrentSettingsSnapshot();
+  const alreadyDefault = matchesDefaultSettings(currentSettings);
+
+  summaryPresetBadgeNode.textContent = alreadyDefault
+    ? "Preset Fokus"
+    : "Configuration perso";
+  summaryPresetBadgeNode.classList.toggle("is-default", alreadyDefault);
+  summaryPresetBadgeNode.classList.toggle("is-custom", !alreadyDefault);
+  summaryPresetNoteNode.textContent = alreadyDefault
+    ? "Tu utilises la configuration recommand\u00E9e pour garder un cadre simple et coh\u00E9rent."
+    : "Tu utilises une configuration personnalis\u00E9e ; le bouton de r\u00E9initialisation permet de revenir au preset recommand\u00E9.";
+}
+
 function renderDefaultPresetState() {
   if (!resetDefaultsButton || !defaultStateCopyNode) {
     return;
@@ -343,6 +363,7 @@ function renderDefaultPresetState() {
   defaultStateCopyNode.textContent = alreadyDefault
     ? "La configuration recommand\u00E9e Fokus est d\u00E9j\u00E0 active."
     : "Ta configuration s'\u00E9carte du pr\u00E9r\u00E9glage Fokus recommand\u00E9.";
+  renderPresetSummaryState();
 }
 
 function setDisabledState(field, disabled, reason = "") {
