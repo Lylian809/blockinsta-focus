@@ -56,12 +56,18 @@ const DISABLED_REASONS = {
   instagramMessagesOnly: "D\u00E9sactiv\u00E9 car le mode messages seulement masque d\u00E9j\u00E0 ces surfaces.",
   instagramRedirectHomeToInbox: "Disponible seulement quand le mode messages seulement est actif."
 };
+const SUPPORTED_TAB_SITES = [
+  { key: "instagram", label: "Instagram", matcher: (hostname) => hostname.includes("instagram.com") },
+  { key: "youtube", label: "YouTube", matcher: (hostname) => hostname.includes("youtube.com") },
+  { key: "tiktok", label: "TikTok", matcher: (hostname) => hostname.includes("tiktok.com") }
+];
 
 const statusNode = document.getElementById("status");
 const srStatusNode = document.getElementById("sr-status");
 const resetDefaultsButton = document.getElementById("reset-defaults");
 const refreshActiveTabButton = document.getElementById("refresh-active-tab");
 const refreshStateCopyNode = document.getElementById("refresh-state-copy");
+const refreshTabContextNode = document.getElementById("refresh-tab-context");
 const defaultStateCopyNode = document.getElementById("default-state-copy");
 const summaryTitleNode = document.getElementById("summary-title");
 const summaryBodyNode = document.getElementById("summary-body");
@@ -88,6 +94,13 @@ const fieldMap = new Map(fields.map((field) => [field.name, field]));
 
 let activeStorageArea = "sync";
 let screenReaderAnnouncementFrame = 0;
+let activeTabContext = {
+  canReload: true,
+  isSupported: false,
+  label: "cet onglet",
+  siteKey: null,
+  reason: ""
+};
 
 function getFieldLabel(field) {
   return field.closest(".toggle")?.querySelector("strong")?.textContent?.trim() ?? field.name;
@@ -209,16 +222,100 @@ function renderStorageSummaryState() {
   }
 }
 
+function getSupportedTabSite(hostname) {
+  return SUPPORTED_TAB_SITES.find((site) => site.matcher(hostname)) ?? null;
+}
+
+async function detectActiveTabContext() {
+  try {
+    const tabs = await callTabs("query", { active: true, lastFocusedWindow: true });
+    const tab = Array.isArray(tabs) ? tabs[0] : null;
+    const url = tab?.pendingUrl || tab?.url || "";
+
+    if (!url) {
+      activeTabContext = {
+        canReload: false,
+        isSupported: false,
+        label: "introuvable",
+        siteKey: null,
+        reason: "Fokus ne trouve pas d'onglet actif rechargeable dans cette fen\u00EAtre."
+      };
+      return;
+    }
+
+    const parsedUrl = new URL(url);
+
+    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+      activeTabContext = {
+        canReload: false,
+        isSupported: false,
+        label: "page interne",
+        siteKey: null,
+        reason: "Les pages internes du navigateur ou les onglets sp\u00E9ciaux ne peuvent pas \u00EAtre recharg\u00E9s utilement depuis Fokus."
+      };
+      return;
+    }
+
+    const supportedSite = getSupportedTabSite(parsedUrl.hostname);
+
+    if (supportedSite) {
+      activeTabContext = {
+        canReload: true,
+        isSupported: true,
+        label: supportedSite.label,
+        siteKey: supportedSite.key,
+        reason: ""
+      };
+      return;
+    }
+
+    activeTabContext = {
+      canReload: true,
+      isSupported: false,
+      label: parsedUrl.hostname.replace(/^www\./, ""),
+      siteKey: null,
+      reason: "Cet onglet n'utilise pas un site pris en charge par Fokus ; le rechargement reste possible, mais n'appliquera probablement aucun changement visible."
+    };
+  } catch (error) {
+    activeTabContext = {
+      canReload: true,
+      isSupported: false,
+      label: "cet onglet",
+      siteKey: null,
+      reason: "Fokus ne peut pas identifier l'onglet actuel, mais peut quand m\u00EAme tenter un rechargement."
+    };
+  }
+}
+
 function renderRefreshState() {
-  if (!refreshStateCopyNode || !refreshActiveTabButton) {
+  if (!refreshStateCopyNode || !refreshActiveTabButton || !refreshTabContextNode) {
     return;
   }
 
   const usingLocalStorage = activeStorageArea === "local";
+  const contextLabel = activeTabContext.label;
+
+  refreshTabContextNode.textContent = activeTabContext.isSupported
+    ? `Onglet actuel : ${contextLabel}.`
+    : `Onglet actuel : ${contextLabel}${activeTabContext.canReload ? "." : " non rechargeable."}`;
+
+  if (!activeTabContext.canReload) {
+    refreshStateCopyNode.textContent = activeTabContext.reason;
+    refreshActiveTabButton.disabled = true;
+    return;
+  }
+
+  if (activeTabContext.isSupported) {
+    refreshStateCopyNode.textContent = usingLocalStorage
+      ? `Recharge ${contextLabel} pour lui faire reprendre les r\u00E9glages stock\u00E9s localement sur cet appareil.`
+      : `Recharge ${contextLabel} si la page \u00E9tait d\u00E9j\u00E0 ouverte avant Fokus ou n'a pas encore repris tes derniers r\u00E9glages.`;
+    refreshActiveTabButton.disabled = false;
+    return;
+  }
 
   refreshStateCopyNode.textContent = usingLocalStorage
-    ? "Pratique si Fokus fonctionne en stockage local et qu'un onglet ouvert doit reprendre ces r\u00E9glages sur cet appareil."
-    : "Pratique si un site ouvert avant Fokus ou rest\u00E9 en cache n'a pas encore repris tes derniers r\u00E9glages.";
+    ? `${activeTabContext.reason} Si besoin, recharge quand m\u00EAme cet onglet pour reprendre l'\u00E9tat local actuel du navigateur.`
+    : activeTabContext.reason;
   refreshActiveTabButton.disabled = false;
 }
 
@@ -683,7 +780,7 @@ async function resetDefaults() {
 }
 
 async function refreshActiveTab() {
-  if (!refreshActiveTabButton) {
+  if (!refreshActiveTabButton || !activeTabContext.canReload) {
     return;
   }
 
@@ -691,8 +788,11 @@ async function refreshActiveTab() {
 
   try {
     await callTabs("reload", undefined, {});
-    renderStatus("Onglet actif recharg\u00E9.");
-    announceScreenReader("L'onglet actif a \u00E9t\u00E9 recharg\u00E9.");
+    const reloadStatus = activeTabContext.isSupported
+      ? `${activeTabContext.label} recharg\u00E9.`
+      : "Onglet actif recharg\u00E9.";
+    renderStatus(reloadStatus);
+    announceScreenReader(reloadStatus);
   } catch (error) {
     renderStatus("Impossible de recharger l'onglet actif.");
     announceScreenReader("Impossible de recharger l'onglet actif.");
@@ -705,6 +805,7 @@ async function refreshActiveTab() {
 async function initialize() {
   try {
     await detectStorageArea();
+    await detectActiveTabContext();
     const settings = await callStorage(activeStorageArea, "get", DEFAULT_SETTINGS);
 
     fields.forEach((field) => {

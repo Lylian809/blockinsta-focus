@@ -543,8 +543,20 @@ body {
   line-height: 1.4;
 }
 
+.action-target {
+  margin: 10px 0 0;
+  color: #3f3850;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .action-card-refresh .action-state {
   color: #0f5f75;
+}
+
+.action-card-refresh .action-target {
+  color: #245466;
 }
 
 .secondary-button {
