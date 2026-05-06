@@ -414,6 +414,14 @@ body {
   line-height: 1.4;
 }
 
+.action-state {
+  margin: 10px 0 0;
+  color: #4338ca;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .secondary-button {
   display: inline-flex;
   align-items: center;
@@ -438,6 +446,14 @@ body {
 
 .secondary-button:active {
   transform: translateY(1px);
+}
+
+.secondary-button:disabled {
+  border-color: rgba(17, 24, 39, 0.08);
+  background: #f4f4f5;
+  color: #8a8a8a;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 .secondary-button:focus-visible,

@@ -45,6 +45,7 @@ const DISABLED_REASONS = {
 
 const statusNode = document.getElementById("status");
 const resetDefaultsButton = document.getElementById("reset-defaults");
+const defaultStateCopyNode = document.getElementById("default-state-copy");
 const summaryTitleNode = document.getElementById("summary-title");
 const summaryBodyNode = document.getElementById("summary-body");
 const siteModeNodes = {
@@ -108,6 +109,12 @@ async function detectStorageArea() {
 function getCurrentSettingsSnapshot() {
   return Object.fromEntries(
     fields.map((field) => [field.name, Boolean(field.checked)])
+  );
+}
+
+function matchesDefaultSettings(settings) {
+  return Object.entries(DEFAULT_SETTINGS).every(
+    ([name, value]) => Boolean(settings[name]) === value
   );
 }
 
@@ -324,6 +331,20 @@ function renderSummary() {
   ].join(" ");
 }
 
+function renderDefaultPresetState() {
+  if (!resetDefaultsButton || !defaultStateCopyNode) {
+    return;
+  }
+
+  const currentSettings = getCurrentSettingsSnapshot();
+  const alreadyDefault = matchesDefaultSettings(currentSettings);
+
+  resetDefaultsButton.disabled = alreadyDefault;
+  defaultStateCopyNode.textContent = alreadyDefault
+    ? "La configuration recommand\u00E9e Fokus est d\u00E9j\u00E0 active."
+    : "Ta configuration s'\u00E9carte du pr\u00E9r\u00E9glage Fokus recommand\u00E9.";
+}
+
 function setDisabledState(field, disabled, reason = "") {
   field.disabled = disabled;
   const toggle = field.closest(".toggle");
@@ -395,6 +416,7 @@ function applyDependencies() {
   }
 
   renderSummary();
+  renderDefaultPresetState();
 }
 
 async function persistField(field) {
