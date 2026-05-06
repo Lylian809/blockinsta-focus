@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Fixed the popup protection summary so stronger modes like full-site blocking no longer inflate the active protection count with disabled child toggles, keeping the recap aligned with the effective Fokus behavior
 - Normalized the YouTube search-only home note copy in `content.js` with Unicode escapes so this visible in-page Fokus message stays legible across editing environments
 - Normalized the remaining corrupted French copy in `content.js` overlays with Unicode escapes so shipped blocking messages stay legible across editing environments
 - Normalized popup copy to HTML entities so French accents render reliably in the shipped UI even when local editing environments or terminals drift on file encoding

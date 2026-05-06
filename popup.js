@@ -98,6 +98,23 @@ function getCurrentSettingsSnapshot() {
   );
 }
 
+function getEffectiveSettings(settings) {
+  return {
+    ...settings,
+    instagramMessagesOnly: settings.instagramBlockAll ? false : settings.instagramMessagesOnly,
+    instagramBlockReels: settings.instagramBlockAll ? false : settings.instagramBlockReels,
+    instagramBlockStories: settings.instagramBlockAll ? false : settings.instagramBlockStories,
+    instagramBlockExplore: settings.instagramBlockAll ? false : settings.instagramBlockExplore,
+    instagramBlockFeed: settings.instagramBlockAll ? false : settings.instagramBlockFeed,
+    instagramBlockSearch: settings.instagramBlockAll ? false : settings.instagramBlockSearch,
+    instagramRedirectHomeToInbox: settings.instagramBlockAll || !settings.instagramMessagesOnly
+      ? false
+      : settings.instagramRedirectHomeToInbox,
+    youtubeHideThumbnails: settings.youtubeBlockAll ? false : settings.youtubeHideThumbnails,
+    youtubeSearchOnlyHome: settings.youtubeBlockAll ? false : settings.youtubeSearchOnlyHome
+  };
+}
+
 function getInstagramSummary(settings) {
   if (settings.instagramBlockAll) {
     return "Instagram coup\u00E9.";
@@ -212,7 +229,8 @@ function renderSummary() {
   }
 
   const currentSettings = getCurrentSettingsSnapshot();
-  const enabledCount = Object.values(currentSettings).filter(Boolean).length;
+  const effectiveSettings = getEffectiveSettings(currentSettings);
+  const enabledCount = Object.values(effectiveSettings).filter(Boolean).length;
 
   renderSiteModes(currentSettings);
 
@@ -224,9 +242,9 @@ function renderSummary() {
 
   summaryTitleNode.textContent = `${enabledCount} protection${enabledCount > 1 ? "s" : ""} active${enabledCount > 1 ? "s" : ""}.`;
   summaryBodyNode.textContent = [
-    getInstagramSummary(currentSettings),
-    getYouTubeSummary(currentSettings),
-    getTikTokSummary(currentSettings)
+    getInstagramSummary(effectiveSettings),
+    getYouTubeSummary(effectiveSettings),
+    getTikTokSummary(effectiveSettings)
   ].join(" ");
 }
 
