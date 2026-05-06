@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Normalized popup copy to HTML entities so French accents render reliably in the shipped UI even when local editing environments or terminals drift on file encoding
 - Added per-site mode badges in the popup so users can see at a glance whether Instagram is blocked, messages-only, filtered, or open without scanning every toggle
 - Added a storage fallback from `chrome.storage.sync` to `chrome.storage.local` so Fokus settings still load, save, and sync within the open popup even when sync storage is unavailable
 - Added a compact popup configuration summary so users can understand the currently active Fokus protections at a glance instead of parsing every toggle
@@ -42,7 +43,7 @@ Core principles:
 
 - Improve real-world robustness of Instagram selectors
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
-- Normalize product copy encoding so French accents render consistently across source files, docs, and popup strings
+- Finish normalizing remaining product copy encoding in in-page overlays and docs so every French string is resilient to editor and terminal encoding drift
 - Continue improving wording consistency and localization quality across docs and store assets
 - Add lightweight inline help for more setting interactions beyond the summary and per-site mode badges
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
@@ -53,7 +54,7 @@ Core principles:
 
 - Supported websites change their DOM frequently
 - Some copy is still split between English docs and French product UI
-- Some source files still show encoding drift in terminal output, which makes French copy edits noisier than they should be
+- Some non-popup source files still show encoding drift in terminal output, which makes French copy edits noisier than they should be
 - Wider host coverage means more mobile and alternate web variants are reached, so selector drift across those surfaces needs periodic regression checks
 - YouTube search-only mode and thumbnail hiding still depend on DOM selectors that may vary across experiments and logged-in layouts
 - Recurrent automation must avoid making low-value commits
