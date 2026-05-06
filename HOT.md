@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Normalized the YouTube search-only home note copy in `content.js` with Unicode escapes so this visible in-page Fokus message stays legible across editing environments
 - Normalized the remaining corrupted French copy in `content.js` overlays with Unicode escapes so shipped blocking messages stay legible across editing environments
 - Normalized popup copy to HTML entities so French accents render reliably in the shipped UI even when local editing environments or terminals drift on file encoding
 - Added per-site mode badges in the popup so users can see at a glance whether Instagram is blocked, messages-only, filtered, or open without scanning every toggle
@@ -44,7 +45,7 @@ Core principles:
 
 - Improve real-world robustness of Instagram selectors
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
-- Continue improving wording consistency and localization quality across docs and store assets
+- Continue normalizing any remaining user-facing French copy to encoding-safe patterns across docs and store assets
 - Add lightweight inline help for more setting interactions beyond the summary and per-site mode badges
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
 - Add browser-side safeguards around repeated redirects or site DOM churn

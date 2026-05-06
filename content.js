@@ -371,7 +371,7 @@ function showYouTubeHomeNote() {
   note.innerHTML = `
     <p class="focus-shield-inline-eyebrow">Fokus</p>
     <h2>Accueil YouTube calme</h2>
-    <p>Les recommandations sont masquées ici. Utilise la barre de recherche pour ouvrir uniquement ce dont tu as besoin.</p>
+    <p>Les recommandations sont masqu\u00E9es ici. Utilise la barre de recherche pour ouvrir uniquement ce dont tu as besoin.</p>
   `;
   note.hidden = false;
 }
