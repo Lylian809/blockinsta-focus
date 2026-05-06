@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added a persistent local-storage fallback badge and note in the popup summary so users now understand when Chrome sync storage is unavailable and Fokus can save settings only on the current device
 - Added semantic popup control grouping with real per-site headings, fieldsets, and clearer keyboard focus states so Instagram, YouTube, and TikTok settings are easier to navigate with assistive tech and by keyboard alone
 - Improved popup accessibility so each toggle now exposes its helper copy, dependency lock reason, and site context to assistive technologies, while Fokus also announces setting changes and reset actions more clearly for screen-reader users
 - Improved blocked-surface accessibility so Fokus overlays now expose dialog semantics, move keyboard focus to the main action, and announce the YouTube calm-home note more reliably for assistive technologies
@@ -55,6 +56,7 @@ Core principles:
 ## Next Best Opportunities
 
 - Improve real-world robustness of Instagram selectors
+- Verify the new local-storage fallback UI against a browser profile where `chrome.storage.sync` is unavailable so the popup copy stays accurate and non-intrusive
 - Verify the popup accessibility pass against a real keyboard-only flow and screen reader on Chromium, especially if new controls or onboarding steps are added
 - Continue checking YouTube thumbnail removal consistency on additional experimental layouts
 - Continue normalizing any remaining user-facing French copy to encoding-safe patterns across docs and store assets
@@ -68,6 +70,7 @@ Core principles:
 
 - Supported websites change their DOM frequently
 - Some copy is still split between English docs and French product UI
+- The new local-storage fallback UI depends on reliably detecting `chrome.storage.sync` availability, so it still needs browser-side validation on a profile where sync is actually unavailable
 - Terminal rendering can still make some UTF-8 text look noisier than it is, so copy edits should keep favoring encoding-safe patterns for shipped French strings
 - Helper settings can be easy to misclassify in popup summaries, so derived UI metrics need explicit review whenever settings evolve
 - Wider host coverage means more mobile and alternate web variants are reached, so selector drift across those surfaces needs periodic regression checks

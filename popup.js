@@ -63,6 +63,8 @@ const resetDefaultsButton = document.getElementById("reset-defaults");
 const defaultStateCopyNode = document.getElementById("default-state-copy");
 const summaryTitleNode = document.getElementById("summary-title");
 const summaryBodyNode = document.getElementById("summary-body");
+const summaryStorageBadgeNode = document.getElementById("summary-storage-badge");
+const summaryStorageNoteNode = document.getElementById("summary-storage-note");
 const summaryPresetBadgeNode = document.getElementById("summary-preset-badge");
 const summaryPresetNoteNode = document.getElementById("summary-preset-note");
 const siteModeNodes = {
@@ -168,6 +170,20 @@ function announceScreenReader(message) {
 
 function renderStatus(message) {
   statusNode.textContent = message;
+}
+
+function renderStorageSummaryState() {
+  if (!summaryStorageBadgeNode || !summaryStorageNoteNode) {
+    return;
+  }
+
+  const usingLocalStorage = activeStorageArea === "local";
+  summaryStorageBadgeNode.hidden = !usingLocalStorage;
+  summaryStorageNoteNode.hidden = !usingLocalStorage;
+
+  if (usingLocalStorage) {
+    summaryStorageNoteNode.textContent = "Le stockage sync Chrome est indisponible ; Fokus enregistre donc les r\u00E9glages seulement sur cet appareil.";
+  }
 }
 
 function getStorageArea(areaName = activeStorageArea) {
@@ -503,6 +519,7 @@ function renderDefaultPresetState() {
   defaultStateCopyNode.textContent = alreadyDefault
     ? "La configuration recommand\u00E9e Fokus est d\u00E9j\u00E0 active."
     : "Ta configuration s'\u00E9carte du pr\u00E9r\u00E9glage Fokus recommand\u00E9.";
+  renderStorageSummaryState();
   renderPresetSummaryState();
 }
 

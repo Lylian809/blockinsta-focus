@@ -8,6 +8,7 @@ Test on a Chromium browser with the unpacked extension reloaded.
 
 - Popup opens without layout break on Chrome or Brave
 - Current saved toggles render correctly on first open
+- If sync storage is unavailable, the popup shows the persistent local-storage badge and explanatory note
 - Per-site mode badges match the saved state for Instagram, YouTube, and TikTok
 - The popup protection count reflects only real blocking or filtering protections, not helper behavior like Instagram redirect-to-inbox
 - Changing one toggle updates the status message
