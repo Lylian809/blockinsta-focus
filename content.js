@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS = {
 const SITE = detectSite();
 const STYLE_ID = "focus-shield-style";
 const OVERLAY_ID = "focus-shield-overlay";
+const YOUTUBE_HOME_NOTE_ID = "focus-shield-youtube-home-note";
 const HIDDEN_ATTR = "data-focus-shield-hidden";
 const INBOX_PATH = "/direct/inbox/";
 
@@ -234,6 +235,51 @@ function ensureStyle() {
       text-decoration: none;
       font-weight: 700;
     }
+
+    #${YOUTUBE_HOME_NOTE_ID} {
+      position: fixed;
+      top: 92px;
+      left: 50%;
+      z-index: 2147483646;
+      width: min(460px, calc(100vw - 32px));
+      padding: 18px 20px;
+      border: 1px solid rgba(17, 24, 39, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 20px 44px rgba(17, 24, 39, 0.14);
+      transform: translateX(-50%);
+      color: #111827;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    #${YOUTUBE_HOME_NOTE_ID}[hidden] {
+      display: none !important;
+    }
+
+    #${YOUTUBE_HOME_NOTE_ID} .focus-shield-inline-eyebrow {
+      margin: 0 0 8px;
+      color: #4338ca;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    #${YOUTUBE_HOME_NOTE_ID} h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    #${YOUTUBE_HOME_NOTE_ID} p {
+      margin: 0;
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.5;
+    }
   `;
 
   document.documentElement.appendChild(style);
@@ -264,6 +310,35 @@ function ensureOverlay() {
   }
 
   return overlay;
+}
+
+function ensureYouTubeHomeNote() {
+  let note = document.getElementById(YOUTUBE_HOME_NOTE_ID);
+
+  if (!note) {
+    note = document.createElement("div");
+    note.id = YOUTUBE_HOME_NOTE_ID;
+    note.hidden = true;
+    document.documentElement.appendChild(note);
+  }
+
+  return note;
+}
+
+function showYouTubeHomeNote() {
+  const note = ensureYouTubeHomeNote();
+  note.innerHTML = `
+    <p class="focus-shield-inline-eyebrow">Fokus</p>
+    <h2>Accueil YouTube calme</h2>
+    <p>Les recommandations sont masquees ici. Utilise la barre de recherche pour ouvrir uniquement ce dont tu as besoin.</p>
+  `;
+  note.hidden = false;
+}
+
+function hideYouTubeHomeNote() {
+  const note = ensureYouTubeHomeNote();
+  note.hidden = true;
+  note.innerHTML = "";
 }
 
 function renderOverlay({ title, body, detail, note, ctaHref, ctaLabel }) {
@@ -403,6 +478,7 @@ function applyInstagram() {
 function applyYouTube() {
   document.body?.classList.remove("focus-shield-youtube-thumbnails-off");
   document.body?.classList.remove("focus-shield-youtube-search-only");
+  hideYouTubeHomeNote();
 
   if (settings.youtubeBlockAll) {
     renderOverlay({
@@ -425,6 +501,7 @@ function applyYouTube() {
     document.body?.classList.add("focus-shield-youtube-search-only");
     hideElements(YOUTUBE_SELECTORS.homeFeed);
     hideElements(YOUTUBE_SELECTORS.sidebars);
+    showYouTubeHomeNote();
   }
 }
 
@@ -456,6 +533,7 @@ function applyAll() {
   ensureStyle();
   resetHiddenElements();
   hideOverlay();
+  hideYouTubeHomeNote();
   applySiteRules();
 }
 

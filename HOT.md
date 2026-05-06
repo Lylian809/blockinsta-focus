@@ -28,11 +28,12 @@ Core principles:
 - Clearer in-page Fokus overlays with calmer wording, stronger guidance, and more consistent blocked-state presentation
 - Instagram navigation hiding now respects the actual Reels, Explore, and Search settings instead of over-blocking by default
 - Popup settings now stay in sync with storage changes while the popup is open
+- YouTube search-only home mode now explains the empty homepage state instead of leaving users on an ambiguous blank screen
 
 ## Next Best Opportunities
 
 - Improve real-world robustness of Instagram selectors
-- Improve YouTube search-only behavior and thumbnail removal consistency
+- Improve YouTube thumbnail removal consistency on more page layouts
 - Add a small browser-based regression checklist for key flows before each release
 - Improve wording consistency and localization quality across popup and docs
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
@@ -43,5 +44,6 @@ Core principles:
 
 - Supported websites change their DOM frequently
 - Some copy is still split between English docs and French product UI
+- YouTube search-only mode still depends on DOM selectors that may vary across experiments and logged-in layouts
 - Recurrent automation must avoid making low-value commits
 - Every change should stay small, safe, and genuinely useful
