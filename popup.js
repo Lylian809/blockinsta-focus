@@ -95,7 +95,7 @@ const fieldMap = new Map(fields.map((field) => [field.name, field]));
 let activeStorageArea = "sync";
 let screenReaderAnnouncementFrame = 0;
 let activeTabContext = {
-  canReload: true,
+  canReload: false,
   isSupported: false,
   label: "cet onglet",
   siteKey: null,
@@ -270,19 +270,19 @@ async function detectActiveTabContext() {
     }
 
     activeTabContext = {
-      canReload: true,
+      canReload: false,
       isSupported: false,
       label: parsedUrl.hostname.replace(/^www\./, ""),
       siteKey: null,
-      reason: "Cet onglet n'utilise pas un site pris en charge par Fokus ; le rechargement reste possible, mais n'appliquera probablement aucun changement visible."
+      reason: "Cet onglet n'utilise pas un site pris en charge par Fokus. Ouvre Instagram, YouTube ou TikTok pour appliquer un rechargement utile."
     };
   } catch (error) {
     activeTabContext = {
-      canReload: true,
+      canReload: false,
       isSupported: false,
       label: "cet onglet",
       siteKey: null,
-      reason: "Fokus ne peut pas identifier l'onglet actuel, mais peut quand m\u00EAme tenter un rechargement."
+      reason: "Fokus ne peut pas identifier l'onglet actuel. Ouvre un onglet Instagram, YouTube ou TikTok puis r\u00E9essaie."
     };
   }
 }
@@ -295,9 +295,7 @@ function renderRefreshState() {
   const usingLocalStorage = activeStorageArea === "local";
   const contextLabel = activeTabContext.label;
 
-  refreshTabContextNode.textContent = activeTabContext.isSupported
-    ? `Onglet actuel : ${contextLabel}.`
-    : `Onglet actuel : ${contextLabel}${activeTabContext.canReload ? "." : " non rechargeable."}`;
+  refreshTabContextNode.textContent = `Onglet actuel : ${contextLabel}.`;
 
   if (!activeTabContext.canReload) {
     refreshStateCopyNode.textContent = activeTabContext.reason;
@@ -312,11 +310,6 @@ function renderRefreshState() {
     refreshActiveTabButton.disabled = false;
     return;
   }
-
-  refreshStateCopyNode.textContent = usingLocalStorage
-    ? `${activeTabContext.reason} Si besoin, recharge quand m\u00EAme cet onglet pour reprendre l'\u00E9tat local actuel du navigateur.`
-    : activeTabContext.reason;
-  refreshActiveTabButton.disabled = false;
 }
 
 function getStorageArea(areaName = activeStorageArea) {
