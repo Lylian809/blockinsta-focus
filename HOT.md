@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added a dynamic quick-open helper note in the popup so unsupported-tab shortcuts now explain when Instagram opens directly to `Messagerie Instagram` because messages-only mode and inbox redirection are active, reducing ambiguity before the tab navigates
 - Made the popup quick-open success state and optimistic active-tab context use the real destination label, so Instagram quick-open now stays consistent with `Messagerie Instagram` when messages-only redirection targets the inbox instead of falling back to the generic site name
 - Made unsupported-tab quick-open labels reflect the real Fokus destination, so Instagram now surfaces as `Messagerie Instagram` when messages-only mode redirects there instead of implying the generic homepage
 - Reconciled popup active-tab context against the real tab URL after quick-open navigation, so active-site emphasis, refresh guidance, and unsupported-tab recovery now settle back to Chromium's actual destination instead of relying only on optimistic popup state
@@ -64,6 +65,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Validate the new quick-open helper note against unsupported tabs and browser-owned pages so its wording stays accurate and non-redundant when Instagram opens to the inbox versus the standard homepage
 - Validate the full unsupported-tab quick-open flow against Instagram messages-only and standard-home flows so the shortcut label, optimistic popup status, and delayed Chromium URL reconciliation all match the actual destination users land on
 - Validate the reconciled quick-open flow on supported tabs, unsupported tabs, and browser-owned pages so the popup's delayed URL re-check still matches real Chromium navigation timing on slower transitions
 - Validate the new active-tab site emphasis against supported tabs, unsupported tabs, and browser-owned pages so the popup stays helpful without over-dimming unrelated site cards
@@ -81,6 +83,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The quick-open helper note is now derived from popup settings only, so it still needs browser-side validation to ensure the copy remains aligned with the actual Instagram destination after Chromium navigation completes
 - The unsupported-tab quick-open flow now uses dynamic destination labels in both the buttons and popup success state, so it still needs browser-side validation to ensure the optimistic wording and final Chromium destination stay aligned when Instagram message redirection is toggled on or off
 - The unsupported-tab quick-open flow now does an optimistic switch plus a delayed real-URL reconciliation after `chrome.tabs.update`, so it still needs browser-side validation to ensure Chromium navigation timing does not leave the popup briefly out of sync on slower tab transitions
 - The new active-tab site emphasis depends on popup-side tab detection and visual deemphasis, so it still needs browser-side validation to ensure unsupported-tab states remain readable and not misleading

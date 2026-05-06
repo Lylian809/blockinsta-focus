@@ -85,6 +85,7 @@ const refreshActiveTabButton = document.getElementById("refresh-active-tab");
 const refreshStateCopyNode = document.getElementById("refresh-state-copy");
 const refreshTabContextNode = document.getElementById("refresh-tab-context");
 const siteShortcutsNode = document.getElementById("site-shortcuts");
+const siteShortcutsNoteNode = document.getElementById("site-shortcuts-note");
 const defaultStateCopyNode = document.getElementById("default-state-copy");
 const summaryTitleNode = document.getElementById("summary-title");
 const summaryBodyNode = document.getElementById("summary-body");
@@ -442,6 +443,29 @@ function renderSiteShortcutLabels() {
   });
 }
 
+function renderSiteShortcutNote(showShortcuts) {
+  if (!siteShortcutsNoteNode) {
+    return;
+  }
+
+  if (!showShortcuts) {
+    siteShortcutsNoteNode.hidden = true;
+    siteShortcutsNoteNode.textContent = "";
+    return;
+  }
+
+  const instagramShortcutLabel = getSiteShortcutLabel("instagram");
+
+  if (instagramShortcutLabel === "Messagerie Instagram") {
+    siteShortcutsNoteNode.hidden = false;
+    siteShortcutsNoteNode.textContent = "Le raccourci Instagram ouvre directement la messagerie car le mode messages seulement et la redirection sont actifs.";
+    return;
+  }
+
+  siteShortcutsNoteNode.hidden = true;
+  siteShortcutsNoteNode.textContent = "";
+}
+
 function renderSiteShortcuts() {
   if (!siteShortcutsNode || !siteShortcutButtons.length) {
     return;
@@ -450,6 +474,7 @@ function renderSiteShortcuts() {
   const showShortcuts = !activeTabContext.isSupported;
   siteShortcutsNode.hidden = !showShortcuts;
   renderSiteShortcutLabels();
+  renderSiteShortcutNote(showShortcuts);
 
   siteShortcutButtons.forEach((button) => {
     button.disabled = !showShortcuts;

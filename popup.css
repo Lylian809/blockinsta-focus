@@ -612,6 +612,14 @@ body {
   gap: 8px;
 }
 
+.site-shortcuts-note {
+  margin: 10px 0 0;
+  color: #245466;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .site-shortcut-button {
   display: inline-flex;
   align-items: center;
