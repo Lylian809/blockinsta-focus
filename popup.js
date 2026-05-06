@@ -245,6 +245,16 @@ function getSupportedTabSite(hostname) {
   return SUPPORTED_TAB_SITES.find((site) => site.matcher(hostname)) ?? null;
 }
 
+function setActiveTabContextForSupportedSite(site) {
+  activeTabContext = {
+    canReload: true,
+    isSupported: true,
+    label: site.label,
+    siteKey: site.key,
+    reason: ""
+  };
+}
+
 async function detectActiveTabContext() {
   try {
     const tabs = await callTabs("query", { active: true, lastFocusedWindow: true });
@@ -278,13 +288,7 @@ async function detectActiveTabContext() {
     const supportedSite = getSupportedTabSite(parsedUrl.hostname);
 
     if (supportedSite) {
-      activeTabContext = {
-        canReload: true,
-        isSupported: true,
-        label: supportedSite.label,
-        siteKey: supportedSite.key,
-        reason: ""
-      };
+      setActiveTabContextForSupportedSite(supportedSite);
       return;
     }
 
@@ -905,6 +909,9 @@ async function openSupportedSite(event) {
 
   try {
     await callTabs("update", { url: targetUrl });
+    setActiveTabContextForSupportedSite(site);
+    renderActiveSiteState();
+    renderRefreshState();
     renderStatus(`${site.label} ouvert dans l'onglet actif.`);
     announceScreenReader(`${site.label} ouvert dans l'onglet actif.`);
   } catch (error) {
