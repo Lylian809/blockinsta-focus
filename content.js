@@ -156,7 +156,7 @@ function ensureStyle() {
         radial-gradient(circle at top left, rgba(255, 214, 153, 0.55), transparent 36%),
         linear-gradient(135deg, #fff8ee 0%, #fff 48%, #f4f6fb 100%);
       color: #111827;
-      font-family: Arial, sans-serif;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     #${OVERLAY_ID}[hidden] {
@@ -174,6 +174,22 @@ function ensureStyle() {
       text-align: center;
     }
 
+    #${OVERLAY_ID} .focus-shield-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 0 12px;
+      margin-bottom: 14px;
+      border-radius: 999px;
+      background: rgba(17, 24, 39, 0.06);
+      color: #4338ca;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
     #${OVERLAY_ID} h1 {
       margin: 0 0 10px;
       font-size: 28px;
@@ -185,6 +201,25 @@ function ensureStyle() {
       font-size: 15px;
       line-height: 1.5;
       color: #374151;
+    }
+
+    #${OVERLAY_ID} .focus-shield-detail,
+    #${OVERLAY_ID} .focus-shield-note {
+      font-size: 14px;
+    }
+
+    #${OVERLAY_ID} .focus-shield-detail {
+      margin-bottom: 14px;
+      color: #4b5563;
+    }
+
+    #${OVERLAY_ID} .focus-shield-note {
+      margin-bottom: 0;
+      color: #6b7280;
+    }
+
+    #${OVERLAY_ID} .focus-shield-actions {
+      margin: 22px 0 18px;
     }
 
     #${OVERLAY_ID} a {
@@ -231,7 +266,7 @@ function ensureOverlay() {
   return overlay;
 }
 
-function renderOverlay({ title, body, ctaHref, ctaLabel }) {
+function renderOverlay({ title, body, detail, note, ctaHref, ctaLabel }) {
   const overlay = ensureOverlay();
   const linkMarkup = ctaHref && ctaLabel
     ? `<a href="${ctaHref}">${ctaLabel}</a>`
@@ -239,9 +274,12 @@ function renderOverlay({ title, body, ctaHref, ctaLabel }) {
 
   overlay.innerHTML = `
     <div class="focus-shield-card">
+      <p class="focus-shield-eyebrow">Fokus</p>
       <h1>${title}</h1>
       <p>${body}</p>
-      ${linkMarkup}
+      ${detail ? `<p class="focus-shield-detail">${detail}</p>` : ""}
+      ${linkMarkup ? `<div class="focus-shield-actions">${linkMarkup}</div>` : ""}
+      ${note ? `<p class="focus-shield-note">${note}</p>` : ""}
     </div>
   `;
   overlay.hidden = false;
@@ -279,8 +317,9 @@ function applyInstagram() {
 
   if (settings.instagramBlockAll) {
     renderOverlay({
-      title: "Instagram est bloque",
-      body: "Cette surface est coupee pour garder ton attention la ou tu l'as decidee."
+      title: "Instagram est coupe pour l'instant",
+      body: "Fokus bloque cette surface pour t'aider a rester hors du flux.",
+      note: "Tu peux modifier ce choix a tout moment depuis le popup de l'extension."
     });
     document.body?.classList.add("focus-shield-hide-instagram");
     return;
@@ -326,10 +365,12 @@ function applyInstagram() {
 
   if (!allowed) {
     renderOverlay({
-      title: "Instagram verrouille en mode messages",
-      body: "Stories, Reels, Explore et feed sont caches pour garder surtout la messagerie.",
+      title: "Mode messages actif",
+      body: "Seule la messagerie reste accessible dans cette configuration Fokus.",
+      detail: "Le feed, Explore, Stories et Reels restent masques pour limiter les detours.",
       ctaHref: INBOX_PATH,
-      ctaLabel: "Ouvrir les messages"
+      ctaLabel: "Ouvrir la messagerie",
+      note: "Desactive ce mode dans le popup si tu veux retrouver le reste d'Instagram."
     });
   } else {
     hideOverlay();
@@ -357,8 +398,9 @@ function applyYouTube() {
 
   if (settings.youtubeBlockAll) {
     renderOverlay({
-      title: "YouTube est bloque",
-      body: "Tu peux couper totalement YouTube ou revenir plus tard via le popup de l'extension."
+      title: "YouTube est en pause",
+      body: "Cette surface est bloquee pour eviter les recommandations et l'enchainement passif.",
+      note: "Tu peux rouvrir YouTube depuis le popup Fokus quand tu en as vraiment besoin."
     });
     hideElements("ytd-app");
     return;
@@ -381,8 +423,9 @@ function applyYouTube() {
 function applyTikTok() {
   if (settings.tiktokBlockAll) {
     renderOverlay({
-      title: "TikTok est bloque",
-      body: "TikTok est completement coupe dans cette configuration."
+      title: "TikTok est coupe",
+      body: "Fokus bloque TikTok entierement dans cette configuration.",
+      note: "Tu peux reautoriser l'acces plus tard depuis le popup si ton besoin change."
     });
     hideElements("body > *:not(#focus-shield-overlay):not(style)");
     return;

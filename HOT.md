@@ -25,12 +25,13 @@ Core principles:
 - Release packaging workflow
 - Fix for Instagram redirect throttling loop
 - Recurring local Codex task setup
+- Clearer in-page Fokus overlays with calmer wording, stronger guidance, and more consistent blocked-state presentation
 
 ## Next Best Opportunities
 
 - Improve real-world robustness of Instagram selectors
 - Improve YouTube search-only behavior and thumbnail removal consistency
-- Improve wording consistency and localization quality across the content-script overlays
+- Improve wording consistency and localization quality across popup and docs
 - Consider a dedicated first-run onboarding flow beyond the popup preset copy
 - Add browser-side safeguards around repeated redirects or site DOM churn
 - Refine support/donation flow UX
@@ -38,6 +39,6 @@ Core principles:
 ## Risks / Known Issues
 
 - Supported websites change their DOM frequently
-- Overlay copy still needs the same polish pass as the popup
+- Some copy is still split between English docs and French product UI
 - Recurrent automation must avoid making low-value commits
 - Every change should stay small, safe, and genuinely useful
