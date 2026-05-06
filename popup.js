@@ -37,11 +37,86 @@ const DISABLED_REASONS = {
 
 const statusNode = document.getElementById("status");
 const resetDefaultsButton = document.getElementById("reset-defaults");
+const summaryTitleNode = document.getElementById("summary-title");
+const summaryBodyNode = document.getElementById("summary-body");
 const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
 const fieldMap = new Map(fields.map((field) => [field.name, field]));
 
 function renderStatus(message) {
   statusNode.textContent = message;
+}
+
+function getCurrentSettingsSnapshot() {
+  return Object.fromEntries(
+    fields.map((field) => [field.name, Boolean(field.checked)])
+  );
+}
+
+function getInstagramSummary(settings) {
+  if (settings.instagramBlockAll) {
+    return "Instagram coupé.";
+  }
+
+  if (settings.instagramMessagesOnly) {
+    return "Instagram limité aux messages.";
+  }
+
+  const hiddenAreas = [
+    settings.instagramBlockStories && "Stories",
+    settings.instagramBlockReels && "Reels",
+    settings.instagramBlockExplore && "Explore",
+    settings.instagramBlockFeed && "feed",
+    settings.instagramBlockSearch && "recherche"
+  ].filter(Boolean);
+
+  if (!hiddenAreas.length) {
+    return "Instagram libre.";
+  }
+
+  return `Instagram allégé : ${hiddenAreas.join(", ")} masqués.`;
+}
+
+function getYouTubeSummary(settings) {
+  if (settings.youtubeBlockAll) {
+    return "YouTube coupé.";
+  }
+
+  const protections = [
+    settings.youtubeHideThumbnails && "miniatures masquées",
+    settings.youtubeSearchOnlyHome && "accueil limité à la recherche"
+  ].filter(Boolean);
+
+  if (!protections.length) {
+    return "YouTube libre.";
+  }
+
+  return `YouTube : ${protections.join(", ")}.`;
+}
+
+function getTikTokSummary(settings) {
+  return settings.tiktokBlockAll ? "TikTok coupé." : "TikTok libre.";
+}
+
+function renderSummary() {
+  if (!summaryTitleNode || !summaryBodyNode) {
+    return;
+  }
+
+  const currentSettings = getCurrentSettingsSnapshot();
+  const enabledCount = Object.values(currentSettings).filter(Boolean).length;
+
+  if (enabledCount === 0) {
+    summaryTitleNode.textContent = "Aucune protection active.";
+    summaryBodyNode.textContent = "Tout est actuellement ouvert sur Instagram, YouTube et TikTok.";
+    return;
+  }
+
+  summaryTitleNode.textContent = `${enabledCount} protection${enabledCount > 1 ? "s" : ""} active${enabledCount > 1 ? "s" : ""}.`;
+  summaryBodyNode.textContent = [
+    getInstagramSummary(currentSettings),
+    getYouTubeSummary(currentSettings),
+    getTikTokSummary(currentSettings)
+  ].join(" ");
 }
 
 function setDisabledState(field, disabled, reason = "") {
@@ -95,6 +170,8 @@ function applyDependencies() {
       : DISABLED_REASONS.instagramRedirectHomeToInbox;
     setDisabledState(instagramRedirect, Boolean(redirectLocked), reason);
   }
+
+  renderSummary();
 }
 
 async function persistField(field) {
