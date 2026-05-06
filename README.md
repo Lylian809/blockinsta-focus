@@ -56,7 +56,7 @@ Fokus is for people who want to:
 1. Click the Fokus icon in your browser toolbar
 2. Open the popup
 3. Turn features on or off for each platform
-4. Refresh the target tab if the page does not update immediately
+4. If a page was already open or does not update immediately, use `Rafraichir l'onglet actif` in the popup
 
 Examples:
 

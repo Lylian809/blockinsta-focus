@@ -60,6 +60,8 @@ const DISABLED_REASONS = {
 const statusNode = document.getElementById("status");
 const srStatusNode = document.getElementById("sr-status");
 const resetDefaultsButton = document.getElementById("reset-defaults");
+const refreshActiveTabButton = document.getElementById("refresh-active-tab");
+const refreshStateCopyNode = document.getElementById("refresh-state-copy");
 const defaultStateCopyNode = document.getElementById("default-state-copy");
 const summaryTitleNode = document.getElementById("summary-title");
 const summaryBodyNode = document.getElementById("summary-body");
@@ -172,6 +174,27 @@ function renderStatus(message) {
   statusNode.textContent = message;
 }
 
+function callTabs(method, ...args) {
+  const tabs = chrome.tabs;
+
+  if (!tabs || typeof tabs[method] !== "function") {
+    return Promise.reject(new Error(`API chrome.tabs.${method} indisponible.`));
+  }
+
+  return new Promise((resolve, reject) => {
+    tabs[method](...args, (result) => {
+      const error = chrome.runtime?.lastError;
+
+      if (error) {
+        reject(new Error(error.message));
+        return;
+      }
+
+      resolve(result);
+    });
+  });
+}
+
 function renderStorageSummaryState() {
   if (!summaryStorageBadgeNode || !summaryStorageNoteNode) {
     return;
@@ -184,6 +207,19 @@ function renderStorageSummaryState() {
   if (usingLocalStorage) {
     summaryStorageNoteNode.textContent = "Le stockage sync Chrome est indisponible ; Fokus enregistre donc les r\u00E9glages seulement sur cet appareil.";
   }
+}
+
+function renderRefreshState() {
+  if (!refreshStateCopyNode || !refreshActiveTabButton) {
+    return;
+  }
+
+  const usingLocalStorage = activeStorageArea === "local";
+
+  refreshStateCopyNode.textContent = usingLocalStorage
+    ? "Pratique si Fokus fonctionne en stockage local et qu'un onglet ouvert doit reprendre ces r\u00E9glages sur cet appareil."
+    : "Pratique si un site ouvert avant Fokus ou rest\u00E9 en cache n'a pas encore repris tes derniers r\u00E9glages.";
+  refreshActiveTabButton.disabled = false;
 }
 
 function getStorageArea(areaName = activeStorageArea) {
@@ -521,6 +557,7 @@ function renderDefaultPresetState() {
     : "Ta configuration s'\u00E9carte du pr\u00E9r\u00E9glage Fokus recommand\u00E9.";
   renderStorageSummaryState();
   renderPresetSummaryState();
+  renderRefreshState();
 }
 
 function setDisabledState(field, disabled, reason = "") {
@@ -645,6 +682,26 @@ async function resetDefaults() {
   }
 }
 
+async function refreshActiveTab() {
+  if (!refreshActiveTabButton) {
+    return;
+  }
+
+  refreshActiveTabButton.disabled = true;
+
+  try {
+    await callTabs("reload", undefined, {});
+    renderStatus("Onglet actif recharg\u00E9.");
+    announceScreenReader("L'onglet actif a \u00E9t\u00E9 recharg\u00E9.");
+  } catch (error) {
+    renderStatus("Impossible de recharger l'onglet actif.");
+    announceScreenReader("Impossible de recharger l'onglet actif.");
+    console.error("Fokus: active tab reload failed", error);
+  } finally {
+    renderRefreshState();
+  }
+}
+
 async function initialize() {
   try {
     await detectStorageArea();
@@ -657,6 +714,7 @@ async function initialize() {
 
     initializeFieldAccessibility();
     resetDefaultsButton?.addEventListener("click", resetDefaults);
+    refreshActiveTabButton?.addEventListener("click", refreshActiveTab);
     applyDependencies();
     renderStatus(
       activeStorageArea === "local"
