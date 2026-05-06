@@ -160,3 +160,4 @@ This creates a clean Chrome Web Store upload package in `dist/`.
 - Avoid adding trackers, analytics, or external dependencies unless absolutely necessary
 - Prefer simple selectors and readable logic
 - Test changes directly on the live web apps before publishing
+- Use [REGRESSION_CHECKLIST.md](./REGRESSION_CHECKLIST.md) before releases and after popup or content-script changes
