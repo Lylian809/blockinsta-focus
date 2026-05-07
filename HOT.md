@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Hardened YouTube full-block and direct-Shorts blocking in `content.js` to hide both desktop `ytd-app` and mobile `ytm-app`, so `m.youtube.com` no longer risks leaving the page visible underneath Fokus overlays on supported mobile-style hosts
 - Added a direct recovery action to the blocked YouTube Shorts overlay in `content.js`, so accidental `/shorts/` landings no longer trap users on a dead-end card and can return them to regular YouTube immediately without disabling the Shorts block
 - Scoped popup refresh hints in `popup.js` to the currently affected supported site, so changing Instagram settings while viewing YouTube no longer tells users to refresh the wrong page and reset now suggests a reload only when the active site's protections actually changed
 - Added a contextual refresh hint to popup save and reset feedback in `popup.js`, so Fokus now tells users to reload the currently open supported tab immediately after a setting change instead of only confirming that preferences were saved
@@ -86,6 +87,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the strengthened YouTube app-shell hiding on `www.youtube.com`, `m.youtube.com`, and direct Shorts URLs so the overlay now fully covers supported desktop and mobile-style hosts without leaving underlying content visible
 - Browser-validate the new blocked-Shorts return action on desktop and mobile-style YouTube hosts so the CTA consistently lands on a useful non-Shorts surface and feels better than leaving users at a dead end
 - Browser-validate the newly scoped refresh hint so supported-tab saves and resets suggest reloading only when the active site's protections actually changed, especially when switching settings for another platform
 - Browser-validate the extended Shorts blocking on `/feed/shorts`, sidebar shortcuts, and mobile-style YouTube entry points so the added route coverage catches real Shorts access paths without hiding unrelated navigation
@@ -123,6 +125,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- YouTube overlays now hide both `ytd-app` and `ytm-app`, but that stronger app-shell coverage still needs browser-side validation on `m.youtube.com` and direct Shorts routes to confirm current mobile YouTube markup is fully covered
 - The blocked YouTube Shorts overlay now offers a direct return action, but it still needs browser-side validation on `www.youtube.com`, `m.youtube.com`, and any reachable alternate YouTube hosts to confirm the CTA always exits Shorts cleanly
 - The popup now scopes refresh hints to the active supported site's own settings, but that behavior still needs browser-side validation to confirm mixed-platform saves and reset flows stay intuitive in real Chromium sessions
 - The YouTube Shorts filter now also targets `/feed/shorts` links and pages, but it still depends on route and DOM conventions that need browser-side validation against current desktop and mobile YouTube variants

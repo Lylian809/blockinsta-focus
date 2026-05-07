@@ -44,6 +44,10 @@ const INSTAGRAM_SELECTORS = {
 };
 
 const YOUTUBE_SELECTORS = {
+  appShell: [
+    "ytd-app",
+    "ytm-app"
+  ].join(", "),
   homeFeed: [
     "ytd-browse[page-subtype='home']",
     "ytd-rich-grid-renderer",
@@ -580,7 +584,7 @@ function applyYouTube() {
       body: "Cette surface est bloqu\u00E9e pour \u00E9viter les recommandations et l'encha\u00EEnement passif.",
       note: "Tu peux rouvrir YouTube depuis le popup Fokus quand tu en as vraiment besoin."
     });
-    hideElements("ytd-app");
+    hideElements(YOUTUBE_SELECTORS.appShell);
     return;
   }
 
@@ -604,7 +608,7 @@ function applyYouTube() {
         ctaLabel: settings.youtubeSearchOnlyHome ? "Retour \u00E0 l'accueil calme" : "Revenir \u00E0 YouTube",
         note: "D\u00E9sactive ce filtre dans le popup si tu veux r\u00E9autoriser Shorts."
       });
-      hideElements("ytd-app");
+      hideElements(YOUTUBE_SELECTORS.appShell);
       return;
     }
   }
