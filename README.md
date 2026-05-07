@@ -173,6 +173,7 @@ Run:
 ```
 
 This checks the required extension entry files, validates the manifest wiring, and runs JavaScript syntax checks on `popup.js` and `content.js`.
+It also verifies that `popup.html` still contains the critical popup ids, setting field names, and supported-site shortcut hooks that `popup.js` depends on.
 
 ## Notes for contributors
 

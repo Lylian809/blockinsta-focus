@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Expanded `verify-extension.ps1` to validate critical popup wiring in `popup.html`, so recurring runs now catch missing status nodes, action buttons, checkbox names, or supported-site shortcut hooks before a broken popup can ship with otherwise valid JavaScript syntax
 - Added a repeatable `verify-extension.ps1` project check so recurring runs can validate required extension files, manifest wiring, and `popup.js` / `content.js` syntax before committing, reducing the chance of shipping a broken popup or content script on low-signal maintenance passes
 - Fixed the popup default-reset flow in `popup.js` to iterate the real `settingFields` collection, so clicking `R\u00E9initialiser` no longer risks a runtime `fields is not defined` failure before the UI can restore the recommended Fokus preset
 - Stopped the popup `Conserver la page actuelle` shortcut-mode checkbox from going through the generic site-setting save pipeline in `popup.js`, so Fokus no longer writes an empty storage key or flashes the wrong generic setting-saved feedback when users only change how unsupported-tab shortcuts open
@@ -92,6 +93,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the stricter popup-markup verifier against an intentional local breakage or a real contributor edit so the new checks prove helpful without becoming noisy during normal maintenance
 - Browser-validate the new `verify-extension.ps1` workflow in normal contributor use so syntax checks become a consistent pre-commit habit and any missing local prerequisite, especially `node`, is documented only if it causes real friction
 - Browser-validate the repaired popup reset flow on supported tabs, unsupported tabs, and local-storage fallback so `R\u00E9initialiser` now reliably restores the recommended preset, updates the recap, and shows the right refresh guidance instead of failing mid-action
 - Browser-validate the fixed unsupported-tab shortcut mode toggle so changing `Conserver la page actuelle` now shows only its dedicated feedback, persists the right preference, and leaves normal Fokus settings storage untouched
@@ -135,6 +137,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- `verify-extension.ps1` now also checks for critical popup ids, field names, and shortcut hooks, but it still cannot prove that popup behavior, copy coherence, or per-control event handling work correctly inside a live Chromium extension session
 - `verify-extension.ps1` now covers manifest wiring and JavaScript syntax, but it is intentionally lightweight and does not replace live browser validation of popup flows, DOM selectors, or platform-specific behavior
 - The popup reset path no longer references the wrong field collection in code, but it still needs browser-side validation to confirm the default-preset button, summary state, and refresh hint all stay coherent after a real reset in both sync and local storage modes
 - The popup shortcut-mode checkbox no longer routes through generic site-setting persistence in code, but it still needs browser-side validation to confirm unsupported-tab shortcut feedback appears only once and no stale empty-key storage survives older extension installs
