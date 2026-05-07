@@ -4,9 +4,17 @@ $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $requiredFiles = @(
   "manifest.json",
   "content.js",
+  "HOT.md",
   "popup.html",
   "popup.css",
-  "popup.js"
+  "popup.js",
+  "README.md"
+)
+$expectedHotSections = @(
+  "## Product Direction",
+  "## Recent Improvements",
+  "## Next Best Opportunities",
+  "## Risks / Known Issues"
 )
 $expectedPopupIds = @(
   "status",
@@ -144,16 +152,37 @@ function Assert-StringSetsMatch {
   }
 }
 
+function Assert-ContainsText {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Content,
+    [Parameter(Mandatory = $true)]
+    [string]$ExpectedText,
+    [Parameter(Mandatory = $true)]
+    [string]$Label
+  )
+
+  if ($Content -notmatch [regex]::Escape($ExpectedText)) {
+    throw "$Label is missing expected text: $ExpectedText"
+  }
+}
+
 foreach ($relativePath in $requiredFiles) {
   Assert-PathExists -Path (Join-Path $projectRoot $relativePath) -Label "Required file"
 }
 
 $popupHtmlPath = Join-Path $projectRoot "popup.html"
 $popupHtml = Get-Content -LiteralPath $popupHtmlPath -Raw
+$hotPath = Join-Path $projectRoot "HOT.md"
+$hotContent = Get-Content -LiteralPath $hotPath -Raw
 
 Assert-MatchesPresent -Content $popupHtml -ExpectedValues $expectedPopupIds -Pattern 'id="([^"]+)"' -Label "popup.html"
 Assert-MatchesPresent -Content $popupHtml -ExpectedValues $expectedSettingFieldNames -Pattern 'name="([^"]+)"' -Label "popup.html"
 Assert-MatchesPresent -Content $popupHtml -ExpectedValues $expectedShortcutSites -Pattern 'data-site-shortcut="([^"]+)"' -Label "popup.html"
+
+foreach ($sectionHeading in $expectedHotSections) {
+  Assert-ContainsText -Content $hotContent -ExpectedText $sectionHeading -Label "HOT.md"
+}
 
 $manifestPath = Join-Path $projectRoot "manifest.json"
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
@@ -164,6 +193,20 @@ if (-not $manifest.version) {
 
 if (-not $manifest.action.default_popup) {
   throw "manifest.json must define action.default_popup."
+}
+
+$readmePath = Join-Path $projectRoot "README.md"
+$readmeContent = Get-Content -LiteralPath $readmePath -Raw
+$readmeVersionMatch = [regex]::Match($readmeContent, 'Current release version:\s*`([^`]+)`')
+
+if (-not $readmeVersionMatch.Success) {
+  throw "README.md must contain a 'Current release version' line."
+}
+
+$readmeVersion = $readmeVersionMatch.Groups[1].Value.Trim()
+
+if ($readmeVersion -ne $manifest.version) {
+  throw "README.md release version '$readmeVersion' does not match manifest.json version '$($manifest.version)'."
 }
 
 Assert-PathExists -Path (Join-Path $projectRoot $manifest.action.default_popup) -Label "Popup entry"
