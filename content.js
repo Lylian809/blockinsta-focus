@@ -433,6 +433,38 @@ function ensureYouTubeHomeNote() {
   return note;
 }
 
+function isFocusManagedNode(node) {
+  if (!(node instanceof Node)) {
+    return false;
+  }
+
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    const element = node;
+    return Boolean(
+      element.closest?.(`#${OVERLAY_ID}, #${YOUTUBE_HOME_NOTE_ID}, #${STYLE_ID}`)
+    );
+  }
+
+  return isFocusManagedNode(node.parentNode);
+}
+
+function isRelevantMutation(record) {
+  if (isFocusManagedNode(record.target)) {
+    return false;
+  }
+
+  const changedNodes = [
+    ...record.addedNodes,
+    ...record.removedNodes
+  ];
+
+  if (!changedNodes.length) {
+    return true;
+  }
+
+  return changedNodes.some((node) => !isFocusManagedNode(node));
+}
+
 function showYouTubeHomeNote() {
   const note = ensureYouTubeHomeNote();
   note.innerHTML = `
@@ -690,7 +722,11 @@ function startObserver() {
     return;
   }
 
-  const observer = new MutationObserver(() => {
+  const observer = new MutationObserver((records) => {
+    if (!records.some(isRelevantMutation)) {
+      return;
+    }
+
     queueApplyAll();
   });
 
