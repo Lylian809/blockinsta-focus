@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added a contextual refresh hint to popup save and reset feedback in `popup.js`, so Fokus now tells users to reload the currently open supported tab immediately after a setting change instead of only confirming that preferences were saved
 - Extended YouTube Shorts blocking in `content.js` to cover the legacy `/feed/shorts` route and matching shortcut links, so `Bloquer Shorts` no longer leaves that common entry path accessible while the dedicated Shorts filter is enabled
 - Clarified unsupported-tab quick-open risk in `popup.js`, so Fokus now explicitly warns when a shortcut will replace the current page in the active tab and points users to the `Conserver la page actuelle` option before they navigate away by accident
 - Tightened the YouTube thumbnail-hiding selector in `content.js` so `Supprimer les miniatures` no longer removes an entire Shorts shelf by accident, keeping that option aligned with its wording while leaving full Shorts blocking to the dedicated `Bloquer Shorts` toggle
@@ -83,6 +84,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the new contextual refresh hint so supported-tab saves and resets feel clearer without becoming repetitive during rapid toggle changes
 - Browser-validate the extended Shorts blocking on `/feed/shorts`, sidebar shortcuts, and mobile-style YouTube entry points so the added route coverage catches real Shorts access paths without hiding unrelated navigation
 - Browser-validate the new unsupported-tab replacement warning so the added shortcut note feels clear without becoming noisy when users intentionally choose to replace the current page
 - Browser-validate the narrowed YouTube thumbnail selector on home, search, watch-next, and Shorts-adjacent shelves so `Supprimer les miniatures` remains visually useful without silently acting like extra content blocking
@@ -118,6 +120,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The popup now appends an explicit refresh hint after saves and resets on supported tabs, but that wording still needs browser-side validation to confirm it feels helpful instead of noisy during rapid configuration changes
 - The YouTube Shorts filter now also targets `/feed/shorts` links and pages, but it still depends on route and DOM conventions that need browser-side validation against current desktop and mobile YouTube variants
 - The popup now warns more explicitly when unsupported-tab shortcuts will replace the current page, but that copy still needs browser-side validation to confirm it prevents accidental navigation without overloading the refresh card
 - The YouTube thumbnail-hiding experience still depends on DOM-specific image selectors, so it needs browser-side validation to confirm that trimming the over-broad Shorts shelf selector did not reintroduce thumbnail leaks on experimental layouts

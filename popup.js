@@ -1134,6 +1134,14 @@ function getStorageStatusSuffix() {
   return activeStorageArea === "local" ? " localement" : "";
 }
 
+function getRefreshHint() {
+  if (!activeTabContext.isSupported || !activeTabContext.canReload) {
+    return "";
+  }
+
+  return ` Rafra\u00EEchis ${activeTabContext.label} pour appliquer ce changement tout de suite.`;
+}
+
 async function persistUiPreference(name, value) {
   await callStorage(activeStorageArea, "set", { [name]: value });
 }
@@ -1144,7 +1152,7 @@ async function saveSetting(event) {
   try {
     await persistField(field);
     applyDependencies();
-    renderStatus(`R\u00E9glage enregistr\u00E9${getStorageStatusSuffix()}.`);
+    renderStatus(`R\u00E9glage enregistr\u00E9${getStorageStatusSuffix()}.${getRefreshHint()}`);
     announceScreenReader(`${getFieldLabel(field)} ${field.checked ? "activ\u00E9" : "d\u00E9sactiv\u00E9"}. ${statusNode.textContent}`);
   } catch (error) {
     field.checked = !field.checked;
@@ -1164,7 +1172,7 @@ async function resetDefaults() {
     });
 
     applyDependencies();
-    renderStatus(`R\u00E9glages Fokus r\u00E9appliqu\u00E9s${getStorageStatusSuffix()}.`);
+    renderStatus(`R\u00E9glages Fokus r\u00E9appliqu\u00E9s${getStorageStatusSuffix()}.${getRefreshHint()}`);
     announceScreenReader("Les r\u00E9glages Fokus recommand\u00E9s sont de nouveau actifs.");
   } catch (error) {
     renderStatus("Impossible de r\u00E9initialiser les r\u00E9glages.");
