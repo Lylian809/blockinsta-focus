@@ -237,6 +237,11 @@ function callTabs(method, ...args) {
   });
 }
 
+function isMissingTabError(error) {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  return /No tab with id|tab was closed/i.test(message);
+}
+
 function renderStorageSummaryState() {
   if (!summaryStorageBadgeNode || !summaryStorageNoteNode) {
     return;
@@ -625,45 +630,6 @@ function renderActiveSiteState() {
   }
 
   summaryTabNoteNode.textContent = `Onglet actuel : ${activeTabContext.label}. Fokus garde les trois cartes visibles car ce site n'est pas encore pris en charge.`;
-}
-
-function getStorageArea(areaName = activeStorageArea) {
-  return chrome.storage?.[areaName] ?? null;
-}
-
-function callStorage(areaName, method, ...args) {
-  const area = getStorageArea(areaName);
-
-  if (!area || typeof area[method] !== "function") {
-    return Promise.reject(new Error(`Zone de stockage ${areaName} indisponible.`));
-  }
-
-  return new Promise((resolve, reject) => {
-    area[method](...args, (result) => {
-      const error = chrome.runtime?.lastError;
-
-      if (error) {
-        reject(new Error(error.message));
-        return;
-      }
-
-      resolve(result);
-    });
-  });
-}
-
-async function detectStorageArea() {
-  for (const areaName of ["sync", "local"]) {
-    try {
-      await callStorage(areaName, "get", {});
-      activeStorageArea = areaName;
-      return areaName;
-    } catch (error) {
-      continue;
-    }
-  }
-
-  throw new Error("Aucun stockage Chrome disponible.");
 }
 
 function getCurrentSettingsSnapshot() {
@@ -1106,6 +1072,13 @@ async function refreshActiveTab() {
     renderStatus(reloadStatus);
     announceScreenReader(reloadStatus);
   } catch (error) {
+    if (isMissingTabError(error)) {
+      await refreshActiveTabContext();
+      renderStatus("L'onglet cibl\u00E9 n'existe plus ; choisis un site ci-dessous pour repartir.");
+      announceScreenReader("L'onglet cibl\u00E9 n'existe plus.");
+      return;
+    }
+
     renderStatus("Impossible de recharger l'onglet actif.");
     announceScreenReader("Impossible de recharger l'onglet actif.");
     console.error("Fokus: active tab reload failed", error);
@@ -1135,7 +1108,17 @@ async function openSupportedSite(event) {
     renderStatus(`Ouverture de ${destinationLabel}...`);
 
     if (opensInCurrentTab) {
-      const updatedTab = await callTabs("update", activeTabId, { url: targetUrl });
+      let updatedTab;
+
+      try {
+        updatedTab = await callTabs("update", activeTabId, { url: targetUrl });
+      } catch (error) {
+        if (!isMissingTabError(error)) {
+          throw error;
+        }
+
+        updatedTab = await callTabs("create", { url: targetUrl, active: true });
+      }
 
       if (!setActiveTabContextFromTab(updatedTab) || !activeTabContextMatchesSite(key)) {
         setActiveTabContextForSupportedSite(siteContext, destinationLabel, getTabIdentity(updatedTab));
