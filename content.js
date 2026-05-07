@@ -67,8 +67,12 @@ const YOUTUBE_SELECTORS = {
   shortsLinks: [
     "a[href='/shorts']",
     "a[href^='/shorts/']",
+    "a[href='/feed/shorts']",
+    "a[href^='/feed/shorts']",
     "a[href*='://www.youtube.com/shorts/']",
     "a[href*='://m.youtube.com/shorts/']",
+    "a[href*='://www.youtube.com/feed/shorts']",
+    "a[href*='://m.youtube.com/feed/shorts']",
     "a[title='Shorts']",
     "a[aria-label='Shorts']"
   ].join(", "),
@@ -462,6 +466,10 @@ function pathAllowedInInstagramMessagesOnly(path) {
   return INSTAGRAM_ALLOWED_PREFIXES.some((prefix) => path.startsWith(prefix));
 }
 
+function isYouTubeShortsPath(path) {
+  return path === "/feed/shorts" || path.startsWith("/feed/shorts/") || path.startsWith("/shorts");
+}
+
 function applyInstagram() {
   document.body?.classList.remove("focus-shield-hide-instagram");
   const shouldHideReelsEntry = settings.instagramBlockReels || settings.instagramMessagesOnly;
@@ -581,7 +589,7 @@ function applyYouTube() {
     hideElements(YOUTUBE_SELECTORS.shortsLinks);
     hideElements(YOUTUBE_SELECTORS.shortsShelves);
 
-    if (window.location.pathname.startsWith("/shorts")) {
+    if (isYouTubeShortsPath(window.location.pathname)) {
       renderOverlay({
         title: "Shorts est bloqu\u00E9",
         body: "Fokus coupe ce flux vertical pour \u00E9viter l'encha\u00EEnement rapide des vid\u00E9os.",
