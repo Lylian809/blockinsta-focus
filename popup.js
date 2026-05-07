@@ -1233,7 +1233,7 @@ async function resetDefaults() {
     const previousSettings = getCurrentSettingsSnapshot();
     await callStorage(activeStorageArea, "set", DEFAULT_SETTINGS);
 
-    fields.forEach((field) => {
+    settingFields.forEach((field) => {
       field.checked = Boolean(DEFAULT_SETTINGS[field.name]);
     });
 
