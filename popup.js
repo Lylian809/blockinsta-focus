@@ -643,8 +643,8 @@ function renderSiteShortcuts() {
     siteShortcutsModeNode.hidden = !canChooseNewTab;
   }
 
-  if (siteShortcutsNewTabModeNode && !canChooseNewTab) {
-    siteShortcutsNewTabModeNode.checked = false;
+  if (siteShortcutsNewTabModeNode) {
+    siteShortcutsNewTabModeNode.disabled = !canChooseNewTab;
   }
 
   renderSiteShortcutLabels();

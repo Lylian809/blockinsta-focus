@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Preserved the unsupported-tab shortcut mode choice across popup tab-context changes, so temporarily hiding the `conserver la page actuelle` toggle no longer resets the in-session preference back to replacing the current tab
 - Persisted the unsupported-tab shortcut mode preference in `popup.js`, so the choice to preserve the current page by opening Instagram, YouTube, or TikTok in a new tab now survives popup reopenings without affecting Fokus protection presets
 - Added an explicit unsupported-tab shortcut mode in the popup so users can preserve the current page and open Instagram, YouTube, or TikTok in a new tab instead of always replacing the active unsupported tab
 - Restored the popup storage helper layer in `popup.js`, so Fokus can again detect `chrome.storage.sync` versus local fallback, load settings, save toggles, and initialize the popup instead of failing into its generic error state
@@ -76,6 +77,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the in-session unsupported-tab shortcut preference so hiding and re-showing the mode toggle during tab-context changes keeps the saved choice visible and trustworthy inside one popup session
 - Browser-validate the newly persisted unsupported-tab shortcut preference so reopening the popup, switching between sync and local fallback, and using both shortcut modes all stay aligned with real Chromium behavior
 - Browser-validate the new unsupported-tab shortcut mode so preserving the current page versus replacing the active tab feels clear, safe, and correctly reflected in popup labels and success states
 - Browser-validate the restored popup storage initialization path so sync storage, local fallback, reset, and per-toggle saves all behave correctly in a real Chromium extension session
@@ -104,6 +106,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The unsupported-tab shortcut preference now stays intact when its mode toggle is temporarily hidden, but it still needs browser-side validation to confirm the popup surfaces that preserved choice clearly after real tab-context switches
 - The unsupported-tab shortcut mode choice now persists across popup sessions, but it still needs browser-side validation to confirm the saved preference restores reliably and the fallback copy stays truthful when sync storage drops to local storage
 - The popup now lets users choose whether unsupported-tab shortcuts replace the current tab or open a new one, but that new choice still needs browser-side validation to confirm the mode toggle, labels, and tab-context refresh remain trustworthy in real Chromium sessions
 - The popup storage helper layer has been restored in code, but it still needs browser-side validation to confirm sync detection, local fallback messaging, and settings persistence all behave correctly in a real extension runtime
