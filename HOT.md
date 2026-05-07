@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Clarified unsupported-tab quick-open risk in `popup.js`, so Fokus now explicitly warns when a shortcut will replace the current page in the active tab and points users to the `Conserver la page actuelle` option before they navigate away by accident
 - Tightened the YouTube thumbnail-hiding selector in `content.js` so `Supprimer les miniatures` no longer removes an entire Shorts shelf by accident, keeping that option aligned with its wording while leaving full Shorts blocking to the dedicated `Bloquer Shorts` toggle
 - Added a recommended YouTube Shorts block across `popup.html`, `popup.js`, and `content.js`, so Fokus now hides Shorts entry points and blocks direct `/shorts/` pages instead of leaving one of YouTube's most addictive surfaces untouched
 - Hardened popup active-tab state handling by introducing explicit internal context types instead of branching on localized labels, while also clarifying the summary guidance for unreadable and unavailable tab states so unsupported-tab recovery copy stays trustworthy as wording evolves
@@ -81,6 +82,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the new unsupported-tab replacement warning so the added shortcut note feels clear without becoming noisy when users intentionally choose to replace the current page
 - Browser-validate the narrowed YouTube thumbnail selector on home, search, watch-next, and Shorts-adjacent shelves so `Supprimer les miniatures` remains visually useful without silently acting like extra content blocking
 - Browser-validate the new YouTube Shorts protection on the home feed, watch pages, subscriptions, and direct `/shorts/` URLs so the selectors and blocking overlay stay trustworthy across common logged-in layouts
 - Browser-validate the new explicit popup tab-context typing so unreadable, restricted, missing, unsupported, and unavailable active-tab states each surface the intended summary note and shortcut guidance in real Chromium sessions
@@ -114,6 +116,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The popup now warns more explicitly when unsupported-tab shortcuts will replace the current page, but that copy still needs browser-side validation to confirm it prevents accidental navigation without overloading the refresh card
 - The YouTube thumbnail-hiding experience still depends on DOM-specific image selectors, so it needs browser-side validation to confirm that trimming the over-broad Shorts shelf selector did not reintroduce thumbnail leaks on experimental layouts
 - The new YouTube Shorts filter relies on DOM selectors for entry points and shelves, so it still needs browser-side validation across more YouTube experiments before it can be treated as fully proven
 - The popup now uses explicit active-tab context types instead of relying on localized labels, but that refactor still needs browser-side validation to confirm every real Chromium edge case lands in the right summary-note and shortcut-guidance state

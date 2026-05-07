@@ -631,6 +631,8 @@ function renderSiteShortcutNote(showShortcuts, canChooseNewTab) {
 
   if (siteShortcutsModeNode && !siteShortcutsModeNode.hidden && siteShortcutsNewTabModeNode?.checked) {
     notes.push("Le site choisi s'ouvrira dans un nouvel onglet pour conserver la page actuelle.");
+  } else if (canChooseNewTab) {
+    notes.push("Le site choisi remplacera la page actuelle dans cet onglet. Active \"Conserver la page actuelle\" si tu veux l'ouvrir dans un nouvel onglet \u00E0 la place.");
   }
 
   siteShortcutsNoteNode.hidden = notes.length === 0;
