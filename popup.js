@@ -61,19 +61,19 @@ const SUPPORTED_TAB_SITES = [
     key: "instagram",
     label: "Instagram",
     homeUrl: "https://www.instagram.com/",
-    matcher: (hostname) => hostname.includes("instagram.com")
+    matcher: (hostname) => matchesHostname(hostname, "instagram.com")
   },
   {
     key: "youtube",
     label: "YouTube",
     homeUrl: "https://www.youtube.com/",
-    matcher: (hostname) => hostname.includes("youtube.com")
+    matcher: (hostname) => matchesHostname(hostname, "youtube.com")
   },
   {
     key: "tiktok",
     label: "TikTok",
     homeUrl: "https://www.tiktok.com/",
-    matcher: (hostname) => hostname.includes("tiktok.com")
+    matcher: (hostname) => matchesHostname(hostname, "tiktok.com")
   }
 ];
 const ACTIVE_TAB_CONTEXT_REFRESH_DELAY_MS = 350;
@@ -123,6 +123,10 @@ let activeTabContext = {
   siteKey: null,
   reason: ""
 };
+
+function matchesHostname(hostname, domain) {
+  return hostname === domain || hostname.endsWith(`.${domain}`);
+}
 
 function getFieldLabel(field) {
   return field.closest(".toggle")?.querySelector("strong")?.textContent?.trim() ?? field.name;

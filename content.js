@@ -74,18 +74,22 @@ let lastRedirectTarget = "";
 let applyQueued = false;
 let activeStorageArea = "sync";
 
+function matchesHostname(hostname, domain) {
+  return hostname === domain || hostname.endsWith(`.${domain}`);
+}
+
 function detectSite() {
   const host = window.location.hostname;
 
-  if (host.includes("instagram.com")) {
+  if (matchesHostname(host, "instagram.com")) {
     return "instagram";
   }
 
-  if (host.includes("youtube.com")) {
+  if (matchesHostname(host, "youtube.com")) {
     return "youtube";
   }
 
-  if (host.includes("tiktok.com")) {
+  if (matchesHostname(host, "tiktok.com")) {
     return "tiktok";
   }
 
