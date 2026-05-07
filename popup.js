@@ -595,7 +595,7 @@ function renderSiteShortcutLabels() {
   });
 }
 
-function renderSiteShortcutNote(showShortcuts) {
+function renderSiteShortcutNote(showShortcuts, canChooseNewTab) {
   if (!siteShortcutsNoteNode) {
     return;
   }
@@ -611,6 +611,10 @@ function renderSiteShortcutNote(showShortcuts) {
 
   if (instagramShortcutLabel === "Messagerie Instagram") {
     notes.push("Le raccourci Instagram ouvre directement la messagerie car le mode messages seulement et la redirection sont actifs.");
+  }
+
+  if (!canChooseNewTab && shouldOpenSiteShortcutInNewTab()) {
+    notes.push("Fokus ouvrira le site choisi dans un nouvel onglet car aucun onglet actif exploitable n'est disponible pour le remplacer.");
   }
 
   if (siteShortcutsModeNode && !siteShortcutsModeNode.hidden && siteShortcutsNewTabModeNode?.checked) {
@@ -648,7 +652,7 @@ function renderSiteShortcuts() {
   }
 
   renderSiteShortcutLabels();
-  renderSiteShortcutNote(showShortcuts);
+  renderSiteShortcutNote(showShortcuts, canChooseNewTab);
 
   siteShortcutButtons.forEach((button) => {
     button.disabled = !showShortcuts;
