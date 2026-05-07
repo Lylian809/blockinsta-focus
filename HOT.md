@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Hardened Instagram full blocking in `content.js` so Fokus now hides the whole top-level document content instead of mostly masking `main`, making the full-block overlay more reliable against Instagram shells that keep navigation or side chrome visible outside the main feed container
 - Hardened TikTok full blocking in `content.js` so Fokus now hides top-level document roots under `html`, not only `body` children, making the full-block overlay more reliable against portal-style shells or DOM variants that render outside the main body tree
 - Hardened the release workflow so `build-release.ps1` now runs `verify-extension.ps1` before packaging, while the verifier also checks manifest icon paths and exact parity between `host_permissions` and content-script `matches`, reducing the chance of shipping a ZIP with broken assets or stale host coverage
 - Expanded `verify-extension.ps1` to validate critical popup wiring in `popup.html`, so recurring runs now catch missing status nodes, action buttons, checkbox names, or supported-site shortcut hooks before a broken popup can ship with otherwise valid JavaScript syntax
@@ -95,6 +96,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the stronger Instagram full-block path on current Instagram web layouts so hiding the top-level document content fully covers side navigation and surrounding chrome without causing unexpected restoration issues after the setting is turned back off
 - Browser-validate the stronger TikTok full-block path on current TikTok web surfaces so hiding top-level document roots fully covers the page without leaving stray chrome visible or causing unexpected restoration issues after the setting is turned back off
 - Browser-validate a full packaging pass with the stricter release guardrails so contributors confirm the new pre-zip verification step feels fast enough and catches real asset or manifest drift before manual store uploads
 - Browser-validate the stricter popup-markup verifier against an intentional local breakage or a real contributor edit so the new checks prove helpful without becoming noisy during normal maintenance
@@ -141,6 +143,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- Instagram full blocking now hides the top-level document content instead of mostly masking `main`, but it still needs browser-side validation on current Instagram layouts to confirm no visible shell survives outside the overlay and that normal rendering returns cleanly after unblocking
 - TikTok full blocking now hides top-level document roots instead of only `body` children, but it still needs browser-side validation on the current TikTok web app to confirm no visible shell survives outside the overlay and that normal page rendering returns cleanly after unblocking
 - `build-release.ps1` now blocks packaging when verification fails and `verify-extension.ps1` also checks icon-path and host-pattern parity, but this still cannot prove the packaged extension behaves correctly inside a live Chromium session or that current store-upload steps remain friction-free for contributors
 - `verify-extension.ps1` now also checks for critical popup ids, field names, and shortcut hooks, but it still cannot prove that popup behavior, copy coherence, or per-control event handling work correctly inside a live Chromium extension session

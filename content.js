@@ -524,7 +524,7 @@ function applyInstagram() {
       body: "Fokus bloque cette surface pour t'aider \u00E0 rester hors du flux.",
       note: "Tu peux modifier ce choix \u00E0 tout moment depuis le popup de l'extension."
     });
-    document.body?.classList.add("focus-shield-hide-instagram");
+    hideTopLevelDocumentContent();
     return;
   }
 
