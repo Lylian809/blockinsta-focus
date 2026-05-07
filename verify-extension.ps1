@@ -94,6 +94,56 @@ function Assert-MatchesPresent {
   }
 }
 
+function Assert-ManifestPathsExist {
+  param(
+    [Parameter(Mandatory = $true)]
+    [object]$Value,
+    [Parameter(Mandatory = $true)]
+    [string]$Label
+  )
+
+  if ($null -eq $Value) {
+    return
+  }
+
+  if ($Value -is [string]) {
+    Assert-PathExists -Path (Join-Path $projectRoot $Value) -Label $Label
+    return
+  }
+
+  if ($Value -is [System.Collections.IDictionary] -or $Value.PSObject.Properties.Count -gt 0) {
+    foreach ($property in $Value.PSObject.Properties) {
+      if ($property.Value -is [string] -and -not [string]::IsNullOrWhiteSpace($property.Value)) {
+        Assert-PathExists -Path (Join-Path $projectRoot $property.Value) -Label $Label
+      }
+    }
+  }
+}
+
+function Assert-StringSetsMatch {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string[]]$ExpectedValues,
+    [Parameter(Mandatory = $true)]
+    [string[]]$ActualValues,
+    [Parameter(Mandatory = $true)]
+    [string]$ExpectedLabel,
+    [Parameter(Mandatory = $true)]
+    [string]$ActualLabel
+  )
+
+  $expectedUnique = $ExpectedValues | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique
+  $actualUnique = $ActualValues | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique
+
+  foreach ($missingValue in ($expectedUnique | Where-Object { $_ -notin $actualUnique })) {
+    throw "$ActualLabel is missing '$missingValue' from $ExpectedLabel."
+  }
+
+  foreach ($unexpectedValue in ($actualUnique | Where-Object { $_ -notin $expectedUnique })) {
+    throw "$ActualLabel contains unexpected value '$unexpectedValue' that is not present in $ExpectedLabel."
+  }
+}
+
 foreach ($relativePath in $requiredFiles) {
   Assert-PathExists -Path (Join-Path $projectRoot $relativePath) -Label "Required file"
 }
@@ -117,6 +167,23 @@ if (-not $manifest.action.default_popup) {
 }
 
 Assert-PathExists -Path (Join-Path $projectRoot $manifest.action.default_popup) -Label "Popup entry"
+Assert-ManifestPathsExist -Value $manifest.icons -Label "Manifest icon"
+Assert-ManifestPathsExist -Value $manifest.action.default_icon -Label "Action icon"
+
+$hostPermissions = @($manifest.host_permissions)
+$contentScriptMatches = @(
+  foreach ($contentScript in $manifest.content_scripts) {
+    foreach ($matchPattern in $contentScript.matches) {
+      $matchPattern
+    }
+  }
+)
+
+Assert-StringSetsMatch `
+  -ExpectedValues $hostPermissions `
+  -ActualValues $contentScriptMatches `
+  -ExpectedLabel "manifest host_permissions" `
+  -ActualLabel "content_scripts matches"
 
 foreach ($contentScript in $manifest.content_scripts) {
   foreach ($scriptPath in $contentScript.js) {

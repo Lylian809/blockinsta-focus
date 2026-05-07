@@ -162,7 +162,7 @@ Run:
 ./build-release.ps1
 ```
 
-This creates a clean Chrome Web Store upload package in `dist/`.
+This first runs `./verify-extension.ps1`, then creates a clean Chrome Web Store upload package in `dist/`.
 
 ## Verify the extension before committing
 

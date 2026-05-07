@@ -2,6 +2,14 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $manifestPath = Join-Path $projectRoot "manifest.json"
+$verifyScriptPath = Join-Path $projectRoot "verify-extension.ps1"
+
+& $verifyScriptPath
+
+if ($LASTEXITCODE -ne 0) {
+  throw "Extension verification failed; release ZIP was not created."
+}
+
 $manifest = Get-Content $manifestPath | ConvertFrom-Json
 $version = $manifest.version
 
