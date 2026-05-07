@@ -258,6 +258,10 @@ function setActiveTabContextForSupportedSite(site, labelOverride = "") {
   };
 }
 
+function activeTabContextMatchesSite(siteKey) {
+  return activeTabContext.isSupported && activeTabContext.siteKey === siteKey;
+}
+
 function getMissingActiveTabContext() {
   return {
     canReload: false,
@@ -1022,7 +1026,7 @@ async function openSupportedSite(event) {
   try {
     const updatedTab = await callTabs("update", { url: targetUrl });
 
-    if (!setActiveTabContextFromTab(updatedTab)) {
+    if (!setActiveTabContextFromTab(updatedTab) || !activeTabContextMatchesSite(key)) {
       setActiveTabContextForSupportedSite(siteContext, destinationLabel);
     }
 
