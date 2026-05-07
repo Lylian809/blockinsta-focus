@@ -23,6 +23,17 @@ const YOUTUBE_HOME_NOTE_ID = "focus-shield-youtube-home-note";
 const HIDDEN_ATTR = "data-focus-shield-hidden";
 const INBOX_PATH = "/direct/inbox/";
 const YOUTUBE_HOME_PATH = "/";
+const WINDOW_NAVIGATION_EVENTS = [
+  "popstate",
+  "hashchange",
+  "pageshow"
+];
+const DOCUMENT_NAVIGATION_EVENTS = {
+  youtube: [
+    "yt-navigate-finish",
+    "yt-page-data-updated"
+  ]
+};
 
 const INSTAGRAM_ALLOWED_PREFIXES = [
   "/direct",
@@ -680,6 +691,9 @@ function startNavigationHooks() {
     return;
   }
 
+  const queueNavigationReapply = () => {
+    queueApplyAll();
+  };
   const wrap = (methodName) => {
     const original = history[methodName];
     history[methodName] = function wrappedHistoryState(...args) {
@@ -691,7 +705,16 @@ function startNavigationHooks() {
 
   wrap("pushState");
   wrap("replaceState");
-  window.addEventListener("popstate", queueApplyAll);
+  WINDOW_NAVIGATION_EVENTS.forEach((eventName) => {
+    window.addEventListener(eventName, queueNavigationReapply);
+  });
+
+  const documentEvents = DOCUMENT_NAVIGATION_EVENTS[SITE] ?? [];
+
+  documentEvents.forEach((eventName) => {
+    // Some SPA surfaces, especially YouTube, expose their own route lifecycle events.
+    document.addEventListener(eventName, queueNavigationReapply);
+  });
   navigationHooksStarted = true;
 }
 
