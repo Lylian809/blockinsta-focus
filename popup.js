@@ -1168,12 +1168,42 @@ function getStorageStatusSuffix() {
   return activeStorageArea === "local" ? " localement" : "";
 }
 
+function getSiteLabelForSetting(settingName) {
+  const siteKey = getSiteKeyForSetting(settingName);
+  return SUPPORTED_TAB_SITES.find((site) => site.key === siteKey)?.label ?? "";
+}
+
 function getRefreshHint(shouldSuggestRefresh) {
   if (!shouldSuggestRefresh) {
     return "";
   }
 
   return ` Rafra\u00EEchis ${activeTabContext.label} pour appliquer ce changement tout de suite.`;
+}
+
+function getDeferredApplyHint(siteLabel = "") {
+  if (!siteLabel) {
+    return " Le changement s'appliquera \u00E0 l'ouverture ou au prochain rechargement du site concern\u00E9.";
+  }
+
+  return ` Le changement s'appliquera \u00E0 l'ouverture ou au prochain rechargement de ${siteLabel}.`;
+}
+
+function buildSettingSavedMessage(settingName) {
+  const siteLabel = getSiteLabelForSetting(settingName);
+  const shouldSuggestRefresh = shouldSuggestRefreshingActiveSiteForSetting(settingName);
+
+  return `R\u00E9glage enregistr\u00E9${getStorageStatusSuffix()}.${shouldSuggestRefresh
+    ? getRefreshHint(true)
+    : getDeferredApplyHint(siteLabel)}`;
+}
+
+function buildDefaultsResetMessage(previousSettings) {
+  const shouldSuggestRefresh = didActiveSiteSettingsChange(previousSettings, DEFAULT_SETTINGS);
+
+  return `R\u00E9glages Fokus r\u00E9appliqu\u00E9s${getStorageStatusSuffix()}.${shouldSuggestRefresh
+    ? getRefreshHint(true)
+    : " Les changements s'appliqueront \u00E0 l'ouverture ou au prochain rechargement des sites concern\u00E9s."}`;
 }
 
 async function persistUiPreference(name, value) {
@@ -1186,11 +1216,7 @@ async function saveSetting(event) {
   try {
     await persistField(field);
     applyDependencies();
-    renderStatus(
-      `R\u00E9glage enregistr\u00E9${getStorageStatusSuffix()}.${getRefreshHint(
-        shouldSuggestRefreshingActiveSiteForSetting(field.name)
-      )}`
-    );
+    renderStatus(buildSettingSavedMessage(field.name));
     announceScreenReader(`${getFieldLabel(field)} ${field.checked ? "activ\u00E9" : "d\u00E9sactiv\u00E9"}. ${statusNode.textContent}`);
   } catch (error) {
     field.checked = !field.checked;
@@ -1211,11 +1237,7 @@ async function resetDefaults() {
     });
 
     applyDependencies();
-    renderStatus(
-      `R\u00E9glages Fokus r\u00E9appliqu\u00E9s${getStorageStatusSuffix()}.${getRefreshHint(
-        didActiveSiteSettingsChange(previousSettings, DEFAULT_SETTINGS)
-      )}`
-    );
+    renderStatus(buildDefaultsResetMessage(previousSettings));
     announceScreenReader("Les r\u00E9glages Fokus recommand\u00E9s sont de nouveau actifs.");
   } catch (error) {
     renderStatus("Impossible de r\u00E9initialiser les r\u00E9glages.");

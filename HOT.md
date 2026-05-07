@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Made popup save and reset feedback in `popup.js` explicitly name when changes will only apply on the next open or reload of the affected site, so editing Instagram, YouTube, or TikTok settings from another tab no longer ends with an overly generic success message
 - Hardened YouTube full-block and direct-Shorts blocking in `content.js` to hide both desktop `ytd-app` and mobile `ytm-app`, so `m.youtube.com` no longer risks leaving the page visible underneath Fokus overlays on supported mobile-style hosts
 - Added a direct recovery action to the blocked YouTube Shorts overlay in `content.js`, so accidental `/shorts/` landings no longer trap users on a dead-end card and can return them to regular YouTube immediately without disabling the Shorts block
 - Scoped popup refresh hints in `popup.js` to the currently affected supported site, so changing Instagram settings while viewing YouTube no longer tells users to refresh the wrong page and reset now suggests a reload only when the active site's protections actually changed
@@ -87,6 +88,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the clearer popup save and reset feedback on supported tabs, unsupported tabs, and mixed-platform edits so the new deferred-apply wording feels helpful without becoming repetitive during rapid toggle changes
 - Browser-validate the strengthened YouTube app-shell hiding on `www.youtube.com`, `m.youtube.com`, and direct Shorts URLs so the overlay now fully covers supported desktop and mobile-style hosts without leaving underlying content visible
 - Browser-validate the new blocked-Shorts return action on desktop and mobile-style YouTube hosts so the CTA consistently lands on a useful non-Shorts surface and feels better than leaving users at a dead end
 - Browser-validate the newly scoped refresh hint so supported-tab saves and resets suggest reloading only when the active site's protections actually changed, especially when switching settings for another platform
@@ -125,6 +127,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The popup now explains when saved changes will apply only after reopening or reloading a site, but that copy still needs browser-side validation to confirm it stays concise and trustworthy during mixed-platform edits and reset flows
 - YouTube overlays now hide both `ytd-app` and `ytm-app`, but that stronger app-shell coverage still needs browser-side validation on `m.youtube.com` and direct Shorts routes to confirm current mobile YouTube markup is fully covered
 - The blocked YouTube Shorts overlay now offers a direct return action, but it still needs browser-side validation on `www.youtube.com`, `m.youtube.com`, and any reachable alternate YouTube hosts to confirm the CTA always exits Shorts cleanly
 - The popup now scopes refresh hints to the active supported site's own settings, but that behavior still needs browser-side validation to confirm mixed-platform saves and reset flows stay intuitive in real Chromium sessions
