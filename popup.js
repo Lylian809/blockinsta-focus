@@ -12,6 +12,10 @@ const DEFAULT_SETTINGS = {
   youtubeSearchOnlyHome: false,
   tiktokBlockAll: false
 };
+const UI_PREFERENCES_DEFAULTS = {
+  siteShortcutsOpenInNewTab: false
+};
+const SITE_SHORTCUTS_OPEN_IN_NEW_TAB_KEY = "siteShortcutsOpenInNewTab";
 
 const COUNTED_PROTECTION_SETTINGS = [
   "instagramBlockAll",
@@ -1082,6 +1086,10 @@ function getStorageStatusSuffix() {
   return activeStorageArea === "local" ? " localement" : "";
 }
 
+async function persistUiPreference(name, value) {
+  await callStorage(activeStorageArea, "set", { [name]: value });
+}
+
 async function saveSetting(event) {
   const field = event.target;
 
@@ -1210,28 +1218,58 @@ async function openSupportedSite(event) {
   }
 }
 
+async function handleSiteShortcutsModeChange() {
+  if (!siteShortcutsNewTabModeNode) {
+    return;
+  }
+
+  const opensInNewTab = Boolean(siteShortcutsNewTabModeNode.checked);
+
+  renderSiteShortcuts();
+
+  try {
+    await persistUiPreference(SITE_SHORTCUTS_OPEN_IN_NEW_TAB_KEY, opensInNewTab);
+    announceScreenReader(
+      opensInNewTab
+        ? "Les raccourcis ouvriront maintenant un nouvel onglet."
+        : "Les raccourcis remplaceront maintenant l'onglet actuel."
+    );
+    renderStatus(
+      opensInNewTab
+        ? `Les raccourcis Fokus ouvriront maintenant un nouvel onglet${getStorageStatusSuffix()}.`
+        : `Les raccourcis Fokus remplaceront maintenant l'onglet actuel${getStorageStatusSuffix()}.`
+    );
+  } catch (error) {
+    siteShortcutsNewTabModeNode.checked = !opensInNewTab;
+    renderSiteShortcuts();
+    renderStatus("Impossible d'enregistrer ce choix de raccourci.");
+    announceScreenReader("Impossible d'enregistrer ce choix de raccourci.");
+    console.error("Fokus: failed to persist shortcut mode preference", error);
+  }
+}
+
 async function initialize() {
   try {
     await detectStorageArea();
     await detectActiveTabContext();
-    const settings = await callStorage(activeStorageArea, "get", DEFAULT_SETTINGS);
+    const storedValues = await callStorage(activeStorageArea, "get", {
+      ...DEFAULT_SETTINGS,
+      ...UI_PREFERENCES_DEFAULTS
+    });
 
     fields.forEach((field) => {
-      field.checked = Boolean(settings[field.name]);
+      field.checked = Boolean(storedValues[field.name]);
       field.addEventListener("change", saveSetting);
     });
+
+    if (siteShortcutsNewTabModeNode) {
+      siteShortcutsNewTabModeNode.checked = Boolean(storedValues[SITE_SHORTCUTS_OPEN_IN_NEW_TAB_KEY]);
+    }
 
     initializeFieldAccessibility();
     resetDefaultsButton?.addEventListener("click", resetDefaults);
     refreshActiveTabButton?.addEventListener("click", refreshActiveTab);
-    siteShortcutsNewTabModeNode?.addEventListener("change", () => {
-      renderSiteShortcuts();
-      announceScreenReader(
-        siteShortcutsNewTabModeNode.checked
-          ? "Les raccourcis ouvriront maintenant un nouvel onglet."
-          : "Les raccourcis remplaceront maintenant l'onglet actuel."
-      );
-    });
+    siteShortcutsNewTabModeNode?.addEventListener("change", handleSiteShortcutsModeChange);
     siteShortcutButtons.forEach((button) => {
       button.addEventListener("click", openSupportedSite);
     });
@@ -1258,6 +1296,12 @@ async function initialize() {
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== activeStorageArea) {
     return;
+  }
+
+  if (siteShortcutsNewTabModeNode && SITE_SHORTCUTS_OPEN_IN_NEW_TAB_KEY in changes) {
+    siteShortcutsNewTabModeNode.checked = Boolean(
+      changes[SITE_SHORTCUTS_OPEN_IN_NEW_TAB_KEY].newValue
+    );
   }
 
   fields.forEach((field) => {
