@@ -13,6 +13,8 @@ Test on a Chromium browser with the unpacked extension reloaded.
 - Per-site mode badges match the saved state for Instagram, YouTube, and TikTok
 - The popup protection count reflects only real blocking or filtering protections, not helper behavior like Instagram redirect-to-inbox
 - Changing one toggle updates the status message
+- `Rafraichir l'onglet actif` reloads the same inspected tab instead of another selected tab after window or focus changes
+- Unsupported-tab quick-open buttons navigate the same inspected tab instead of a different selected tab after window or focus changes
 - `Bloquer completement Instagram` disables the Instagram sub-options
 - `Mode messages seulement` enables or disables `Rediriger vers les messages` correctly
 - `Bloquer completement YouTube` disables the YouTube sub-options

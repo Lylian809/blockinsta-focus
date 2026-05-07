@@ -121,7 +121,9 @@ let activeTabContext = {
   isSupported: false,
   label: "cet onglet",
   siteKey: null,
-  reason: ""
+  reason: "",
+  tabId: null,
+  windowId: null
 };
 
 function matchesHostname(hostname, domain) {
@@ -252,13 +254,22 @@ function getSupportedTabSite(hostname) {
   return SUPPORTED_TAB_SITES.find((site) => site.matcher(hostname)) ?? null;
 }
 
-function setActiveTabContextForSupportedSite(site, labelOverride = "") {
+function getTabIdentity(tab) {
+  return {
+    tabId: Number.isInteger(tab?.id) ? tab.id : null,
+    windowId: Number.isInteger(tab?.windowId) ? tab.windowId : null
+  };
+}
+
+function setActiveTabContextForSupportedSite(site, labelOverride = "", tabIdentity = {}) {
   activeTabContext = {
     canReload: true,
     isSupported: true,
     label: labelOverride || site.label,
     siteKey: site.key,
-    reason: ""
+    reason: "",
+    tabId: tabIdentity.tabId ?? activeTabContext.tabId ?? null,
+    windowId: tabIdentity.windowId ?? activeTabContext.windowId ?? null
   };
 }
 
@@ -272,7 +283,9 @@ function getMissingActiveTabContext() {
     isSupported: false,
     label: "introuvable",
     siteKey: null,
-    reason: "Fokus ne trouve pas d'onglet actif rechargeable dans cette fen\u00EAtre."
+    reason: "Fokus ne trouve pas d'onglet actif rechargeable dans cette fen\u00EAtre.",
+    tabId: null,
+    windowId: null
   };
 }
 
@@ -282,7 +295,9 @@ function getRestrictedActiveTabContext() {
     isSupported: false,
     label: "adresse masqu\u00E9e",
     siteKey: null,
-    reason: "Chrome ne partage pas l'adresse de cet onglet avec Fokus. Utilise un raccourci ci-dessous pour ouvrir Instagram, YouTube ou TikTok directement dans cet onglet."
+    reason: "Chrome ne partage pas l'adresse de cet onglet avec Fokus. Utilise un raccourci ci-dessous pour ouvrir Instagram, YouTube ou TikTok directement dans cet onglet.",
+    tabId: null,
+    windowId: null
   };
 }
 
@@ -292,7 +307,9 @@ function getUnavailableActiveTabContext() {
     isSupported: false,
     label: "cet onglet",
     siteKey: null,
-    reason: "Fokus ne peut pas identifier l'onglet actuel. Ouvre un onglet Instagram, YouTube ou TikTok puis r\u00E9essaie."
+    reason: "Fokus ne peut pas identifier l'onglet actuel. Ouvre un onglet Instagram, YouTube ou TikTok puis r\u00E9essaie.",
+    tabId: null,
+    windowId: null
   };
 }
 
@@ -308,7 +325,7 @@ function parseTabUrl(url) {
   }
 }
 
-function getActiveTabContextFromUrl(url) {
+function getActiveTabContextFromUrl(url, tabIdentity = {}) {
   if (!url) {
     return getMissingActiveTabContext();
   }
@@ -321,7 +338,9 @@ function getActiveTabContextFromUrl(url) {
       isSupported: false,
       label: "onglet non reconnu",
       siteKey: null,
-      reason: "Fokus ne lit pas correctement l'adresse de cet onglet. Ouvre Instagram, YouTube ou TikTok, ou utilise un raccourci ci-dessous."
+      reason: "Fokus ne lit pas correctement l'adresse de cet onglet. Ouvre Instagram, YouTube ou TikTok, ou utilise un raccourci ci-dessous.",
+      tabId: tabIdentity.tabId ?? null,
+      windowId: tabIdentity.windowId ?? null
     };
   }
 
@@ -331,7 +350,9 @@ function getActiveTabContextFromUrl(url) {
       isSupported: false,
       label: "page interne",
       siteKey: null,
-      reason: "Les pages internes du navigateur ou les onglets sp\u00E9ciaux ne peuvent pas \u00EAtre recharg\u00E9s utilement depuis Fokus."
+      reason: "Les pages internes du navigateur ou les onglets sp\u00E9ciaux ne peuvent pas \u00EAtre recharg\u00E9s utilement depuis Fokus.",
+      tabId: tabIdentity.tabId ?? null,
+      windowId: tabIdentity.windowId ?? null
     };
   }
 
@@ -343,7 +364,9 @@ function getActiveTabContextFromUrl(url) {
       isSupported: true,
       label: supportedSite.label,
       siteKey: supportedSite.key,
-      reason: ""
+      reason: "",
+      tabId: tabIdentity.tabId ?? null,
+      windowId: tabIdentity.windowId ?? null
     };
   }
 
@@ -352,7 +375,9 @@ function getActiveTabContextFromUrl(url) {
     isSupported: false,
     label: parsedUrl.hostname.replace(/^www\./, ""),
     siteKey: null,
-    reason: "Cet onglet n'utilise pas un site pris en charge par Fokus. Ouvre Instagram, YouTube ou TikTok pour appliquer un rechargement utile."
+    reason: "Cet onglet n'utilise pas un site pris en charge par Fokus. Ouvre Instagram, YouTube ou TikTok pour appliquer un rechargement utile.",
+    tabId: tabIdentity.tabId ?? null,
+    windowId: tabIdentity.windowId ?? null
   };
 }
 
@@ -363,14 +388,22 @@ function setActiveTabContextFromTab(tab) {
   }
 
   const url = tab?.pendingUrl || tab?.url || "";
+  const tabIdentity = getTabIdentity(tab);
 
   if (!url) {
-    activeTabContext = getRestrictedActiveTabContext();
+    activeTabContext = {
+      ...getRestrictedActiveTabContext(),
+      ...tabIdentity
+    };
     return false;
   }
 
-  activeTabContext = getActiveTabContextFromUrl(url);
+  activeTabContext = getActiveTabContextFromUrl(url, tabIdentity);
   return true;
+}
+
+function getActiveTabId() {
+  return Number.isInteger(activeTabContext.tabId) ? activeTabContext.tabId : null;
 }
 
 async function detectActiveTabContext() {
@@ -405,8 +438,16 @@ function renderRefreshState() {
 
   const usingLocalStorage = activeStorageArea === "local";
   const contextLabel = activeTabContext.label;
+  const hasTargetTab = getActiveTabId() !== null;
 
   refreshTabContextNode.textContent = `Onglet actuel : ${contextLabel}.`;
+
+  if (!hasTargetTab) {
+    refreshStateCopyNode.textContent = activeTabContext.reason;
+    refreshActiveTabButton.disabled = true;
+    renderSiteShortcuts();
+    return;
+  }
 
   if (!activeTabContext.canReload) {
     refreshStateCopyNode.textContent = activeTabContext.reason;
@@ -516,7 +557,7 @@ function renderSiteShortcuts() {
     return;
   }
 
-  const showShortcuts = !activeTabContext.isSupported;
+  const showShortcuts = !activeTabContext.isSupported && getActiveTabId() !== null;
   siteShortcutsNode.hidden = !showShortcuts;
   renderSiteShortcutLabels();
   renderSiteShortcutNote(showShortcuts);
@@ -1032,14 +1073,16 @@ async function resetDefaults() {
 }
 
 async function refreshActiveTab() {
-  if (!refreshActiveTabButton || !activeTabContext.canReload) {
+  const activeTabId = getActiveTabId();
+
+  if (!refreshActiveTabButton || !activeTabContext.canReload || activeTabId === null) {
     return;
   }
 
   refreshActiveTabButton.disabled = true;
 
   try {
-    await callTabs("reload", undefined, {});
+    await callTabs("reload", activeTabId, {});
     const reloadStatus = activeTabContext.isSupported
       ? `${activeTabContext.label} recharg\u00E9.`
       : "Onglet actif recharg\u00E9.";
@@ -1058,12 +1101,17 @@ async function openSupportedSite(event) {
   const button = event.currentTarget;
   const siteKey = button?.dataset.siteShortcut;
   const siteContext = getSiteShortcutContext(siteKey);
+  const activeTabId = getActiveTabId();
 
-  if (!siteContext) {
+  if (!siteContext || activeTabId === null) {
+    if (siteContext) {
+      renderStatus("Impossible d'identifier l'onglet \u00E0 ouvrir.");
+      announceScreenReader("Impossible d'identifier l'onglet \u00E0 ouvrir.");
+    }
     return;
   }
 
-  const { destinationLabel, key, label, targetUrl } = siteContext;
+  const { destinationLabel, key, targetUrl } = siteContext;
 
   siteShortcutButtons.forEach((shortcutButton) => {
     shortcutButton.disabled = true;
@@ -1071,10 +1119,10 @@ async function openSupportedSite(event) {
 
   try {
     renderStatus(`Ouverture de ${destinationLabel}...`);
-    const updatedTab = await callTabs("update", { url: targetUrl });
+    const updatedTab = await callTabs("update", activeTabId, { url: targetUrl });
 
     if (!setActiveTabContextFromTab(updatedTab) || !activeTabContextMatchesSite(key)) {
-      setActiveTabContextForSupportedSite(siteContext, destinationLabel);
+      setActiveTabContextForSupportedSite(siteContext, destinationLabel, getTabIdentity(updatedTab));
     }
 
     renderActiveSiteState();
