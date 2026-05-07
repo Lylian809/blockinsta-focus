@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Clarified popup active-tab fallback states when Chrome hides the current tab URL, so unsupported or restricted tabs now surface an `adresse masquée` state with accurate quick-open guidance instead of looking like the active tab simply disappeared
 - Tightened supported-site hostname detection in the popup and content script so Fokus now recognizes only real Instagram, YouTube, and TikTok domains or subdomains instead of falsely treating lookalike hosts such as `notyoutube.com` as supported
 - Explicitly gitignored the machine-specific recurring Codex helper files so local scheduled-task scripts and notes stop polluting the worktree or risking accidental commits
 - Hardened popup active-tab URL handling so unsupported-tab quick-open and refresh guidance no longer fail hard when Chromium returns an odd or temporarily unreadable tab URL, while shortcut feedback now reports the real destination label consistently during open and failure states
@@ -69,6 +70,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the new `adresse masquée` popup state on tabs where Chromium withholds the URL so the copy and shortcut guidance match real restricted-tab behavior
 - Browser-validate the stricter hostname matching on supported, unsupported, and browser-owned tabs so the popup highlight, refresh action, and quick-open fallbacks stay correct with real Chromium tab URLs
 - Browser-validate the popup quick-open and refresh flows on real unsupported tabs so this week's fallback hardening can be confirmed against Chromium behavior instead of relying on defensive copy alone
 - Browser-validate the new unreadable-tab fallback state so odd Chromium tab URLs still produce helpful refresh guidance and quick-open behavior instead of confusing generic copy
@@ -90,6 +92,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The popup now distinguishes truly missing active tabs from Chrome-restricted `adresse masquée` tabs in code, but that new wording still needs browser-side validation on real unsupported pages where Chromium withholds `tab.url`
 - The stricter supported-site hostname matching removes obvious false positives in code, but it still needs browser-side validation on real supported tabs and unsupported lookalike domains to confirm popup site emphasis and refresh gating behave exactly as intended
 - The popup active-tab guidance has been hardened in code, but the unsupported-tab and browser-owned-tab flows still need browser-side validation before they can be considered fully trustworthy
 - The new popup fallback for unreadable active-tab URLs still needs browser-side validation against real Chromium edge cases to confirm the `onglet non reconnu` label and quick-open guidance stay clear and trustworthy

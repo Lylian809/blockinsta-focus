@@ -276,6 +276,16 @@ function getMissingActiveTabContext() {
   };
 }
 
+function getRestrictedActiveTabContext() {
+  return {
+    canReload: false,
+    isSupported: false,
+    label: "adresse masqu\u00E9e",
+    siteKey: null,
+    reason: "Chrome ne partage pas l'adresse de cet onglet avec Fokus. Utilise un raccourci ci-dessous pour ouvrir Instagram, YouTube ou TikTok directement dans cet onglet."
+  };
+}
+
 function getUnavailableActiveTabContext() {
   return {
     canReload: false,
@@ -347,10 +357,15 @@ function getActiveTabContextFromUrl(url) {
 }
 
 function setActiveTabContextFromTab(tab) {
+  if (!tab) {
+    activeTabContext = getMissingActiveTabContext();
+    return false;
+  }
+
   const url = tab?.pendingUrl || tab?.url || "";
 
   if (!url) {
-    activeTabContext = getMissingActiveTabContext();
+    activeTabContext = getRestrictedActiveTabContext();
     return false;
   }
 
@@ -543,6 +558,11 @@ function renderActiveSiteState() {
 
   if (activeTabContext.label === "introuvable") {
     summaryTabNoteNode.textContent = "Fokus ne rep\u00E8re pas l'onglet actif ; les r\u00E9glages restent disponibles pour Instagram, YouTube et TikTok.";
+    return;
+  }
+
+  if (activeTabContext.label === "adresse masqu\u00E9e") {
+    summaryTabNoteNode.textContent = "Onglet actuel : adresse masqu\u00E9e par Chrome. Fokus garde les trois cartes visibles et propose des raccourcis pour ouvrir directement un site pris en charge ici.";
     return;
   }
 
