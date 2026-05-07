@@ -282,12 +282,34 @@ function getUnavailableActiveTabContext() {
   };
 }
 
+function parseTabUrl(url) {
+  if (!url) {
+    return null;
+  }
+
+  try {
+    return new URL(url);
+  } catch (error) {
+    return null;
+  }
+}
+
 function getActiveTabContextFromUrl(url) {
   if (!url) {
     return getMissingActiveTabContext();
   }
 
-  const parsedUrl = new URL(url);
+  const parsedUrl = parseTabUrl(url);
+
+  if (!parsedUrl) {
+    return {
+      canReload: false,
+      isSupported: false,
+      label: "onglet non reconnu",
+      siteKey: null,
+      reason: "Fokus ne lit pas correctement l'adresse de cet onglet. Ouvre Instagram, YouTube ou TikTok, ou utilise un raccourci ci-dessous."
+    };
+  }
 
   if (!["http:", "https:"].includes(parsedUrl.protocol)) {
     return {
@@ -1024,6 +1046,7 @@ async function openSupportedSite(event) {
   });
 
   try {
+    renderStatus(`Ouverture de ${destinationLabel}...`);
     const updatedTab = await callTabs("update", { url: targetUrl });
 
     if (!setActiveTabContextFromTab(updatedTab) || !activeTabContextMatchesSite(key)) {
@@ -1036,8 +1059,8 @@ async function openSupportedSite(event) {
     renderStatus(`${destinationLabel} ouvert dans l'onglet actif.`);
     announceScreenReader(`${destinationLabel} ouvert dans l'onglet actif.`);
   } catch (error) {
-    renderStatus(`Impossible d'ouvrir ${label}.`);
-    announceScreenReader(`Impossible d'ouvrir ${label}.`);
+    renderStatus(`Impossible d'ouvrir ${destinationLabel}.`);
+    announceScreenReader(`Impossible d'ouvrir ${destinationLabel}.`);
     console.error("Fokus: supported site shortcut failed", error);
   } finally {
     renderSiteShortcuts();
