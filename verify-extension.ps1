@@ -65,6 +65,13 @@ $expectedShortcutSites = @(
   "youtube",
   "tiktok"
 )
+$disallowedTrackedArtifactPatterns = @(
+  "logs/",
+  ".recurring-lock/",
+  "*.zip",
+  "*.log",
+  "*.tmp"
+)
 
 function Assert-PathExists {
   param(
@@ -167,9 +174,40 @@ function Assert-ContainsText {
   }
 }
 
+function Assert-NoTrackedArtifactMatches {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$ProjectRoot,
+    [Parameter(Mandatory = $true)]
+    [string[]]$Patterns
+  )
+
+  $gitCommand = Get-Command git -ErrorAction SilentlyContinue
+
+  if (-not $gitCommand) {
+    return
+  }
+
+  $trackedFiles = & $gitCommand.Source -C $ProjectRoot ls-files
+
+  if ($LASTEXITCODE -ne 0) {
+    throw "Unable to inspect tracked files with git ls-files."
+  }
+
+  foreach ($trackedFile in $trackedFiles) {
+    foreach ($pattern in $Patterns) {
+      if ($trackedFile -like $pattern) {
+        throw "Tracked local artifact '$trackedFile' matches blocked pattern '$pattern'."
+      }
+    }
+  }
+}
+
 foreach ($relativePath in $requiredFiles) {
   Assert-PathExists -Path (Join-Path $projectRoot $relativePath) -Label "Required file"
 }
+
+Assert-NoTrackedArtifactMatches -ProjectRoot $projectRoot -Patterns $disallowedTrackedArtifactPatterns
 
 $popupHtmlPath = Join-Path $projectRoot "popup.html"
 $popupHtml = Get-Content -LiteralPath $popupHtmlPath -Raw

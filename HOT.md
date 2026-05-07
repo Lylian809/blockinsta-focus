@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Hardened `verify-extension.ps1` to fail when git-tracked local artifacts such as `logs/`, `.recurring-lock/`, or release ZIPs sneak into the repository, reducing the chance of polluted recurring-run commits and low-signal release noise
 - Filtered Fokus-owned overlay and helper-note mutations out of the broad site observer in `content.js`, so blocked Instagram, blocked TikTok, blocked YouTube Shorts, and YouTube's calm-home note no longer risk triggering pointless self-reapply loops from Fokus's own DOM updates
 - Hardened `verify-extension.ps1` so recurring runs now require `HOT.md` to keep its four core tracking sections and also require the README release-version line to match `manifest.json`, reducing silent drift between project tracking, contributor-facing docs, and the actual shipped extension version
 - Hardened Instagram full blocking in `content.js` so Fokus now hides the whole top-level document content instead of mostly masking `main`, making the full-block overlay more reliable against Instagram shells that keep navigation or side chrome visible outside the main feed container
@@ -98,6 +99,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Run a normal contributor-side verification pass after the new tracked-artifact guardrail so the stricter `verify-extension.ps1` checks stay helpful during recurring maintenance without blocking legitimate release work
 - Browser-validate the observer self-churn fix on blocked Instagram, blocked TikTok, blocked YouTube Shorts, and YouTube's calm-home note so the new mutation filtering cuts pointless reapply work without missing real site-side DOM changes on current layouts
 - Browser-validate a contributor-style packaging pass after the stricter verifier changes so the new `HOT.md` and README-version checks feel helpful, not noisy, during normal release prep and recurring maintenance
 - Browser-validate the stronger Instagram full-block path on current Instagram web layouts so hiding the top-level document content fully covers side navigation and surrounding chrome without causing unexpected restoration issues after the setting is turned back off
@@ -147,6 +149,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- `verify-extension.ps1` now rejects git-tracked logs, lock directories, and ZIP artifacts, but this still needs one normal contributor-side run to confirm the new guardrail stays low-noise with the current release workflow
 - `content.js` now ignores Fokus-owned overlay and helper-note mutations when watching large SPA DOM trees, but this still needs browser-side validation to confirm blocked pages and YouTube's calm-home state stay responsive without missing legitimate site navigation or layout changes
 - `verify-extension.ps1` now blocks commits when `HOT.md` loses its required sections or when the README release version drifts from `manifest.json`, but this still needs a normal contributor-side packaging pass to confirm the stricter doc guardrails stay low-friction in practice
 - Instagram full blocking now hides the top-level document content instead of mostly masking `main`, but it still needs browser-side validation on current Instagram layouts to confirm no visible shell survives outside the overlay and that normal rendering returns cleanly after unblocking
