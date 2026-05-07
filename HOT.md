@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Hardened popup active-tab state handling by introducing explicit internal context types instead of branching on localized labels, while also clarifying the summary guidance for unreadable and unavailable tab states so unsupported-tab recovery copy stays trustworthy as wording evolves
 - Clarified the popup unsupported-tab shortcut note when Chromium exposes no usable active tab, so Fokus now explains that Instagram, YouTube, or TikTok must open in a new tab because there is no replaceable current tab target
 - Preserved the unsupported-tab shortcut mode choice across popup tab-context changes, so temporarily hiding the `conserver la page actuelle` toggle no longer resets the in-session preference back to replacing the current tab
 - Persisted the unsupported-tab shortcut mode preference in `popup.js`, so the choice to preserve the current page by opening Instagram, YouTube, or TikTok in a new tab now survives popup reopenings without affecting Fokus protection presets
@@ -78,6 +79,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the new explicit popup tab-context typing so unreadable, restricted, missing, unsupported, and unavailable active-tab states each surface the intended summary note and shortcut guidance in real Chromium sessions
 - Browser-validate the new forced-new-tab shortcut explanation so `introuvable` and similar no-target states clearly justify why the mode toggle disappears and why shortcuts must open a fresh tab
 - Browser-validate the in-session unsupported-tab shortcut preference so hiding and re-showing the mode toggle during tab-context changes keeps the saved choice visible and trustworthy inside one popup session
 - Browser-validate the newly persisted unsupported-tab shortcut preference so reopening the popup, switching between sync and local fallback, and using both shortcut modes all stay aligned with real Chromium behavior
@@ -108,6 +110,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The popup now uses explicit active-tab context types instead of relying on localized labels, but that refactor still needs browser-side validation to confirm every real Chromium edge case lands in the right summary-note and shortcut-guidance state
 - The popup now explains forced new-tab shortcuts when Chromium exposes no usable active tab, but that copy still needs browser-side validation to confirm it appears in the right edge cases and does not feel redundant next to the shortcut labels
 - The unsupported-tab shortcut preference now stays intact when its mode toggle is temporarily hidden, but it still needs browser-side validation to confirm the popup surfaces that preserved choice clearly after real tab-context switches
 - The unsupported-tab shortcut mode choice now persists across popup sessions, but it still needs browser-side validation to confirm the saved preference restores reliably and the fallback copy stays truthful when sync storage drops to local storage

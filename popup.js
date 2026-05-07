@@ -124,6 +124,7 @@ let activeStorageArea = "sync";
 let screenReaderAnnouncementFrame = 0;
 let activeTabContextRefreshTimeout = 0;
 let activeTabContext = {
+  kind: "unknown",
   canReload: false,
   isSupported: false,
   label: "cet onglet",
@@ -314,6 +315,7 @@ function getTabIdentity(tab) {
 
 function setActiveTabContextForSupportedSite(site, labelOverride = "", tabIdentity = {}) {
   activeTabContext = {
+    kind: "supported",
     canReload: true,
     isSupported: true,
     label: labelOverride || site.label,
@@ -330,6 +332,7 @@ function activeTabContextMatchesSite(siteKey) {
 
 function getMissingActiveTabContext() {
   return {
+    kind: "missing",
     canReload: false,
     isSupported: false,
     label: "introuvable",
@@ -342,6 +345,7 @@ function getMissingActiveTabContext() {
 
 function getRestrictedActiveTabContext() {
   return {
+    kind: "restricted",
     canReload: false,
     isSupported: false,
     label: "adresse masqu\u00E9e",
@@ -354,6 +358,7 @@ function getRestrictedActiveTabContext() {
 
 function getUnavailableActiveTabContext() {
   return {
+    kind: "unavailable",
     canReload: false,
     isSupported: false,
     label: "cet onglet",
@@ -385,6 +390,7 @@ function getActiveTabContextFromUrl(url, tabIdentity = {}) {
 
   if (!parsedUrl) {
     return {
+      kind: "unreadable",
       canReload: false,
       isSupported: false,
       label: "onglet non reconnu",
@@ -397,6 +403,7 @@ function getActiveTabContextFromUrl(url, tabIdentity = {}) {
 
   if (!["http:", "https:"].includes(parsedUrl.protocol)) {
     return {
+      kind: "internal",
       canReload: false,
       isSupported: false,
       label: "page interne",
@@ -411,6 +418,7 @@ function getActiveTabContextFromUrl(url, tabIdentity = {}) {
 
   if (supportedSite) {
     return {
+      kind: "supported",
       canReload: true,
       isSupported: true,
       label: supportedSite.label,
@@ -422,6 +430,7 @@ function getActiveTabContextFromUrl(url, tabIdentity = {}) {
   }
 
   return {
+    kind: "unsupported",
     canReload: false,
     isSupported: false,
     label: parsedUrl.hostname.replace(/^www\./, ""),
@@ -684,18 +693,28 @@ function renderActiveSiteState() {
     return;
   }
 
-  if (activeTabContext.label === "page interne") {
+  if (activeTabContext.kind === "internal") {
     summaryTabNoteNode.textContent = "Onglet actuel : page interne du navigateur. Fokus laisse toutes les cartes visibles car aucun site pris en charge n'est ouvert.";
     return;
   }
 
-  if (activeTabContext.label === "introuvable") {
+  if (activeTabContext.kind === "missing") {
     summaryTabNoteNode.textContent = "Fokus ne rep\u00E8re pas l'onglet actif ; les r\u00E9glages restent disponibles pour Instagram, YouTube et TikTok.";
     return;
   }
 
-  if (activeTabContext.label === "adresse masqu\u00E9e") {
+  if (activeTabContext.kind === "restricted") {
     summaryTabNoteNode.textContent = "Onglet actuel : adresse masqu\u00E9e par Chrome. Fokus garde les trois cartes visibles et propose des raccourcis pour ouvrir directement un site pris en charge ici.";
+    return;
+  }
+
+  if (activeTabContext.kind === "unreadable") {
+    summaryTabNoteNode.textContent = "Onglet actuel : adresse illisible pour Fokus. Les trois cartes restent disponibles et les raccourcis ci-dessous permettent d'ouvrir directement Instagram, YouTube ou TikTok.";
+    return;
+  }
+
+  if (activeTabContext.kind === "unavailable") {
+    summaryTabNoteNode.textContent = "Fokus ne parvient pas \u00E0 identifier l'onglet courant ; les trois cartes restent disponibles et les raccourcis peuvent rouvrir un site pris en charge proprement.";
     return;
   }
 
