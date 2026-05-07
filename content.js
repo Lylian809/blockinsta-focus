@@ -22,6 +22,7 @@ const OVERLAY_BODY_ID = "focus-shield-overlay-body";
 const YOUTUBE_HOME_NOTE_ID = "focus-shield-youtube-home-note";
 const HIDDEN_ATTR = "data-focus-shield-hidden";
 const INBOX_PATH = "/direct/inbox/";
+const YOUTUBE_HOME_PATH = "/";
 
 const INSTAGRAM_ALLOWED_PREFIXES = [
   "/direct",
@@ -94,6 +95,11 @@ let activeStorageArea = "sync";
 
 function matchesHostname(hostname, domain) {
   return hostname === domain || hostname.endsWith(`.${domain}`);
+}
+
+function getCurrentOriginPath(path = "/") {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${window.location.origin}${normalizedPath}`;
 }
 
 function detectSite() {
@@ -594,6 +600,8 @@ function applyYouTube() {
         title: "Shorts est bloqu\u00E9",
         body: "Fokus coupe ce flux vertical pour \u00E9viter l'encha\u00EEnement rapide des vid\u00E9os.",
         detail: "Tu peux toujours utiliser la recherche, les abonnements ou une vid\u00E9o pr\u00E9cise sans ouvrir Shorts.",
+        ctaHref: getCurrentOriginPath(YOUTUBE_HOME_PATH),
+        ctaLabel: settings.youtubeSearchOnlyHome ? "Retour \u00E0 l'accueil calme" : "Revenir \u00E0 YouTube",
         note: "D\u00E9sactive ce filtre dans le popup si tu veux r\u00E9autoriser Shorts."
       });
       hideElements("ytd-app");
