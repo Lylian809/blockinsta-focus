@@ -123,8 +123,9 @@ const contextNoteNodes = {
   instagram: document.getElementById("instagram-context-note"),
   youtube: document.getElementById("youtube-context-note")
 };
-const fields = Array.from(document.querySelectorAll("input[type='checkbox']"));
-const fieldMap = new Map(fields.map((field) => [field.name, field]));
+const checkboxFields = Array.from(document.querySelectorAll("input[type='checkbox']"));
+const settingFields = checkboxFields.filter((field) => Boolean(field.name));
+const fieldMap = new Map(settingFields.map((field) => [field.name, field]));
 const siteCards = Array.from(document.querySelectorAll(".site-card[data-group]"));
 const siteShortcutButtons = Array.from(document.querySelectorAll("[data-site-shortcut]"));
 
@@ -193,7 +194,7 @@ function syncFieldAccessibility(field) {
 }
 
 function initializeFieldAccessibility() {
-  fields.forEach((field) => {
+  checkboxFields.forEach((field) => {
     const toggle = field.closest(".toggle");
 
     if (!toggle) {
@@ -733,7 +734,7 @@ function renderActiveSiteState() {
 
 function getCurrentSettingsSnapshot() {
   return Object.fromEntries(
-    fields.map((field) => [field.name, Boolean(field.checked)])
+    settingFields.map((field) => [field.name, Boolean(field.checked)])
   );
 }
 
@@ -1154,7 +1155,7 @@ function applyDependencies() {
     setDisabledState(instagramRedirect, Boolean(redirectLocked), reason);
   }
 
-  fields.forEach(syncFieldAccessibility);
+  checkboxFields.forEach(syncFieldAccessibility);
 
   renderSummary();
   renderDefaultPresetState();
@@ -1378,7 +1379,7 @@ async function initialize() {
       ...UI_PREFERENCES_DEFAULTS
     });
 
-    fields.forEach((field) => {
+    settingFields.forEach((field) => {
       field.checked = Boolean(storedValues[field.name]);
       field.addEventListener("change", saveSetting);
     });
@@ -1401,11 +1402,12 @@ async function initialize() {
         : "Param\u00E8tres charg\u00E9s."
     );
   } catch (error) {
-    fields.forEach((field) => {
+    settingFields.forEach((field) => {
       field.disabled = true;
     });
     resetDefaultsButton?.setAttribute("disabled", "disabled");
     refreshActiveTabButton?.setAttribute("disabled", "disabled");
+    siteShortcutsNewTabModeNode?.setAttribute("disabled", "disabled");
     siteShortcutButtons.forEach((button) => {
       button.setAttribute("disabled", "disabled");
     });
@@ -1425,7 +1427,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     );
   }
 
-  fields.forEach((field) => {
+  settingFields.forEach((field) => {
     if (!(field.name in changes)) {
       return;
     }
