@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Made unsupported-tab quick-open shortcuts fall back to opening Instagram, YouTube, or TikTok in a new tab when Chromium cannot provide a usable active tab target, so the popup no longer leaves users stuck in `introuvable` or unidentified-tab states
 - Made popup refresh and quick-open actions target the exact tab Fokus inspected, so multi-window or focus changes no longer risk reloading or navigating a different selected tab than the one shown in the popup context
 - Clarified popup active-tab fallback states when Chrome hides the current tab URL, so unsupported or restricted tabs now surface an `adresse masquée` state with accurate quick-open guidance instead of looking like the active tab simply disappeared
 - Tightened supported-site hostname detection in the popup and content script so Fokus now recognizes only real Instagram, YouTube, and TikTok domains or subdomains instead of falsely treating lookalike hosts such as `notyoutube.com` as supported
@@ -71,6 +72,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the new no-active-tab shortcut fallback so `introuvable` and unidentified-tab states really recover by opening the chosen supported site in a fresh tab without misleading copy or stale popup context
 - Browser-validate the exact-tab popup targeting on supported tabs, unsupported tabs, and multi-window Chromium sessions so refresh and quick-open actions still affect the intended tab after focus changes
 - Browser-validate the new `adresse masquée` popup state on tabs where Chromium withholds the URL so the copy and shortcut guidance match real restricted-tab behavior
 - Browser-validate the stricter hostname matching on supported, unsupported, and browser-owned tabs so the popup highlight, refresh action, and quick-open fallbacks stay correct with real Chromium tab URLs
@@ -94,6 +96,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The popup can now fall back to opening a new tab when Chromium does not expose a usable active tab target, but that recovery path still needs browser-side validation to confirm the success copy and refreshed tab context stay trustworthy after tab creation
 - The popup now stores the inspected tab id and uses it for refresh and quick-open actions, but that exact-tab targeting still needs browser-side validation in multi-window Chromium sessions before it can be treated as fully proven
 - The popup now distinguishes truly missing active tabs from Chrome-restricted `adresse masquée` tabs in code, but that new wording still needs browser-side validation on real unsupported pages where Chromium withholds `tab.url`
 - The stricter supported-site hostname matching removes obvious false positives in code, but it still needs browser-side validation on real supported tabs and unsupported lookalike domains to confirm popup site emphasis and refresh gating behave exactly as intended

@@ -85,6 +85,7 @@ const refreshActiveTabButton = document.getElementById("refresh-active-tab");
 const refreshStateCopyNode = document.getElementById("refresh-state-copy");
 const refreshTabContextNode = document.getElementById("refresh-tab-context");
 const siteShortcutsNode = document.getElementById("site-shortcuts");
+const siteShortcutsLabelNode = document.getElementById("site-shortcuts-label");
 const siteShortcutsNoteNode = document.getElementById("site-shortcuts-note");
 const defaultStateCopyNode = document.getElementById("default-state-copy");
 const summaryTitleNode = document.getElementById("summary-title");
@@ -283,7 +284,7 @@ function getMissingActiveTabContext() {
     isSupported: false,
     label: "introuvable",
     siteKey: null,
-    reason: "Fokus ne trouve pas d'onglet actif rechargeable dans cette fen\u00EAtre.",
+    reason: "Fokus ne trouve pas d'onglet actif rechargeable dans cette fen\u00EAtre. Utilise un raccourci ci-dessous pour ouvrir Instagram, YouTube ou TikTok dans un nouvel onglet.",
     tabId: null,
     windowId: null
   };
@@ -307,7 +308,7 @@ function getUnavailableActiveTabContext() {
     isSupported: false,
     label: "cet onglet",
     siteKey: null,
-    reason: "Fokus ne peut pas identifier l'onglet actuel. Ouvre un onglet Instagram, YouTube ou TikTok puis r\u00E9essaie.",
+    reason: "Fokus ne peut pas identifier l'onglet actuel. Utilise un raccourci ci-dessous pour ouvrir Instagram, YouTube ou TikTok dans un nouvel onglet.",
     tabId: null,
     windowId: null
   };
@@ -516,6 +517,8 @@ function getSiteShortcutContext(siteKey) {
 }
 
 function renderSiteShortcutLabels() {
+  const opensInCurrentTab = getActiveTabId() !== null;
+
   siteShortcutButtons.forEach((button) => {
     const siteKey = button.dataset.siteShortcut;
 
@@ -525,7 +528,12 @@ function renderSiteShortcutLabels() {
 
     const label = getSiteShortcutLabel(siteKey);
     button.textContent = label;
-    button.setAttribute("aria-label", `Ouvrir ${label} dans l'onglet actif.`);
+    button.setAttribute(
+      "aria-label",
+      opensInCurrentTab
+        ? `Ouvrir ${label} dans l'onglet actif.`
+        : `Ouvrir ${label} dans un nouvel onglet.`
+    );
   });
 }
 
@@ -557,8 +565,17 @@ function renderSiteShortcuts() {
     return;
   }
 
-  const showShortcuts = !activeTabContext.isSupported && getActiveTabId() !== null;
+  const showShortcuts = !activeTabContext.isSupported;
+  const opensInCurrentTab = getActiveTabId() !== null;
+
   siteShortcutsNode.hidden = !showShortcuts;
+
+  if (siteShortcutsLabelNode) {
+    siteShortcutsLabelNode.textContent = opensInCurrentTab
+      ? "Ouvre directement un site pris en charge dans cet onglet :"
+      : "Ouvre directement un site pris en charge dans un nouvel onglet :";
+  }
+
   renderSiteShortcutLabels();
   renderSiteShortcutNote(showShortcuts);
 
@@ -1103,15 +1120,12 @@ async function openSupportedSite(event) {
   const siteContext = getSiteShortcutContext(siteKey);
   const activeTabId = getActiveTabId();
 
-  if (!siteContext || activeTabId === null) {
-    if (siteContext) {
-      renderStatus("Impossible d'identifier l'onglet \u00E0 ouvrir.");
-      announceScreenReader("Impossible d'identifier l'onglet \u00E0 ouvrir.");
-    }
+  if (!siteContext) {
     return;
   }
 
   const { destinationLabel, key, targetUrl } = siteContext;
+  const opensInCurrentTab = activeTabId !== null;
 
   siteShortcutButtons.forEach((shortcutButton) => {
     shortcutButton.disabled = true;
@@ -1119,17 +1133,29 @@ async function openSupportedSite(event) {
 
   try {
     renderStatus(`Ouverture de ${destinationLabel}...`);
-    const updatedTab = await callTabs("update", activeTabId, { url: targetUrl });
 
-    if (!setActiveTabContextFromTab(updatedTab) || !activeTabContextMatchesSite(key)) {
-      setActiveTabContextForSupportedSite(siteContext, destinationLabel, getTabIdentity(updatedTab));
+    if (opensInCurrentTab) {
+      const updatedTab = await callTabs("update", activeTabId, { url: targetUrl });
+
+      if (!setActiveTabContextFromTab(updatedTab) || !activeTabContextMatchesSite(key)) {
+        setActiveTabContextForSupportedSite(siteContext, destinationLabel, getTabIdentity(updatedTab));
+      }
+    } else {
+      const createdTab = await callTabs("create", { url: targetUrl, active: true });
+
+      if (!setActiveTabContextFromTab(createdTab) || !activeTabContextMatchesSite(key)) {
+        setActiveTabContextForSupportedSite(siteContext, destinationLabel, getTabIdentity(createdTab));
+      }
     }
 
     renderActiveSiteState();
     renderRefreshState();
     scheduleActiveTabContextRefresh();
-    renderStatus(`${destinationLabel} ouvert dans l'onglet actif.`);
-    announceScreenReader(`${destinationLabel} ouvert dans l'onglet actif.`);
+    const successMessage = opensInCurrentTab
+      ? `${destinationLabel} ouvert dans l'onglet actif.`
+      : `${destinationLabel} ouvert dans un nouvel onglet.`;
+    renderStatus(successMessage);
+    announceScreenReader(successMessage);
   } catch (error) {
     renderStatus(`Impossible d'ouvrir ${destinationLabel}.`);
     announceScreenReader(`Impossible d'ouvrir ${destinationLabel}.`);

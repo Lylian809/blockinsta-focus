@@ -15,6 +15,7 @@ Test on a Chromium browser with the unpacked extension reloaded.
 - Changing one toggle updates the status message
 - `Rafraichir l'onglet actif` reloads the same inspected tab instead of another selected tab after window or focus changes
 - Unsupported-tab quick-open buttons navigate the same inspected tab instead of a different selected tab after window or focus changes
+- If Chromium cannot provide a usable active tab target, the unsupported-tab quick-open buttons open the chosen supported site in a new tab with accurate popup feedback
 - `Bloquer completement Instagram` disables the Instagram sub-options
 - `Mode messages seulement` enables or disables `Rediriger vers les messages` correctly
 - `Bloquer completement YouTube` disables the YouTube sub-options
