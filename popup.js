@@ -84,6 +84,11 @@ const SUPPORTED_TAB_SITES = [
   }
 ];
 const ACTIVE_TAB_CONTEXT_REFRESH_DELAY_MS = 350;
+const SITE_SETTING_PREFIXES = [
+  { prefix: "instagram", siteKey: "instagram" },
+  { prefix: "youtube", siteKey: "youtube" },
+  { prefix: "tiktok", siteKey: "tiktok" }
+];
 
 const statusNode = document.getElementById("status");
 const srStatusNode = document.getElementById("sr-status");
@@ -732,6 +737,35 @@ function getCurrentSettingsSnapshot() {
   );
 }
 
+function getSiteKeyForSetting(settingName) {
+  const match = SITE_SETTING_PREFIXES.find(({ prefix }) => settingName.startsWith(prefix));
+  return match?.siteKey ?? null;
+}
+
+function shouldSuggestRefreshingActiveSiteForSetting(settingName) {
+  if (!activeTabContext.isSupported || !activeTabContext.canReload) {
+    return false;
+  }
+
+  return getSiteKeyForSetting(settingName) === activeTabContext.siteKey;
+}
+
+function didActiveSiteSettingsChange(previousSettings, nextSettings) {
+  if (!activeTabContext.isSupported || !activeTabContext.canReload) {
+    return false;
+  }
+
+  const activeSiteKey = activeTabContext.siteKey;
+
+  return Object.keys(nextSettings).some((settingName) => {
+    if (getSiteKeyForSetting(settingName) !== activeSiteKey) {
+      return false;
+    }
+
+    return Boolean(previousSettings[settingName]) !== Boolean(nextSettings[settingName]);
+  });
+}
+
 function matchesDefaultSettings(settings) {
   return Object.entries(DEFAULT_SETTINGS).every(
     ([name, value]) => Boolean(settings[name]) === value
@@ -1134,8 +1168,8 @@ function getStorageStatusSuffix() {
   return activeStorageArea === "local" ? " localement" : "";
 }
 
-function getRefreshHint() {
-  if (!activeTabContext.isSupported || !activeTabContext.canReload) {
+function getRefreshHint(shouldSuggestRefresh) {
+  if (!shouldSuggestRefresh) {
     return "";
   }
 
@@ -1152,7 +1186,11 @@ async function saveSetting(event) {
   try {
     await persistField(field);
     applyDependencies();
-    renderStatus(`R\u00E9glage enregistr\u00E9${getStorageStatusSuffix()}.${getRefreshHint()}`);
+    renderStatus(
+      `R\u00E9glage enregistr\u00E9${getStorageStatusSuffix()}.${getRefreshHint(
+        shouldSuggestRefreshingActiveSiteForSetting(field.name)
+      )}`
+    );
     announceScreenReader(`${getFieldLabel(field)} ${field.checked ? "activ\u00E9" : "d\u00E9sactiv\u00E9"}. ${statusNode.textContent}`);
   } catch (error) {
     field.checked = !field.checked;
@@ -1165,6 +1203,7 @@ async function saveSetting(event) {
 
 async function resetDefaults() {
   try {
+    const previousSettings = getCurrentSettingsSnapshot();
     await callStorage(activeStorageArea, "set", DEFAULT_SETTINGS);
 
     fields.forEach((field) => {
@@ -1172,7 +1211,11 @@ async function resetDefaults() {
     });
 
     applyDependencies();
-    renderStatus(`R\u00E9glages Fokus r\u00E9appliqu\u00E9s${getStorageStatusSuffix()}.${getRefreshHint()}`);
+    renderStatus(
+      `R\u00E9glages Fokus r\u00E9appliqu\u00E9s${getStorageStatusSuffix()}.${getRefreshHint(
+        didActiveSiteSettingsChange(previousSettings, DEFAULT_SETTINGS)
+      )}`
+    );
     announceScreenReader("Les r\u00E9glages Fokus recommand\u00E9s sont de nouveau actifs.");
   } catch (error) {
     renderStatus("Impossible de r\u00E9initialiser les r\u00E9glages.");
