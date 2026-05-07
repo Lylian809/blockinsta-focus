@@ -237,6 +237,45 @@ function callTabs(method, ...args) {
   });
 }
 
+function getStorageArea(areaName = activeStorageArea) {
+  return chrome.storage?.[areaName] ?? null;
+}
+
+function callStorage(areaName, method, ...args) {
+  const area = getStorageArea(areaName);
+
+  if (!area || typeof area[method] !== "function") {
+    return Promise.reject(new Error(`Storage area ${areaName} is unavailable.`));
+  }
+
+  return new Promise((resolve, reject) => {
+    area[method](...args, (result) => {
+      const error = chrome.runtime?.lastError;
+
+      if (error) {
+        reject(new Error(error.message));
+        return;
+      }
+
+      resolve(result);
+    });
+  });
+}
+
+async function detectStorageArea() {
+  for (const areaName of ["sync", "local"]) {
+    try {
+      await callStorage(areaName, "get", {});
+      activeStorageArea = areaName;
+      return areaName;
+    } catch (error) {
+      continue;
+    }
+  }
+
+  throw new Error("No Chrome storage area is available.");
+}
+
 function isMissingTabError(error) {
   const message = error instanceof Error ? error.message : String(error ?? "");
   return /No tab with id|tab was closed/i.test(message);
