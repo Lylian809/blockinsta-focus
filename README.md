@@ -164,10 +164,21 @@ Run:
 
 This creates a clean Chrome Web Store upload package in `dist/`.
 
+## Verify the extension before committing
+
+Run:
+
+```powershell
+./verify-extension.ps1
+```
+
+This checks the required extension entry files, validates the manifest wiring, and runs JavaScript syntax checks on `popup.js` and `content.js`.
+
 ## Notes for contributors
 
 - Keep the extension lightweight
 - Avoid adding trackers, analytics, or external dependencies unless absolutely necessary
 - Prefer simple selectors and readable logic
 - Test changes directly on the live web apps before publishing
+- Run `./verify-extension.ps1` before committing
 - Use [REGRESSION_CHECKLIST.md](./REGRESSION_CHECKLIST.md) before releases and after popup or content-script changes

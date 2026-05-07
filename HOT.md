@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added a repeatable `verify-extension.ps1` project check so recurring runs can validate required extension files, manifest wiring, and `popup.js` / `content.js` syntax before committing, reducing the chance of shipping a broken popup or content script on low-signal maintenance passes
 - Fixed the popup default-reset flow in `popup.js` to iterate the real `settingFields` collection, so clicking `R\u00E9initialiser` no longer risks a runtime `fields is not defined` failure before the UI can restore the recommended Fokus preset
 - Stopped the popup `Conserver la page actuelle` shortcut-mode checkbox from going through the generic site-setting save pipeline in `popup.js`, so Fokus no longer writes an empty storage key or flashes the wrong generic setting-saved feedback when users only change how unsupported-tab shortcuts open
 - Added extra SPA navigation reapply hooks in `content.js` for `hashchange`, `pageshow`, and YouTube's own route lifecycle events, so Fokus can re-run its protections more reliably after in-app navigation without waiting only on broad DOM mutation churn
@@ -91,6 +92,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the new `verify-extension.ps1` workflow in normal contributor use so syntax checks become a consistent pre-commit habit and any missing local prerequisite, especially `node`, is documented only if it causes real friction
 - Browser-validate the repaired popup reset flow on supported tabs, unsupported tabs, and local-storage fallback so `R\u00E9initialiser` now reliably restores the recommended preset, updates the recap, and shows the right refresh guidance instead of failing mid-action
 - Browser-validate the fixed unsupported-tab shortcut mode toggle so changing `Conserver la page actuelle` now shows only its dedicated feedback, persists the right preference, and leaves normal Fokus settings storage untouched
 - Browser-validate the new SPA navigation hooks on YouTube route changes, history navigation, and back-forward cache restores so Fokus now reapplies quickly without redundant flicker or missed states during real in-app browsing
@@ -133,6 +135,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- `verify-extension.ps1` now covers manifest wiring and JavaScript syntax, but it is intentionally lightweight and does not replace live browser validation of popup flows, DOM selectors, or platform-specific behavior
 - The popup reset path no longer references the wrong field collection in code, but it still needs browser-side validation to confirm the default-preset button, summary state, and refresh hint all stay coherent after a real reset in both sync and local storage modes
 - The popup shortcut-mode checkbox no longer routes through generic site-setting persistence in code, but it still needs browser-side validation to confirm unsupported-tab shortcut feedback appears only once and no stale empty-key storage survives older extension installs
 - Fokus now listens to extra SPA navigation events in `content.js`, but those hooks still need browser-side validation to confirm they do not cause duplicate reapply flashes on YouTube's custom route lifecycle or on back-forward cache restores

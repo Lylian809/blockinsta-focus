@@ -4,6 +4,12 @@ Use this checklist before a release or after any change to `content.js`, `popup.
 
 Test on a Chromium browser with the unpacked extension reloaded.
 
+Before browser checks, run:
+
+```powershell
+./verify-extension.ps1
+```
+
 ## Popup
 
 - Popup opens without layout break on Chrome or Brave
@@ -57,6 +63,7 @@ Test on a Chromium browser with the unpacked extension reloaded.
 
 ## Final Sanity Check
 
+- `./verify-extension.ps1` passes
 - No site stays blocked after disabling its blocking setting
 - No obvious flicker or redirect loop appears during navigation
 - `HOT.md` reflects the latest completed improvement and next opportunities
