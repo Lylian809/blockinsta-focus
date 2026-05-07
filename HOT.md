@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Explicitly gitignored the machine-specific recurring Codex helper files so local scheduled-task scripts and notes stop polluting the worktree or risking accidental commits
 - Hardened popup active-tab URL handling so unsupported-tab quick-open and refresh guidance no longer fail hard when Chromium returns an odd or temporarily unreadable tab URL, while shortcut feedback now reports the real destination label consistently during open and failure states
 - Fixed the popup unsupported-tab quick-open flow so it now falls back to the intended supported-site context when Chromium briefly returns the pre-navigation tab URL, keeping the active-site emphasis, refresh guidance, and status copy aligned immediately after opening Instagram, YouTube, or TikTok in the current tab
 - Added a dynamic quick-open helper note in the popup so unsupported-tab shortcuts now explain when Instagram opens directly to `Messagerie Instagram` because messages-only mode and inbox redirection are active, reducing ambiguity before the tab navigates
@@ -67,6 +68,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the popup quick-open and refresh flows on real unsupported tabs so this week's fallback hardening can be confirmed against Chromium behavior instead of relying on defensive copy alone
 - Browser-validate the new unreadable-tab fallback state so odd Chromium tab URLs still produce helpful refresh guidance and quick-open behavior instead of confusing generic copy
 - Validate the quick-open helper note against unsupported tabs and browser-owned pages so its wording stays accurate and non-redundant when Instagram opens to the inbox versus the standard homepage
 - Validate the unsupported-tab quick-open flow against Instagram messages-only and standard-home flows so the shortcut label, optimistic fallback context, and delayed Chromium URL reconciliation all match the actual destination users land on
@@ -86,6 +88,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The popup active-tab guidance has been hardened in code, but the unsupported-tab and browser-owned-tab flows still need browser-side validation before they can be considered fully trustworthy
 - The new popup fallback for unreadable active-tab URLs still needs browser-side validation against real Chromium edge cases to confirm the `onglet non reconnu` label and quick-open guidance stay clear and trustworthy
 - The quick-open helper note is now derived from popup settings only, so it still needs browser-side validation to ensure the copy remains aligned with the actual Instagram destination after Chromium navigation completes
 - The unsupported-tab quick-open flow now falls back to the intended supported-site context when `chrome.tabs.update` briefly reports the old tab URL, but it still needs browser-side validation to ensure the optimistic wording and final Chromium destination stay aligned when Instagram message redirection is toggled on or off

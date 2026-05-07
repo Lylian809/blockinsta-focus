@@ -6,3 +6,6 @@ taap-*.css
 taap-*.html
 logs/
 .recurring-lock/
+install_recurring_task.ps1
+run_recurring_codex.ps1
+RECURRING_TASKS.md
