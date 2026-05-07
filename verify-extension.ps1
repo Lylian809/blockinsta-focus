@@ -34,6 +34,7 @@ $expectedPopupIds = @(
   "youtube-context-note",
   "tiktok-mode",
   "tiktok-mode-detail",
+  "tiktok-context-note",
   "reset-defaults",
   "default-state-copy",
   "refresh-active-tab",

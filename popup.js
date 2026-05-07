@@ -121,7 +121,8 @@ const siteModeDetailNodes = {
 };
 const contextNoteNodes = {
   instagram: document.getElementById("instagram-context-note"),
-  youtube: document.getElementById("youtube-context-note")
+  youtube: document.getElementById("youtube-context-note"),
+  tiktok: document.getElementById("tiktok-context-note")
 };
 const checkboxFields = Array.from(document.querySelectorAll("input[type='checkbox']"));
 const settingFields = checkboxFields.filter((field) => Boolean(field.name));
@@ -985,6 +986,7 @@ function renderSiteModes(settings) {
 function renderContextNotes(settings) {
   const instagramContextNode = contextNoteNodes.instagram;
   const youtubeContextNode = contextNoteNodes.youtube;
+  const tiktokContextNode = contextNoteNodes.tiktok;
 
   if (instagramContextNode) {
     if (settings.instagramBlockAll) {
@@ -1016,6 +1018,12 @@ function renderContextNotes(settings) {
     } else {
       youtubeContextNode.textContent = "Sans filtre YouTube actif, l'accueil, les recommandations, Shorts et les miniatures restent visibles normalement.";
     }
+  }
+
+  if (tiktokContextNode) {
+    tiktokContextNode.textContent = settings.tiktokBlockAll
+      ? "TikTok est compl\u00E8tement coup\u00E9 ; aucun autre filtre TikTok n'est n\u00E9cessaire dans cette version."
+      : "TikTok reste enti\u00E8rement accessible tant que le blocage complet n'est pas activ\u00E9.";
   }
 }
 

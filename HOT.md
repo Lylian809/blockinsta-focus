@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added the missing TikTok popup context note and wired it into the same `aria-describedby` / live explanatory path as Instagram and YouTube, so the lightest site card now explains its exact behavior more clearly and stays consistent for keyboard and assistive-tech users
 - Hardened `verify-extension.ps1` to fail when git-tracked local artifacts such as `logs/`, `.recurring-lock/`, or release ZIPs sneak into the repository, reducing the chance of polluted recurring-run commits and low-signal release noise
 - Filtered Fokus-owned overlay and helper-note mutations out of the broad site observer in `content.js`, so blocked Instagram, blocked TikTok, blocked YouTube Shorts, and YouTube's calm-home note no longer risk triggering pointless self-reapply loops from Fokus's own DOM updates
 - Hardened `verify-extension.ps1` so recurring runs now require `HOT.md` to keep its four core tracking sections and also require the README release-version line to match `manifest.json`, reducing silent drift between project tracking, contributor-facing docs, and the actual shipped extension version
@@ -99,6 +100,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the new TikTok popup context note with keyboard navigation and a screen reader so the added guidance feels useful, non-redundant, and correctly attached to the only TikTok toggle in a live extension session
 - Run a normal contributor-side verification pass after the new tracked-artifact guardrail so the stricter `verify-extension.ps1` checks stay helpful during recurring maintenance without blocking legitimate release work
 - Browser-validate the observer self-churn fix on blocked Instagram, blocked TikTok, blocked YouTube Shorts, and YouTube's calm-home note so the new mutation filtering cuts pointless reapply work without missing real site-side DOM changes on current layouts
 - Browser-validate a contributor-style packaging pass after the stricter verifier changes so the new `HOT.md` and README-version checks feel helpful, not noisy, during normal release prep and recurring maintenance
@@ -149,6 +151,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The TikTok card now has the same contextual helper-note wiring as the other site cards, but it still needs browser-side validation to confirm the new explanatory note stays concise and is announced as intended in a real Chromium extension popup
 - `verify-extension.ps1` now rejects git-tracked logs, lock directories, and ZIP artifacts, but this still needs one normal contributor-side run to confirm the new guardrail stays low-noise with the current release workflow
 - `content.js` now ignores Fokus-owned overlay and helper-note mutations when watching large SPA DOM trees, but this still needs browser-side validation to confirm blocked pages and YouTube's calm-home state stay responsive without missing legitimate site navigation or layout changes
 - `verify-extension.ps1` now blocks commits when `HOT.md` loses its required sections or when the README release version drifts from `manifest.json`, but this still needs a normal contributor-side packaging pass to confirm the stricter doc guardrails stay low-friction in practice
