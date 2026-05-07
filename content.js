@@ -62,8 +62,7 @@ const YOUTUBE_SELECTORS = {
     "ytd-playlist-thumbnail",
     ".yt-lockup-view-model-wiz__content-image",
     "yt-thumbnail-view-model",
-    "ytd-hero-playlist-thumbnail",
-    "ytd-reel-shelf-renderer"
+    "ytd-hero-playlist-thumbnail"
   ].join(", "),
   shortsLinks: [
     "a[href='/shorts']",
