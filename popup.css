@@ -606,6 +606,43 @@ body {
   line-height: 1.4;
 }
 
+.site-shortcuts-mode {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  align-items: start;
+  margin: 0 0 10px;
+  padding: 12px 12px 11px;
+  border: 1px solid rgba(15, 95, 117, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.76);
+  cursor: pointer;
+}
+
+.site-shortcuts-mode input {
+  margin: 2px 0 0;
+  accent-color: var(--violet);
+}
+
+.site-shortcuts-mode strong,
+.site-shortcuts-mode small {
+  display: block;
+}
+
+.site-shortcuts-mode strong {
+  color: #17131f;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.site-shortcuts-mode small {
+  margin-top: 3px;
+  color: #554f60;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .site-shortcuts-actions {
   display: flex;
   flex-wrap: wrap;

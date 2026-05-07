@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added an explicit unsupported-tab shortcut mode in the popup so users can preserve the current page and open Instagram, YouTube, or TikTok in a new tab instead of always replacing the active unsupported tab
 - Restored the popup storage helper layer in `popup.js`, so Fokus can again detect `chrome.storage.sync` versus local fallback, load settings, save toggles, and initialize the popup instead of failing into its generic error state
 - Made popup refresh and quick-open actions recover when the stored target tab disappears, so Fokus now refreshes its tab context and can fall back to opening the requested supported site in a new tab instead of failing on a stale tab id
 - Made unsupported-tab quick-open shortcuts fall back to opening Instagram, YouTube, or TikTok in a new tab when Chromium cannot provide a usable active tab target, so the popup no longer leaves users stuck in `introuvable` or unidentified-tab states
@@ -74,6 +75,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the new unsupported-tab shortcut mode so preserving the current page versus replacing the active tab feels clear, safe, and correctly reflected in popup labels and success states
 - Browser-validate the restored popup storage initialization path so sync storage, local fallback, reset, and per-toggle saves all behave correctly in a real Chromium extension session
 - Browser-validate the new stale-tab recovery flow so popup refresh and quick-open actions behave clearly if the originally inspected tab is closed before the user clicks
 - Browser-validate the new no-active-tab shortcut fallback so `introuvable` and unidentified-tab states really recover by opening the chosen supported site in a fresh tab without misleading copy or stale popup context
@@ -100,6 +102,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The popup now lets users choose whether unsupported-tab shortcuts replace the current tab or open a new one, but that new choice still needs browser-side validation to confirm the mode toggle, labels, and tab-context refresh remain trustworthy in real Chromium sessions
 - The popup storage helper layer has been restored in code, but it still needs browser-side validation to confirm sync detection, local fallback messaging, and settings persistence all behave correctly in a real extension runtime
 - The popup now recovers if its stored target tab disappears before refresh or quick-open, but that stale-tab fallback still needs browser-side validation to confirm the copy and tab-context refresh feel trustworthy in real Chromium sessions
 - The popup can now fall back to opening a new tab when Chromium does not expose a usable active tab target, but that recovery path still needs browser-side validation to confirm the success copy and refreshed tab context stay trustworthy after tab creation

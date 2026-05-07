@@ -86,6 +86,8 @@ const refreshStateCopyNode = document.getElementById("refresh-state-copy");
 const refreshTabContextNode = document.getElementById("refresh-tab-context");
 const siteShortcutsNode = document.getElementById("site-shortcuts");
 const siteShortcutsLabelNode = document.getElementById("site-shortcuts-label");
+const siteShortcutsModeNode = document.getElementById("site-shortcuts-mode");
+const siteShortcutsNewTabModeNode = document.getElementById("site-shortcuts-new-tab-mode");
 const siteShortcutsNoteNode = document.getElementById("site-shortcuts-note");
 const defaultStateCopyNode = document.getElementById("default-state-copy");
 const summaryTitleNode = document.getElementById("summary-title");
@@ -560,8 +562,16 @@ function getSiteShortcutContext(siteKey) {
   };
 }
 
+function shouldOpenSiteShortcutInNewTab() {
+  if (getActiveTabId() === null) {
+    return true;
+  }
+
+  return Boolean(siteShortcutsNewTabModeNode?.checked);
+}
+
 function renderSiteShortcutLabels() {
-  const opensInCurrentTab = getActiveTabId() !== null;
+  const opensInCurrentTab = !shouldOpenSiteShortcutInNewTab();
 
   siteShortcutButtons.forEach((button) => {
     const siteKey = button.dataset.siteShortcut;
@@ -592,16 +602,19 @@ function renderSiteShortcutNote(showShortcuts) {
     return;
   }
 
+  const notes = [];
   const instagramShortcutLabel = getSiteShortcutLabel("instagram");
 
   if (instagramShortcutLabel === "Messagerie Instagram") {
-    siteShortcutsNoteNode.hidden = false;
-    siteShortcutsNoteNode.textContent = "Le raccourci Instagram ouvre directement la messagerie car le mode messages seulement et la redirection sont actifs.";
-    return;
+    notes.push("Le raccourci Instagram ouvre directement la messagerie car le mode messages seulement et la redirection sont actifs.");
   }
 
-  siteShortcutsNoteNode.hidden = true;
-  siteShortcutsNoteNode.textContent = "";
+  if (siteShortcutsModeNode && !siteShortcutsModeNode.hidden && siteShortcutsNewTabModeNode?.checked) {
+    notes.push("Le site choisi s'ouvrira dans un nouvel onglet pour conserver la page actuelle.");
+  }
+
+  siteShortcutsNoteNode.hidden = notes.length === 0;
+  siteShortcutsNoteNode.textContent = notes.join(" ");
 }
 
 function renderSiteShortcuts() {
@@ -610,7 +623,9 @@ function renderSiteShortcuts() {
   }
 
   const showShortcuts = !activeTabContext.isSupported;
-  const opensInCurrentTab = getActiveTabId() !== null;
+  const hasTargetTab = getActiveTabId() !== null;
+  const canChooseNewTab = showShortcuts && hasTargetTab;
+  const opensInCurrentTab = showShortcuts && !shouldOpenSiteShortcutInNewTab();
 
   siteShortcutsNode.hidden = !showShortcuts;
 
@@ -618,6 +633,14 @@ function renderSiteShortcuts() {
     siteShortcutsLabelNode.textContent = opensInCurrentTab
       ? "Ouvre directement un site pris en charge dans cet onglet :"
       : "Ouvre directement un site pris en charge dans un nouvel onglet :";
+  }
+
+  if (siteShortcutsModeNode) {
+    siteShortcutsModeNode.hidden = !canChooseNewTab;
+  }
+
+  if (siteShortcutsNewTabModeNode && !canChooseNewTab) {
+    siteShortcutsNewTabModeNode.checked = false;
   }
 
   renderSiteShortcutLabels();
@@ -1137,7 +1160,7 @@ async function openSupportedSite(event) {
   }
 
   const { destinationLabel, key, targetUrl } = siteContext;
-  const opensInCurrentTab = activeTabId !== null;
+  const opensInCurrentTab = activeTabId !== null && !shouldOpenSiteShortcutInNewTab();
 
   siteShortcutButtons.forEach((shortcutButton) => {
     shortcutButton.disabled = true;
@@ -1201,6 +1224,14 @@ async function initialize() {
     initializeFieldAccessibility();
     resetDefaultsButton?.addEventListener("click", resetDefaults);
     refreshActiveTabButton?.addEventListener("click", refreshActiveTab);
+    siteShortcutsNewTabModeNode?.addEventListener("change", () => {
+      renderSiteShortcuts();
+      announceScreenReader(
+        siteShortcutsNewTabModeNode.checked
+          ? "Les raccourcis ouvriront maintenant un nouvel onglet."
+          : "Les raccourcis remplaceront maintenant l'onglet actuel."
+      );
+    });
     siteShortcutButtons.forEach((button) => {
       button.addEventListener("click", openSupportedSite);
     });
