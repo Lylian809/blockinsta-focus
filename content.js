@@ -385,6 +385,22 @@ function resetHiddenElements() {
   });
 }
 
+function hideTopLevelDocumentContent() {
+  Array.from(document.documentElement.children).forEach((node) => {
+    if (
+      node.tagName === "HEAD" ||
+      node.id === STYLE_ID ||
+      node.id === OVERLAY_ID ||
+      node.id === YOUTUBE_HOME_NOTE_ID
+    ) {
+      return;
+    }
+
+    node.style.setProperty("display", "none", "important");
+    node.setAttribute(HIDDEN_ATTR, "true");
+  });
+}
+
 function ensureOverlay() {
   let overlay = document.getElementById(OVERLAY_ID);
 
@@ -639,7 +655,7 @@ function applyTikTok() {
       body: "Fokus bloque TikTok enti\u00E8rement dans cette configuration.",
       note: "Tu peux r\u00E9autoriser l'acc\u00E8s plus tard depuis le popup si ton besoin change."
     });
-    hideElements("body > *:not(#focus-shield-overlay):not(style)");
+    hideTopLevelDocumentContent();
     return;
   }
 
