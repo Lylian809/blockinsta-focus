@@ -19,6 +19,7 @@ Test on a Chromium browser with the unpacked extension reloaded.
 - `Bloquer completement Instagram` disables the Instagram sub-options
 - `Mode messages seulement` enables or disables `Rediriger vers les messages` correctly
 - `Bloquer completement YouTube` disables the YouTube sub-options
+- `Bloquer Shorts` saves and restores correctly after reopening the popup
 - `Reinitialiser` restores the Fokus default preset
 
 ## Instagram
@@ -41,6 +42,8 @@ Test on a Chromium browser with the unpacked extension reloaded.
 - `Supprimer les miniatures` removes thumbnails on the home feed
 - `Supprimer les miniatures` removes thumbnails on search results
 - `Supprimer les miniatures` removes thumbnails on sidebar recommendations
+- `Bloquer Shorts` removes Shorts shelves and entry points from the home feed
+- `Bloquer Shorts` blocks direct `/shorts/` URLs with the Fokus overlay
 - `Accueil en mode recherche uniquement` hides the home recommendations
 - `Accueil en mode recherche uniquement` shows the calm home note on `/`
 - The calm home note is announced as a passive status update rather than trapping focus

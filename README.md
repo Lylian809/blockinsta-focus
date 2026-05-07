@@ -29,6 +29,7 @@ Current release version: `0.2.4`
 
 - full block
 - hide thumbnails
+- block Shorts
 - search-only home mode
 
 ### TikTok
@@ -62,6 +63,7 @@ Examples:
 
 - Instagram: enable `Mode messages seulement`
 - YouTube: enable `Supprimer les miniatures`
+- YouTube: leave `Bloquer Shorts` enabled to cut the vertical feed
 - TikTok: enable `Bloquer completement TikTok`
 
 ## How it works

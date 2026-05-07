@@ -26,6 +26,7 @@ With Fokus, you can:
 - keep Instagram messages while hiding Reels, Stories, Explore, feed, and search
 - block Instagram completely when needed
 - hide YouTube thumbnails to reduce temptation
+- block YouTube Shorts to avoid the vertical feed loop
 - turn YouTube into a search-first experience
 - block YouTube completely
 - block TikTok completely
@@ -88,8 +89,9 @@ No.
    - confirm distracting surfaces are hidden or redirected to messages
 4. On YouTube:
    - enable `Supprimer les miniatures`
+   - leave `Bloquer Shorts` enabled
    - open `https://www.youtube.com/`
-   - confirm thumbnails are hidden
+   - confirm thumbnails are hidden and Shorts entry points are removed
 5. On TikTok:
    - enable `Bloquer completement TikTok`
    - open `https://www.tiktok.com/`

@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS = {
   instagramRedirectHomeToInbox: true,
   youtubeBlockAll: false,
   youtubeHideThumbnails: true,
+  youtubeBlockShorts: true,
   youtubeSearchOnlyHome: false,
   tiktokBlockAll: false
 };
@@ -27,6 +28,7 @@ const COUNTED_PROTECTION_SETTINGS = [
   "instagramBlockSearch",
   "youtubeBlockAll",
   "youtubeHideThumbnails",
+  "youtubeBlockShorts",
   "youtubeSearchOnlyHome",
   "tiktokBlockAll"
 ];
@@ -43,6 +45,7 @@ const GROUP_DEPENDENCIES = {
   ],
   youtubeBlockAll: [
     "youtubeHideThumbnails",
+    "youtubeBlockShorts",
     "youtubeSearchOnlyHome"
   ],
   instagramMessagesOnly: [
@@ -746,8 +749,17 @@ function getEffectiveSettings(settings) {
       ? false
       : settings.instagramRedirectHomeToInbox,
     youtubeHideThumbnails: settings.youtubeBlockAll ? false : settings.youtubeHideThumbnails,
+    youtubeBlockShorts: settings.youtubeBlockAll ? false : settings.youtubeBlockShorts,
     youtubeSearchOnlyHome: settings.youtubeBlockAll ? false : settings.youtubeSearchOnlyHome
   };
+}
+
+function getYouTubeProtectionLabels(settings) {
+  return [
+    settings.youtubeHideThumbnails && "miniatures masqu\u00E9es",
+    settings.youtubeBlockShorts && "Shorts bloqu\u00E9s",
+    settings.youtubeSearchOnlyHome && "accueil limit\u00E9 \u00E0 la recherche"
+  ].filter(Boolean);
 }
 
 function countActiveProtections(settings) {
@@ -786,10 +798,7 @@ function getYouTubeSummary(settings) {
     return "YouTube coup\u00E9.";
   }
 
-  const protections = [
-    settings.youtubeHideThumbnails && "miniatures masqu\u00E9es",
-    settings.youtubeSearchOnlyHome && "accueil limit\u00E9 \u00E0 la recherche"
-  ].filter(Boolean);
+  const protections = getYouTubeProtectionLabels(settings);
 
   if (!protections.length) {
     return "YouTube libre.";
@@ -829,11 +838,13 @@ function getYouTubeMode(settings) {
     return { label: "Bloqu\u00E9", tone: "strong" };
   }
 
-  if (settings.youtubeHideThumbnails && settings.youtubeSearchOnlyHome) {
+  const protectionCount = getYouTubeProtectionLabels(settings).length;
+
+  if (protectionCount >= 2) {
     return { label: "Prot\u00E9g\u00E9", tone: "on" };
   }
 
-  if (settings.youtubeHideThumbnails || settings.youtubeSearchOnlyHome) {
+  if (protectionCount === 1) {
     return { label: "All\u00E9g\u00E9", tone: "on" };
   }
 
@@ -875,16 +886,22 @@ function getYouTubeModeDetail(settings) {
     return "Aucun acc\u00E8s \u00E0 YouTube tant que ce blocage complet reste actif.";
   }
 
-  if (settings.youtubeHideThumbnails && settings.youtubeSearchOnlyHome) {
-    return "YouTube reste accessible, mais les miniatures et l'accueil recommand\u00E9 sont masqu\u00E9s.";
-  }
+  const protections = [];
 
   if (settings.youtubeHideThumbnails) {
-    return "YouTube reste accessible, mais les miniatures sont masqu\u00E9es.";
+    protections.push("les miniatures sont masqu\u00E9es");
+  }
+
+  if (settings.youtubeBlockShorts) {
+    protections.push("les Shorts sont bloqu\u00E9s");
   }
 
   if (settings.youtubeSearchOnlyHome) {
-    return "YouTube reste accessible, mais l'accueil recommand\u00E9 est masqu\u00E9.";
+    protections.push("l'accueil recommand\u00E9 est masqu\u00E9");
+  }
+
+  if (protections.length) {
+    return `YouTube reste accessible, mais ${protections.join(", ")}.`;
   }
 
   return "Tout YouTube reste accessible dans cette configuration.";
@@ -947,14 +964,20 @@ function renderContextNotes(settings) {
   if (youtubeContextNode) {
     if (settings.youtubeBlockAll) {
       youtubeContextNode.textContent = "Le blocage complet masque tout YouTube ; les autres r\u00E9glages YouTube n'ont plus d'effet tant qu'il reste actif.";
-    } else if (settings.youtubeSearchOnlyHome && settings.youtubeHideThumbnails) {
-      youtubeContextNode.textContent = "L'accueil YouTube devient volontairement calme : recommandations masqu\u00E9es sur la page d'accueil et miniatures retir\u00E9es ailleurs.";
+    } else if (settings.youtubeSearchOnlyHome && settings.youtubeHideThumbnails && settings.youtubeBlockShorts) {
+      youtubeContextNode.textContent = "YouTube devient volontairement utilitaire : accueil recommand\u00E9, miniatures et Shorts sont masqu\u00E9s pour limiter les entr\u00E9es passives.";
+    } else if (settings.youtubeBlockShorts && settings.youtubeHideThumbnails) {
+      youtubeContextNode.textContent = "YouTube reste utilisable, mais Fokus retire les miniatures et coupe l'acc\u00E8s aux Shorts pour r\u00E9duire les d\u00E9tours visuels et le flux vertical.";
+    } else if (settings.youtubeBlockShorts && settings.youtubeSearchOnlyHome) {
+      youtubeContextNode.textContent = "Fokus coupe l'acc\u00E8s aux Shorts et laisse la recherche comme point d'entr\u00E9e principal sur l'accueil.";
     } else if (settings.youtubeSearchOnlyHome) {
       youtubeContextNode.textContent = "La page d'accueil YouTube peut sembler presque vide : c'est normal, Fokus ne laisse que la recherche comme point d'entr\u00E9e.";
+    } else if (settings.youtubeBlockShorts) {
+      youtubeContextNode.textContent = "YouTube reste utilisable, mais Fokus bloque Shorts pour couper le flux vertical et ses raccourcis.";
     } else if (settings.youtubeHideThumbnails) {
       youtubeContextNode.textContent = "YouTube reste utilisable, mais les aper\u00E7us visuels disparaissent pour rendre la navigation moins accrocheuse.";
     } else {
-      youtubeContextNode.textContent = "Sans filtre YouTube actif, l'accueil, les recommandations et les miniatures restent visibles normalement.";
+      youtubeContextNode.textContent = "Sans filtre YouTube actif, l'accueil, les recommandations, Shorts et les miniatures restent visibles normalement.";
     }
   }
 }

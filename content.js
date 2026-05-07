@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS = {
   instagramRedirectHomeToInbox: true,
   youtubeBlockAll: false,
   youtubeHideThumbnails: true,
+  youtubeBlockShorts: true,
   youtubeSearchOnlyHome: false,
   tiktokBlockAll: false
 };
@@ -63,6 +64,20 @@ const YOUTUBE_SELECTORS = {
     "yt-thumbnail-view-model",
     "ytd-hero-playlist-thumbnail",
     "ytd-reel-shelf-renderer"
+  ].join(", "),
+  shortsLinks: [
+    "a[href='/shorts']",
+    "a[href^='/shorts/']",
+    "a[href*='://www.youtube.com/shorts/']",
+    "a[href*='://m.youtube.com/shorts/']",
+    "a[title='Shorts']",
+    "a[aria-label='Shorts']"
+  ].join(", "),
+  shortsShelves: [
+    "ytd-reel-shelf-renderer",
+    "ytd-rich-shelf-renderer[is-shorts]",
+    "ytd-shorts",
+    "ytm-shorts-lockup-view-model"
   ].join(", ")
 };
 
@@ -561,6 +576,22 @@ function applyYouTube() {
   if (settings.youtubeHideThumbnails) {
     document.body?.classList.add("focus-shield-youtube-thumbnails-off");
     hideElements(YOUTUBE_SELECTORS.thumbnails);
+  }
+
+  if (settings.youtubeBlockShorts) {
+    hideElements(YOUTUBE_SELECTORS.shortsLinks);
+    hideElements(YOUTUBE_SELECTORS.shortsShelves);
+
+    if (window.location.pathname.startsWith("/shorts")) {
+      renderOverlay({
+        title: "Shorts est bloqu\u00E9",
+        body: "Fokus coupe ce flux vertical pour \u00E9viter l'encha\u00EEnement rapide des vid\u00E9os.",
+        detail: "Tu peux toujours utiliser la recherche, les abonnements ou une vid\u00E9o pr\u00E9cise sans ouvrir Shorts.",
+        note: "D\u00E9sactive ce filtre dans le popup si tu veux r\u00E9autoriser Shorts."
+      });
+      hideElements("ytd-app");
+      return;
+    }
   }
 
   if (settings.youtubeSearchOnlyHome && window.location.pathname === "/") {

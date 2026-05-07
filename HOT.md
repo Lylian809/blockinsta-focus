@@ -14,6 +14,7 @@ Core principles:
 
 ## Recent Improvements
 
+- Added a recommended YouTube Shorts block across `popup.html`, `popup.js`, and `content.js`, so Fokus now hides Shorts entry points and blocks direct `/shorts/` pages instead of leaving one of YouTube's most addictive surfaces untouched
 - Hardened popup active-tab state handling by introducing explicit internal context types instead of branching on localized labels, while also clarifying the summary guidance for unreadable and unavailable tab states so unsupported-tab recovery copy stays trustworthy as wording evolves
 - Clarified the popup unsupported-tab shortcut note when Chromium exposes no usable active tab, so Fokus now explains that Instagram, YouTube, or TikTok must open in a new tab because there is no replaceable current tab target
 - Preserved the unsupported-tab shortcut mode choice across popup tab-context changes, so temporarily hiding the `conserver la page actuelle` toggle no longer resets the in-session preference back to replacing the current tab
@@ -79,6 +80,7 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the new YouTube Shorts protection on the home feed, watch pages, subscriptions, and direct `/shorts/` URLs so the selectors and blocking overlay stay trustworthy across common logged-in layouts
 - Browser-validate the new explicit popup tab-context typing so unreadable, restricted, missing, unsupported, and unavailable active-tab states each surface the intended summary note and shortcut guidance in real Chromium sessions
 - Browser-validate the new forced-new-tab shortcut explanation so `introuvable` and similar no-target states clearly justify why the mode toggle disappears and why shortcuts must open a fresh tab
 - Browser-validate the in-session unsupported-tab shortcut preference so hiding and re-showing the mode toggle during tab-context changes keeps the saved choice visible and trustworthy inside one popup session
@@ -110,6 +112,7 @@ Core principles:
 
 ## Risks / Known Issues
 
+- The new YouTube Shorts filter relies on DOM selectors for entry points and shelves, so it still needs browser-side validation across more YouTube experiments before it can be treated as fully proven
 - The popup now uses explicit active-tab context types instead of relying on localized labels, but that refactor still needs browser-side validation to confirm every real Chromium edge case lands in the right summary-note and shortcut-guidance state
 - The popup now explains forced new-tab shortcuts when Chromium exposes no usable active tab, but that copy still needs browser-side validation to confirm it appears in the right edge cases and does not feel redundant next to the shortcut labels
 - The unsupported-tab shortcut preference now stays intact when its mode toggle is temporarily hidden, but it still needs browser-side validation to confirm the popup surfaces that preserved choice clearly after real tab-context switches
