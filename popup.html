@@ -12,39 +12,170 @@
         <p class="hero-tag">Fokus</p>
         <h1>Reste concentr&eacute; pour accomplir l'essentiel.</h1>
         <p class="subtitle">
-          Garde les usages utiles. Coupe les surfaces qui te font d&eacute;river.
-        </p>
-        <p class="subtitle">
-          R&eacute;glages Fokus recommand&eacute;s par d&eacute;faut : Instagram en mode messages, Shorts et miniatures YouTube masqu&eacute;s, TikTok libre par d&eacute;faut.
+          Concentre-toi et massacre cette session.
         </p>
       </header>
 
-      <section class="summary-card" aria-label="Configuration actuelle">
-        <div class="summary-topline">
-          <p class="summary-eyebrow">Configuration actuelle</p>
-          <div class="summary-badges">
-            <span class="summary-storage-badge" id="summary-storage-badge" hidden>Stockage local</span>
-            <span class="summary-preset-badge" id="summary-preset-badge">Analyse...</span>
-          </div>
-        </div>
-        <h2 id="summary-title">Chargement des protections...</h2>
-        <p class="summary-copy" id="summary-body">
-          Fokus analyse tes r&eacute;glages pour r&eacute;sumer les protections actives.
-        </p>
-        <p class="summary-storage-note" id="summary-storage-note" hidden>
-          Les r&eacute;glages Fokus sont actuellement enregistr&eacute;s seulement sur cet appareil.
-        </p>
-        <p class="summary-tab-note" id="summary-tab-note">
-          Fokus identifie le site ouvert dans l'onglet actuel.
-        </p>
-        <p class="summary-preset-note" id="summary-preset-note">
-          Fokus v&eacute;rifie si ta configuration suit encore la recommandation par d&eacute;faut.
-        </p>
+      <section class="welcome-card" id="welcome-card" aria-labelledby="welcome-heading" hidden>
+        <h2 id="welcome-heading">Comment tu t'appelles ?</h2>
+        <label class="name-field" for="user-first-name">
+          <span>Ton pr&eacute;nom</span>
+          <input id="user-first-name" type="text" maxlength="32" placeholder="Ton pr&eacute;nom">
+        </label>
+        <button class="primary-button welcome-button" id="save-first-name" type="button">Continuer</button>
       </section>
 
-      <section class="site-card site-card-instagram" data-group="instagram" aria-labelledby="instagram-heading" aria-describedby="instagram-context-note">
+      <section class="focus-card" aria-labelledby="focus-heading">
+        <div class="focus-topline">
+          <div>
+            <p class="focus-eyebrow">Mode Focus</p>
+            <h2 id="focus-heading">Pomodoro intelligent</h2>
+          </div>
+          <span class="focus-state-badge" id="focus-state-badge">Inactif</span>
+        </div>
+
+        <p class="focus-copy" id="focus-copy">
+          Lance une session pour bloquer Instagram et TikTok, puis basculer YouTube en mode recherche uniquement.
+        </p>
+
+        <div class="focus-timer-shell">
+          <p class="focus-timer-label">Temps restant</p>
+          <p class="focus-timer" id="focus-timer">25:00</p>
+          <p class="focus-timer-note" id="focus-timer-note">
+            Choisis une dur&eacute;e puis lance la session.
+          </p>
+        </div>
+
+        <div class="focus-duration-picker" role="group" aria-label="Dur&eacute;e de session Focus">
+          <button class="duration-chip" data-focus-duration="25" type="button">25 min</button>
+          <button class="duration-chip" data-focus-duration="50" type="button">50 min</button>
+          <button class="duration-chip" data-focus-duration="90" type="button">90 min</button>
+        </div>
+
+        <p class="focus-break-note" id="focus-break-note">
+          25 min de focus + 5 min de pause.
+        </p>
+
+        <div class="focus-actions">
+          <button class="primary-button" id="start-focus-session" type="button">D&eacute;marrer</button>
+          <button class="secondary-button secondary-button-quiet" id="stop-focus-session" type="button">
+            Arr&ecirc;ter
+          </button>
+        </div>
+
+        <div class="focus-audio-card">
+          <button
+            class="focus-audio-toggle accordion-toggle"
+            id="focus-audio-toggle"
+            type="button"
+            data-accordion-toggle="music"
+            aria-expanded="false"
+            aria-controls="focus-audio-panel"
+          >
+            <span class="focus-audio-toggle-copy">
+              <span class="focus-audio-title">Ajouter une musique</span>
+            </span>
+            <span class="focus-audio-chevron" aria-hidden="true">+</span>
+          </button>
+
+          <div class="focus-audio-panel accordion-panel" id="focus-audio-panel" data-accordion-panel="music" hidden>
+            <div class="music-provider-list" role="group" aria-label="Services audio conseill&eacute;s">
+              <button class="music-provider-button" data-music-provider="spotify" type="button">Spotify</button>
+              <button class="music-provider-button" data-music-provider="youtubeMusic" type="button">YouTube Music</button>
+              <button class="music-provider-button" data-music-provider="appleMusic" type="button">Apple Music</button>
+              <button class="music-provider-button" data-music-provider="lofi" type="button">Lo-fi</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats-card" aria-labelledby="focus-stats-heading">
+        <button
+          class="accordion-toggle stats-toggle"
+          type="button"
+          data-accordion-toggle="stats"
+          aria-expanded="false"
+          aria-controls="stats-panel"
+        >
+          <span class="stats-head">
+            <span class="stats-eyebrow">Stats</span>
+            <span class="stats-title" id="focus-stats-heading">Pomodoro valid&eacute;s</span>
+          </span>
+          <span class="focus-audio-chevron" aria-hidden="true">+</span>
+        </button>
+
+        <div class="stats-panel accordion-panel" id="stats-panel" data-accordion-panel="stats" hidden>
+        <div class="stats-grid">
+          <div class="stat-chip">
+            <span>Aujourd'hui</span>
+            <strong id="stats-today">0</strong>
+          </div>
+          <div class="stat-chip">
+            <span>Semaine</span>
+            <strong id="stats-week">0</strong>
+          </div>
+          <div class="stat-chip">
+            <span>Mois</span>
+            <strong id="stats-month">0</strong>
+          </div>
+          <div class="stat-chip">
+            <span>Ann&eacute;e</span>
+            <strong id="stats-year">0</strong>
+          </div>
+          <div class="stat-chip stat-chip-wide">
+            <span>Sessions au total</span>
+            <strong id="stats-all-time">0</strong>
+          </div>
+          <div class="stat-chip stat-chip-wide">
+            <span>Temps total</span>
+            <strong id="stats-total-time">00h00</strong>
+          </div>
+        </div>
+
+        <div class="stats-week-strip" aria-label="Activit&eacute; sur les 7 derniers jours">
+          <div class="stats-week-days" id="stats-week-days">
+            <span class="stats-week-day">
+              <small>L</small>
+              <strong>0</strong>
+            </span>
+            <span class="stats-week-day">
+              <small>M</small>
+              <strong>0</strong>
+            </span>
+            <span class="stats-week-day">
+              <small>M</small>
+              <strong>0</strong>
+            </span>
+            <span class="stats-week-day">
+              <small>J</small>
+              <strong>0</strong>
+            </span>
+            <span class="stats-week-day">
+              <small>V</small>
+              <strong>0</strong>
+            </span>
+            <span class="stats-week-day">
+              <small>S</small>
+              <strong>0</strong>
+            </span>
+            <span class="stats-week-day">
+              <small>D</small>
+              <strong>0</strong>
+            </span>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <section class="site-card site-card-instagram" data-group="instagram" aria-labelledby="instagram-heading">
         <div class="site-band"></div>
-        <div class="site-head">
+        <button
+          class="site-head accordion-toggle"
+          type="button"
+          data-accordion-toggle="instagram"
+          aria-expanded="false"
+          aria-controls="instagram-panel"
+        >
           <div class="site-title-row">
             <span class="site-logo" aria-hidden="true">
               <svg viewBox="0 0 24 24" class="logo-instagram">
@@ -55,18 +186,13 @@
             </span>
             <div>
               <h2 class="site-kicker" id="instagram-heading">Instagram</h2>
-              <p class="site-mode-copy">
-                Mode actuel :
-                <span class="site-mode-badge" id="instagram-mode">Chargement...</span>
-              </p>
-              <p class="site-mode-detail" id="instagram-mode-detail">
-                Fokus pr&eacute;cise ce que ce mode laisse accessible sur Instagram.
-              </p>
             </div>
           </div>
-        </div>
+          <span class="focus-audio-chevron" aria-hidden="true">+</span>
+        </button>
 
-        <fieldset class="options" aria-describedby="instagram-context-note">
+        <div class="accordion-panel" id="instagram-panel" data-accordion-panel="instagram" hidden>
+        <fieldset class="options">
           <legend class="sr-only">R&eacute;glages Instagram</legend>
           <label class="toggle">
             <input type="checkbox" name="instagramBlockAll">
@@ -132,15 +258,18 @@
             </span>
           </label>
         </fieldset>
-
-        <p class="context-note" id="instagram-context-note">
-          Fokus pr&eacute;cise ici comment Instagram se comporte avec ces r&eacute;glages.
-        </p>
+        </div>
       </section>
 
-      <section class="site-card site-card-youtube" data-group="youtube" aria-labelledby="youtube-heading" aria-describedby="youtube-context-note">
+      <section class="site-card site-card-youtube" data-group="youtube" aria-labelledby="youtube-heading">
         <div class="site-band"></div>
-        <div class="site-head">
+        <button
+          class="site-head accordion-toggle"
+          type="button"
+          data-accordion-toggle="youtube"
+          aria-expanded="false"
+          aria-controls="youtube-panel"
+        >
           <div class="site-title-row">
             <span class="site-logo" aria-hidden="true">
               <svg viewBox="0 0 24 24" class="logo-youtube">
@@ -150,18 +279,13 @@
             </span>
             <div>
               <h2 class="site-kicker" id="youtube-heading">YouTube</h2>
-              <p class="site-mode-copy">
-                Mode actuel :
-                <span class="site-mode-badge" id="youtube-mode">Chargement...</span>
-              </p>
-              <p class="site-mode-detail" id="youtube-mode-detail">
-                Fokus pr&eacute;cise ce que ce mode laisse accessible sur YouTube.
-              </p>
             </div>
           </div>
-        </div>
+          <span class="focus-audio-chevron" aria-hidden="true">+</span>
+        </button>
 
-        <fieldset class="options" aria-describedby="youtube-context-note">
+        <div class="accordion-panel" id="youtube-panel" data-accordion-panel="youtube" hidden>
+        <fieldset class="options">
           <legend class="sr-only">R&eacute;glages YouTube</legend>
           <label class="toggle">
             <input type="checkbox" name="youtubeBlockAll">
@@ -195,15 +319,18 @@
             </span>
           </label>
         </fieldset>
-
-        <p class="context-note" id="youtube-context-note">
-          Fokus pr&eacute;cise ici comment YouTube se comporte avec ces r&eacute;glages.
-        </p>
+        </div>
       </section>
 
-      <section class="site-card site-card-tiktok" data-group="tiktok" aria-labelledby="tiktok-heading" aria-describedby="tiktok-context-note">
+      <section class="site-card site-card-tiktok" data-group="tiktok" aria-labelledby="tiktok-heading">
         <div class="site-band"></div>
-        <div class="site-head">
+        <button
+          class="site-head accordion-toggle"
+          type="button"
+          data-accordion-toggle="tiktok"
+          aria-expanded="false"
+          aria-controls="tiktok-panel"
+        >
           <div class="site-title-row">
             <span class="site-logo" aria-hidden="true">
               <svg viewBox="0 0 24 24" class="logo-tiktok">
@@ -212,18 +339,13 @@
             </span>
             <div>
               <h2 class="site-kicker" id="tiktok-heading">TikTok</h2>
-              <p class="site-mode-copy">
-                Mode actuel :
-                <span class="site-mode-badge" id="tiktok-mode">Chargement...</span>
-              </p>
-              <p class="site-mode-detail" id="tiktok-mode-detail">
-                Fokus pr&eacute;cise ce que ce mode laisse accessible sur TikTok.
-              </p>
             </div>
           </div>
-        </div>
+          <span class="focus-audio-chevron" aria-hidden="true">+</span>
+        </button>
 
-        <fieldset class="options" aria-describedby="tiktok-context-note">
+        <div class="accordion-panel" id="tiktok-panel" data-accordion-panel="tiktok" hidden>
+        <fieldset class="options">
           <legend class="sr-only">R&eacute;glages TikTok</legend>
           <label class="toggle">
             <input type="checkbox" name="tiktokBlockAll">
@@ -233,81 +355,63 @@
             </span>
           </label>
         </fieldset>
-
-        <p class="context-note" id="tiktok-context-note">
-          Fokus pr&eacute;cise ici si TikTok reste ouvert ou enti&egrave;rement coup&eacute;.
-        </p>
+        </div>
       </section>
 
       <section class="support-card" aria-label="Soutenir Fokus">
-        <p class="support-eyebrow">Support</p>
-        <h2>Soutenir Fokus</h2>
-        <p class="support-copy">
-          Si l'extension t'aide vraiment, tu peux soutenir son d&eacute;veloppement.
-        </p>
-        <a
-          class="support-button"
-          href="https://github.com/sponsors/Lylian809"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          class="accordion-toggle support-toggle"
+          type="button"
+          data-accordion-toggle="support"
+          aria-expanded="false"
+          aria-controls="support-panel"
         >
-          Soutenir le projet
-        </a>
+          <span class="support-head">
+            <span class="support-eyebrow">Support</span>
+            <span class="support-title">Soutenir Fokus</span>
+          </span>
+          <span class="focus-audio-chevron" aria-hidden="true">+</span>
+        </button>
+        <div class="accordion-panel" id="support-panel" data-accordion-panel="support" hidden>
+          <p class="support-copy">
+            Si l'extension t'aide vraiment, tu peux soutenir son d&eacute;veloppement.
+          </p>
+          <a
+            class="support-button"
+            href="https://github.com/sponsors/Lylian809"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Soutenir le projet
+          </a>
+        </div>
       </section>
 
       <section class="action-card" aria-label="Actions rapides">
-        <div class="action-copy">
-          <p class="action-eyebrow">Recommandation</p>
-          <h2>Revenir aux r&eacute;glages Fokus</h2>
+        <button
+          class="accordion-toggle action-toggle"
+          type="button"
+          data-accordion-toggle="reset"
+          aria-expanded="false"
+          aria-controls="reset-panel"
+        >
+          <span class="action-copy">
+            <span class="action-eyebrow">Recommandation</span>
+            <span class="action-title">Revenir aux r&eacute;glages Fokus</span>
+          </span>
+          <span class="focus-audio-chevron" aria-hidden="true">+</span>
+        </button>
+        <div class="accordion-panel" id="reset-panel" data-accordion-panel="reset" hidden>
           <p class="action-text">
             Remet les options recommand&eacute;es pour repartir d'une configuration claire et sobre.
           </p>
           <p class="action-state" id="default-state-copy">
             Fokus v&eacute;rifie si cette recommandation est d&eacute;j&agrave; active.
           </p>
+          <button class="secondary-button" id="reset-defaults" type="button">
+            R&eacute;initialiser
+          </button>
         </div>
-        <button class="secondary-button" id="reset-defaults" type="button">
-          R&eacute;initialiser
-        </button>
-      </section>
-
-      <section class="action-card action-card-refresh" aria-label="Rafra&icirc;chir l'onglet actif">
-        <div class="action-copy">
-          <p class="action-eyebrow">Application</p>
-          <h2>Rafra&icirc;chir l'onglet actif</h2>
-          <p class="action-text">
-            Utile si le site &eacute;tait d&eacute;j&agrave; ouvert avant l'installation de Fokus ou si la page n'a pas encore repris tes derniers r&eacute;glages.
-          </p>
-          <p class="action-target" id="refresh-tab-context">
-            Fokus identifie l'onglet actuellement ouvert.
-          </p>
-          <p class="action-state" id="refresh-state-copy">
-            Fokus peut recharger l'onglet courant sans quitter le popup.
-          </p>
-          <div class="site-shortcuts" id="site-shortcuts" hidden>
-            <p class="site-shortcuts-label" id="site-shortcuts-label">
-              Ouvre directement un site pris en charge dans cet onglet :
-            </p>
-            <label class="site-shortcuts-mode" id="site-shortcuts-mode" hidden>
-              <input id="site-shortcuts-new-tab-mode" type="checkbox">
-              <span>
-                <strong>Conserver la page actuelle</strong>
-                <small>Ouvre le site choisi dans un nouvel onglet au lieu de remplacer celui-ci.</small>
-              </span>
-            </label>
-            <div class="site-shortcuts-actions" aria-labelledby="site-shortcuts-label">
-              <button class="site-shortcut-button" data-site-shortcut="instagram" type="button">Instagram</button>
-              <button class="site-shortcut-button" data-site-shortcut="youtube" type="button">YouTube</button>
-              <button class="site-shortcut-button" data-site-shortcut="tiktok" type="button">TikTok</button>
-            </div>
-            <p class="site-shortcuts-note" id="site-shortcuts-note" hidden>
-              Fokus pr&eacute;cise ici si un raccourci ouvre une destination sp&eacute;ciale.
-            </p>
-          </div>
-        </div>
-        <button class="secondary-button" id="refresh-active-tab" type="button">
-          Rafra&icirc;chir
-        </button>
       </section>
 
       <p class="footnote" id="status" role="status" aria-live="polite">Param&egrave;tres charg&eacute;s.</p>

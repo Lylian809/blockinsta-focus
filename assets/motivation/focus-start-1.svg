@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540">
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#161229"/>
+      <stop offset="45%" stop-color="#2a2050"/>
+      <stop offset="100%" stop-color="#4a2ec8"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="68%" cy="32%" r="42%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.30)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="900" height="540" fill="url(#bg)"/>
+  <rect width="900" height="540" fill="url(#glow)"/>
+  <circle cx="676" cy="166" r="112" fill="rgba(255,255,255,0.08)"/>
+  <path d="M645 420c29-116 108-202 184-249-6 37-8 76-3 116 7 64 30 120 58 166-94 30-170 14-239-33Z" fill="rgba(255,255,255,0.14)"/>
+  <rect x="78" y="80" width="206" height="28" rx="14" fill="rgba(255,255,255,0.15)"/>
+  <rect x="78" y="126" width="392" height="86" rx="24" fill="rgba(255,255,255,0.10)"/>
+  <rect x="78" y="236" width="324" height="24" rx="12" fill="rgba(255,255,255,0.12)"/>
+  <rect x="78" y="276" width="276" height="24" rx="12" fill="rgba(255,255,255,0.12)"/>
+  <rect x="78" y="388" width="252" height="18" rx="9" fill="rgba(255,255,255,0.10)"/>
+  <rect x="78" y="420" width="202" height="18" rx="9" fill="rgba(255,255,255,0.10)"/>
+</svg>

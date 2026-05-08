@@ -14,6 +14,16 @@ Core principles:
 
 ## Recent Improvements
 
+- Reworked the popup into a cleaner accordion-based control surface so Instagram, YouTube, TikTok, music, stats, support, and reset actions now collapse behind consistent headers instead of stacking every option open at once
+- Simplified the first-run naming step so Fokus now asks only `Comment tu t'appelles ?` with a cleaner input and no extra onboarding copy, reducing friction before the first Focus session
+- Added richer Pomodoro stats in the popup so Fokus now tracks session counts by day, week, month, year, and all time, plus total focused time and a compact 7-day activity strip
+- Switched Focus completion history from bare timestamps to structured completion entries carrying both end time and work duration, allowing cumulative hours and minutes to be displayed without losing older installs through automatic migration
+- Replaced the previous placeholder motivation artwork with the real curated image packs copied into `assets/motivation/start/` and `assets/motivation/end/`, then wired those packs into the Focus splash flow for true start/end visual rotation
+- Fixed extension asset delivery for motivation splash backgrounds by adding `web_accessible_resources` coverage in `manifest.json`, so popup-triggered and content-script-triggered splash images can actually render inside real web pages
+- Enlarged and strengthened the centered Focus splash presentation in `content.js`, giving the motivation overlays a more store-ready full-screen treatment with bigger copy, larger visuals, and clearer progress timing
+- Added a generated Fokus brand kit pipeline through `scripts/generate_brand_assets.py`, producing a cleaner new logo, refreshed extension icons, and reusable Chrome Web Store promotional slides inside `store_assets/`
+- Refreshed the extension icon set with a more coherent Fokus mark and produced three first-pass Chrome Web Store promo visuals, giving the project a stronger branding baseline for public-facing listing assets
+- Fixed the popup music-panel regression after the accordion refactor by removing stale references to deleted music label state and switching panel-closing behavior to the shared accordion controller
 - Added the missing TikTok popup context note and wired it into the same `aria-describedby` / live explanatory path as Instagram and YouTube, so the lightest site card now explains its exact behavior more clearly and stays consistent for keyboard and assistive-tech users
 - Hardened `verify-extension.ps1` to fail when git-tracked local artifacts such as `logs/`, `.recurring-lock/`, or release ZIPs sneak into the repository, reducing the chance of polluted recurring-run commits and low-signal release noise
 - Filtered Fokus-owned overlay and helper-note mutations out of the broad site observer in `content.js`, so blocked Instagram, blocked TikTok, blocked YouTube Shorts, and YouTube's calm-home note no longer risk triggering pointless self-reapply loops from Fokus's own DOM updates
@@ -100,6 +110,12 @@ Core principles:
 
 ## Next Best Opportunities
 
+- Browser-validate the new accordion popup on real extension loads so all collapsed sections open, close, and preserve their setting behavior correctly without stale Chrome popup caching from older local builds
+- Replace the current GitHub Sponsors support CTA with a simpler public-facing donation flow such as Buy Me a Coffee if the maintainer wants a softer consumer-style support pattern in the store listing and popup
+- Generate a second, more polished batch of Chrome Web Store visuals and supporting metadata so the current `store_assets/` slides can evolve from a solid baseline into a tighter, more premium listing presentation
+- Refine the popup visual language to match the new Fokus icon and store visuals more closely, especially around gradients, spacing, and the Focus timer shell
+- Browser-validate the richer stats model so migrated older installs, fresh installs, and several mixed Pomodoro durations all produce trustworthy counts, total time, and 7-day activity marks
+- Browser-validate the start and end splash image rotation over several consecutive cycles so the new asset packs feel varied enough and do not cluster on the same few motivational images in normal use
 - Browser-validate the new TikTok popup context note with keyboard navigation and a screen reader so the added guidance feels useful, non-redundant, and correctly attached to the only TikTok toggle in a live extension session
 - Run a normal contributor-side verification pass after the new tracked-artifact guardrail so the stricter `verify-extension.ps1` checks stay helpful during recurring maintenance without blocking legitimate release work
 - Browser-validate the observer self-churn fix on blocked Instagram, blocked TikTok, blocked YouTube Shorts, and YouTube's calm-home note so the new mutation filtering cuts pointless reapply work without missing real site-side DOM changes on current layouts
@@ -151,6 +167,10 @@ Core principles:
 
 ## Risks / Known Issues
 
+- Chrome can keep serving an older unpacked popup bundle after several rapid local iterations, so some popup runtime errors may still come from stale extension state until contributors fully remove and reload the unpacked extension directory
+- The new accordion popup and richer stats model are in code, but they still need browser-side validation on fresh and previously used profiles to confirm collapsed sections, migrated history, and total-time math all stay trustworthy
+- The first-pass generated Fokus brand kit is a strong baseline rather than a final polished system, so the new logo, icon set, and store slides may still need one or two higher-end design passes before feeling truly premium in the public store listing
+- The motivation splash system now uses real local image packs, but it still needs repeated browser-side validation to ensure image choice rotation, mixed file formats, and large background rendering remain smooth across several cycles and across different supported tabs
 - The TikTok card now has the same contextual helper-note wiring as the other site cards, but it still needs browser-side validation to confirm the new explanatory note stays concise and is announced as intended in a real Chromium extension popup
 - `verify-extension.ps1` now rejects git-tracked logs, lock directories, and ZIP artifacts, but this still needs one normal contributor-side run to confirm the new guardrail stays low-noise with the current release workflow
 - `content.js` now ignores Fokus-owned overlay and helper-note mutations when watching large SPA DOM trees, but this still needs browser-side validation to confirm blocked pages and YouTube's calm-home state stay responsive without missing legitimate site navigation or layout changes

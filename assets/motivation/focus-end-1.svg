@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540">
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#122515"/>
+      <stop offset="54%" stop-color="#21402c"/>
+      <stop offset="100%" stop-color="#2f7b49"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="540" fill="url(#bg)"/>
+  <circle cx="742" cy="160" r="134" fill="rgba(255,255,255,0.08)"/>
+  <path d="M618 414c66-90 132-144 227-197 0 82 18 158 55 229-98 18-204 8-282-32Z" fill="rgba(255,255,255,0.17)"/>
+  <path d="M620 273l52 52 104-110" fill="none" stroke="rgba(255,255,255,0.34)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="78" y="80" width="214" height="28" rx="14" fill="rgba(255,255,255,0.16)"/>
+  <rect x="78" y="126" width="404" height="88" rx="24" fill="rgba(255,255,255,0.10)"/>
+  <rect x="78" y="242" width="312" height="24" rx="12" fill="rgba(255,255,255,0.12)"/>
+  <rect x="78" y="282" width="334" height="24" rx="12" fill="rgba(255,255,255,0.12)"/>
+  <rect x="78" y="392" width="248" height="18" rx="9" fill="rgba(255,255,255,0.10)"/>
+  <rect x="78" y="424" width="188" height="18" rx="9" fill="rgba(255,255,255,0.10)"/>
+</svg>

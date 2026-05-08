@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540">
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#171f31"/>
+      <stop offset="50%" stop-color="#2b3653"/>
+      <stop offset="100%" stop-color="#5a7df2"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="540" fill="url(#bg)"/>
+  <circle cx="740" cy="154" r="128" fill="rgba(255,255,255,0.10)"/>
+  <path d="M604 440c40-94 105-179 217-253 20 89 51 163 97 219-90 43-205 55-314 34Z" fill="rgba(255,255,255,0.16)"/>
+  <path d="M636 266c34 18 67 27 99 27 42 0 81-16 116-47" fill="none" stroke="rgba(255,255,255,0.26)" stroke-width="14" stroke-linecap="round"/>
+  <rect x="80" y="82" width="206" height="28" rx="14" fill="rgba(255,255,255,0.16)"/>
+  <rect x="80" y="128" width="414" height="88" rx="24" fill="rgba(255,255,255,0.10)"/>
+  <rect x="80" y="244" width="298" height="24" rx="12" fill="rgba(255,255,255,0.12)"/>
+  <rect x="80" y="284" width="354" height="24" rx="12" fill="rgba(255,255,255,0.12)"/>
+  <rect x="80" y="394" width="238" height="18" rx="9" fill="rgba(255,255,255,0.10)"/>
+  <rect x="80" y="426" width="204" height="18" rx="9" fill="rgba(255,255,255,0.10)"/>
+</svg>

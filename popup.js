@@ -14,9 +14,80 @@ const DEFAULT_SETTINGS = {
   tiktokBlockAll: false
 };
 const UI_PREFERENCES_DEFAULTS = {
-  siteShortcutsOpenInNewTab: false
+  siteShortcutsOpenInNewTab: false,
+  focusDurationMinutes: 25,
+  focusMusicProvider: "spotify",
+  focusSession: null,
+  userFirstName: ""
 };
 const SITE_SHORTCUTS_OPEN_IN_NEW_TAB_KEY = "siteShortcutsOpenInNewTab";
+const FOCUS_DURATION_KEY = "focusDurationMinutes";
+const FOCUS_MUSIC_PROVIDER_KEY = "focusMusicProvider";
+const FOCUS_SESSION_KEY = "focusSession";
+const FOCUS_OVERLAY_EVENT_KEY = "focusOverlayEvent";
+const FOCUS_COMPLETION_LOG_KEY = "focusCompletionLog";
+const USER_FIRST_NAME_KEY = "userFirstName";
+const FOCUS_MODE_OVERRIDES = {
+  instagramBlockAll: true,
+  instagramMessagesOnly: false,
+  instagramBlockReels: false,
+  instagramBlockStories: false,
+  instagramBlockExplore: false,
+  instagramBlockFeed: false,
+  instagramBlockSearch: false,
+  instagramRedirectHomeToInbox: false,
+  youtubeBlockAll: false,
+  youtubeHideThumbnails: true,
+  youtubeBlockShorts: true,
+  youtubeSearchOnlyHome: true,
+  tiktokBlockAll: true
+};
+const FOCUS_PLANS = {
+  25: { workMinutes: 25, breakMinutes: 5 },
+  50: { workMinutes: 50, breakMinutes: 10 },
+  90: { workMinutes: 90, breakMinutes: 30 }
+};
+const FOCUS_MUSIC_PROVIDERS = {
+  spotify: {
+    label: "Spotify",
+    url: "https://open.spotify.com/search/focus%20music"
+  },
+  youtubeMusic: {
+    label: "YouTube Music",
+    url: "https://music.youtube.com/search?q=focus%20music"
+  },
+  appleMusic: {
+    label: "Apple Music",
+    url: "https://music.apple.com/us/search?term=focus%20music"
+  },
+  lofi: {
+    label: "Lo-fi",
+    url: "https://www.youtube.com/watch?v=jfKfPfyJRdk"
+  }
+};
+const FOCUS_START_IMAGES = [
+  "assets/motivation/start/start-01.jpg",
+  "assets/motivation/start/start-02.jpg",
+  "assets/motivation/start/start-03.jpeg",
+  "assets/motivation/start/start-04.jpg",
+  "assets/motivation/start/start-05.jpg",
+  "assets/motivation/start/start-06.jpg",
+  "assets/motivation/start/start-07.jpg",
+  "assets/motivation/start/start-08.jpg",
+  "assets/motivation/start/start-09.jpg"
+];
+const FOCUS_START_TITLES = [
+  "tu vas tout défoncer.",
+  "t'es un monstre.",
+  "grosse session en vue.",
+  "t'as ça dans les mains."
+];
+const FOCUS_START_BODIES = [
+  "Concentre-toi et massacre cette session.",
+  "Coupe le bruit et fais une vraie grosse session.",
+  "Une action après l'autre. Tu vas tout tuer.",
+  "Mode monstre activé. Va chercher du concret."
+];
 
 const COUNTED_PROTECTION_SETTINGS = [
   "instagramBlockAll",
@@ -92,6 +163,16 @@ const SITE_SETTING_PREFIXES = [
 
 const statusNode = document.getElementById("status");
 const srStatusNode = document.getElementById("sr-status");
+const focusStateBadgeNode = document.getElementById("focus-state-badge");
+const focusCopyNode = document.getElementById("focus-copy");
+const focusTimerNode = document.getElementById("focus-timer");
+const focusTimerNoteNode = document.getElementById("focus-timer-note");
+const focusBreakNoteNode = document.getElementById("focus-break-note");
+const welcomeCardNode = document.getElementById("welcome-card");
+const userFirstNameNode = document.getElementById("user-first-name");
+const saveFirstNameButton = document.getElementById("save-first-name");
+const startFocusSessionButton = document.getElementById("start-focus-session");
+const stopFocusSessionButton = document.getElementById("stop-focus-session");
 const resetDefaultsButton = document.getElementById("reset-defaults");
 const refreshActiveTabButton = document.getElementById("refresh-active-tab");
 const refreshStateCopyNode = document.getElementById("refresh-state-copy");
@@ -109,30 +190,51 @@ const summaryStorageNoteNode = document.getElementById("summary-storage-note");
 const summaryTabNoteNode = document.getElementById("summary-tab-note");
 const summaryPresetBadgeNode = document.getElementById("summary-preset-badge");
 const summaryPresetNoteNode = document.getElementById("summary-preset-note");
-const siteModeNodes = {
-  instagram: document.getElementById("instagram-mode"),
-  youtube: document.getElementById("youtube-mode"),
-  tiktok: document.getElementById("tiktok-mode")
-};
-const siteModeDetailNodes = {
-  instagram: document.getElementById("instagram-mode-detail"),
-  youtube: document.getElementById("youtube-mode-detail"),
-  tiktok: document.getElementById("tiktok-mode-detail")
-};
 const contextNoteNodes = {
   instagram: document.getElementById("instagram-context-note"),
   youtube: document.getElementById("youtube-context-note"),
   tiktok: document.getElementById("tiktok-context-note")
 };
+const focusStatsNodes = {
+  today: document.getElementById("stats-today"),
+  week: document.getElementById("stats-week"),
+  month: document.getElementById("stats-month"),
+  year: document.getElementById("stats-year"),
+  allTime: document.getElementById("stats-all-time"),
+  totalTime: document.getElementById("stats-total-time")
+};
+const statsWeekDaysNode = document.getElementById("stats-week-days");
 const checkboxFields = Array.from(document.querySelectorAll("input[type='checkbox']"));
 const settingFields = checkboxFields.filter((field) => Boolean(field.name));
 const fieldMap = new Map(settingFields.map((field) => [field.name, field]));
 const siteCards = Array.from(document.querySelectorAll(".site-card[data-group]"));
 const siteShortcutButtons = Array.from(document.querySelectorAll("[data-site-shortcut]"));
+const durationButtons = Array.from(document.querySelectorAll("[data-focus-duration]"));
+const musicProviderButtons = Array.from(document.querySelectorAll("[data-music-provider]"));
+const accordionToggleNodes = Array.from(document.querySelectorAll("[data-accordion-toggle]"));
+const accordionPanelNodes = new Map(
+  Array.from(document.querySelectorAll("[data-accordion-panel]")).map((node) => [node.dataset.accordionPanel, node])
+);
 
 let activeStorageArea = "sync";
 let screenReaderAnnouncementFrame = 0;
 let activeTabContextRefreshTimeout = 0;
+let statusResetTimeout = 0;
+let focusTimerInterval = 0;
+let focusDurationMinutes = UI_PREFERENCES_DEFAULTS.focusDurationMinutes;
+let focusMusicProvider = UI_PREFERENCES_DEFAULTS.focusMusicProvider;
+let focusSession = null;
+let focusCompletionLog = [];
+let userFirstName = UI_PREFERENCES_DEFAULTS.userFirstName;
+let accordionState = {
+  music: false,
+  stats: false,
+  instagram: false,
+  youtube: false,
+  tiktok: false,
+  support: false,
+  reset: false
+};
 let activeTabContext = {
   kind: "unknown",
   canReload: false,
@@ -146,6 +248,256 @@ let activeTabContext = {
 
 function matchesHostname(hostname, domain) {
   return hostname === domain || hostname.endsWith(`.${domain}`);
+}
+
+function normalizeFocusSession(session) {
+  if (!session || typeof session !== "object") {
+    return null;
+  }
+
+  const phase = session.phase === "break" ? "break" : "work";
+  const phaseStartedAt = Number(session.phaseStartedAt);
+  const phaseEndsAt = Number(session.phaseEndsAt);
+  const workMinutes = Number(session.workMinutes);
+  const breakMinutes = Number(session.breakMinutes);
+  const cycleCount = Number(session.cycleCount);
+
+  if (!Number.isFinite(phaseEndsAt) || phaseEndsAt <= Date.now()) {
+    return null;
+  }
+
+  return {
+    phase,
+    phaseStartedAt: Number.isFinite(phaseStartedAt) ? phaseStartedAt : Date.now(),
+    phaseEndsAt,
+    workMinutes: Number.isFinite(workMinutes) && workMinutes > 0
+      ? workMinutes
+      : focusDurationMinutes,
+    breakMinutes: Number.isFinite(breakMinutes) && breakMinutes >= 0
+      ? breakMinutes
+      : (FOCUS_PLANS[focusDurationMinutes]?.breakMinutes ?? 5),
+    cycleCount: Number.isFinite(cycleCount) && cycleCount > 0 ? cycleCount : 1
+  };
+}
+
+function getFocusRemainingMs(session = focusSession) {
+  if (!session) {
+    return 0;
+  }
+
+  return Math.max(0, session.phaseEndsAt - Date.now());
+}
+
+function getFocusPhaseRemainingMs(session = focusSession) {
+  return getFocusRemainingMs(session);
+}
+
+function isFocusSessionActive(session = focusSession) {
+  return getFocusRemainingMs(session) > 0;
+}
+
+function formatDurationClock(totalMs) {
+  const totalSeconds = Math.max(0, Math.ceil(totalMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function getSelectedMusicProvider() {
+  return FOCUS_MUSIC_PROVIDERS[focusMusicProvider] ?? FOCUS_MUSIC_PROVIDERS.spotify;
+}
+
+function getFocusPlan(duration = focusDurationMinutes) {
+  return FOCUS_PLANS[duration] ?? FOCUS_PLANS[25];
+}
+
+function pickFocusStartImagePath() {
+  return FOCUS_START_IMAGES[focusCompletionLog.length % FOCUS_START_IMAGES.length];
+}
+
+function pickFocusStartCopy() {
+  const index = focusCompletionLog.length % FOCUS_START_TITLES.length;
+  return {
+    title: `${getDisplayFirstName()}, ${FOCUS_START_TITLES[index]}`,
+    body: FOCUS_START_BODIES[index]
+  };
+}
+
+function normalizeFocusCompletionLog(log) {
+  if (!Array.isArray(log)) {
+    return [];
+  }
+
+  return log
+    .map((value) => {
+      if (typeof value === "number") {
+        return {
+          completedAt: value,
+          workMinutes: 25
+        };
+      }
+
+      if (!value || typeof value !== "object") {
+        return null;
+      }
+
+      const completedAt = Number(value.completedAt);
+      const workMinutes = Number(value.workMinutes);
+
+      if (!Number.isFinite(completedAt) || completedAt <= 0) {
+        return null;
+      }
+
+      return {
+        completedAt,
+        workMinutes: Number.isFinite(workMinutes) && workMinutes > 0 ? workMinutes : 25
+      };
+    })
+    .filter(Boolean)
+    .sort((left, right) => left.completedAt - right.completedAt)
+    .slice(-4000);
+}
+
+function formatMinutesAsClock(totalMinutes) {
+  const minutes = Math.max(0, Math.round(Number(totalMinutes) || 0));
+  const hoursPart = Math.floor(minutes / 60);
+  const minutesPart = minutes % 60;
+  return `${String(hoursPart).padStart(2, "0")}h${String(minutesPart).padStart(2, "0")}`;
+}
+
+function getLast7DaysBuckets(log = focusCompletionLog) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const buckets = [];
+
+  for (let offset = 6; offset >= 0; offset -= 1) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - offset);
+    buckets.push({
+      key: date.toISOString().slice(0, 10),
+      label: ["D", "L", "M", "M", "J", "V", "S"][date.getDay()],
+      count: 0
+    });
+  }
+
+  const bucketMap = new Map(buckets.map((bucket) => [bucket.key, bucket]));
+
+  normalizeFocusCompletionLog(log).forEach((entry) => {
+    const key = new Date(entry.completedAt).toISOString().slice(0, 10);
+    const bucket = bucketMap.get(key);
+
+    if (bucket) {
+      bucket.count += 1;
+    }
+  });
+
+  return buckets;
+}
+
+function getPeriodStart(now, period) {
+  const start = new Date(now);
+
+  if (period === "today") {
+    start.setHours(0, 0, 0, 0);
+    return start.getTime();
+  }
+
+  if (period === "week") {
+    const day = start.getDay();
+    const diff = day === 0 ? 6 : day - 1;
+    start.setDate(start.getDate() - diff);
+    start.setHours(0, 0, 0, 0);
+    return start.getTime();
+  }
+
+  if (period === "month") {
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+    return start.getTime();
+  }
+
+  start.setMonth(0, 1);
+  start.setHours(0, 0, 0, 0);
+  return start.getTime();
+}
+
+function getFocusStats(log = focusCompletionLog) {
+  const normalizedLog = normalizeFocusCompletionLog(log);
+  const now = new Date();
+  const todayStart = getPeriodStart(now, "today");
+  const weekStart = getPeriodStart(now, "week");
+  const monthStart = getPeriodStart(now, "month");
+  const yearStart = getPeriodStart(now, "year");
+
+  return normalizedLog.reduce((stats, entry) => {
+    if (entry.completedAt >= todayStart) {
+      stats.today += 1;
+    }
+
+    if (entry.completedAt >= weekStart) {
+      stats.week += 1;
+    }
+
+    if (entry.completedAt >= monthStart) {
+      stats.month += 1;
+    }
+
+    if (entry.completedAt >= yearStart) {
+      stats.year += 1;
+    }
+
+    stats.allTime += 1;
+    stats.totalMinutes += entry.workMinutes;
+    return stats;
+  }, {
+    today: 0,
+    week: 0,
+    month: 0,
+    year: 0,
+    allTime: 0,
+    totalMinutes: 0
+  });
+}
+
+function getDisplayFirstName() {
+  const trimmed = String(userFirstName || "").trim();
+  return trimmed || "Champion";
+}
+
+function shouldShowWelcomeCard() {
+  return !String(userFirstName || "").trim();
+}
+
+function renderFocusStats() {
+  const stats = getFocusStats();
+
+  Object.entries(focusStatsNodes).forEach(([key, node]) => {
+    if (!node) {
+      return;
+    }
+
+    node.textContent = key === "totalTime"
+      ? formatMinutesAsClock(stats.totalMinutes)
+      : String(stats[key] ?? 0);
+  });
+
+  if (statsWeekDaysNode) {
+    const buckets = getLast7DaysBuckets();
+    statsWeekDaysNode.innerHTML = buckets.map((bucket) => `
+      <span class="stats-week-day${bucket.count > 0 ? " is-active" : ""}">
+        <small>${bucket.label}</small>
+        <strong>${bucket.count > 0 ? bucket.count : "·"}</strong>
+      </span>
+    `).join("");
+  }
+}
+
+function getFocusPhase(session = focusSession) {
+  if (!session) {
+    return "idle";
+  }
+
+  return session.phase === "break" ? "break" : "work";
 }
 
 function getFieldLabel(field) {
@@ -229,8 +581,18 @@ function announceScreenReader(message) {
   });
 }
 
-function renderStatus(message) {
+function renderStatus(message, { persist = false } = {}) {
   statusNode.textContent = message;
+
+  clearTimeout(statusResetTimeout);
+
+  if (persist) {
+    return;
+  }
+
+  statusResetTimeout = window.setTimeout(() => {
+    statusNode.textContent = "Fokus prêt.";
+  }, 3200);
 }
 
 function callTabs(method, ...args) {
@@ -252,6 +614,41 @@ function callTabs(method, ...args) {
       resolve(result);
     });
   });
+}
+
+async function nudgeActiveTabForFocusUi() {
+  try {
+    const tabs = await callTabs("query", { active: true, lastFocusedWindow: true });
+    const tab = Array.isArray(tabs) ? tabs[0] : null;
+
+    if (!tab?.id) {
+      return;
+    }
+
+    try {
+      await new Promise((resolve, reject) => {
+        chrome.tabs.sendMessage(tab.id, { type: "fokus-sync-focus-ui" }, (response) => {
+          const error = chrome.runtime?.lastError;
+
+          if (error) {
+            reject(new Error(error.message));
+            return;
+          }
+
+          resolve(response);
+        });
+      });
+    } catch (error) {
+      const url = String(tab.url || tab.pendingUrl || "");
+
+      if (/^https?:\/\//i.test(url)) {
+        await callTabs("reload", tab.id, {});
+        return;
+      }
+    }
+  } catch (error) {
+    console.error("Fokus: failed to nudge active tab focus UI", error);
+  }
 }
 
 function getStorageArea(areaName = activeStorageArea) {
@@ -774,21 +1171,34 @@ function matchesDefaultSettings(settings) {
   );
 }
 
-function getEffectiveSettings(settings) {
+function applyFocusModeOverrides(settings) {
+  if (!isFocusSessionActive()) {
+    return settings;
+  }
+
   return {
     ...settings,
-    instagramMessagesOnly: settings.instagramBlockAll ? false : settings.instagramMessagesOnly,
-    instagramBlockReels: settings.instagramBlockAll || settings.instagramMessagesOnly ? false : settings.instagramBlockReels,
-    instagramBlockStories: settings.instagramBlockAll || settings.instagramMessagesOnly ? false : settings.instagramBlockStories,
-    instagramBlockExplore: settings.instagramBlockAll || settings.instagramMessagesOnly ? false : settings.instagramBlockExplore,
-    instagramBlockFeed: settings.instagramBlockAll || settings.instagramMessagesOnly ? false : settings.instagramBlockFeed,
-    instagramBlockSearch: settings.instagramBlockAll || settings.instagramMessagesOnly ? false : settings.instagramBlockSearch,
-    instagramRedirectHomeToInbox: settings.instagramBlockAll || !settings.instagramMessagesOnly
+    ...FOCUS_MODE_OVERRIDES
+  };
+}
+
+function getEffectiveSettings(settings) {
+  const settingsWithFocus = applyFocusModeOverrides(settings);
+
+  return {
+    ...settingsWithFocus,
+    instagramMessagesOnly: settingsWithFocus.instagramBlockAll ? false : settingsWithFocus.instagramMessagesOnly,
+    instagramBlockReels: settingsWithFocus.instagramBlockAll || settingsWithFocus.instagramMessagesOnly ? false : settingsWithFocus.instagramBlockReels,
+    instagramBlockStories: settingsWithFocus.instagramBlockAll || settingsWithFocus.instagramMessagesOnly ? false : settingsWithFocus.instagramBlockStories,
+    instagramBlockExplore: settingsWithFocus.instagramBlockAll || settingsWithFocus.instagramMessagesOnly ? false : settingsWithFocus.instagramBlockExplore,
+    instagramBlockFeed: settingsWithFocus.instagramBlockAll || settingsWithFocus.instagramMessagesOnly ? false : settingsWithFocus.instagramBlockFeed,
+    instagramBlockSearch: settingsWithFocus.instagramBlockAll || settingsWithFocus.instagramMessagesOnly ? false : settingsWithFocus.instagramBlockSearch,
+    instagramRedirectHomeToInbox: settingsWithFocus.instagramBlockAll || !settingsWithFocus.instagramMessagesOnly
       ? false
-      : settings.instagramRedirectHomeToInbox,
-    youtubeHideThumbnails: settings.youtubeBlockAll ? false : settings.youtubeHideThumbnails,
-    youtubeBlockShorts: settings.youtubeBlockAll ? false : settings.youtubeBlockShorts,
-    youtubeSearchOnlyHome: settings.youtubeBlockAll ? false : settings.youtubeSearchOnlyHome
+      : settingsWithFocus.instagramRedirectHomeToInbox,
+    youtubeHideThumbnails: settingsWithFocus.youtubeBlockAll ? false : settingsWithFocus.youtubeHideThumbnails,
+    youtubeBlockShorts: settingsWithFocus.youtubeBlockAll ? false : settingsWithFocus.youtubeBlockShorts,
+    youtubeSearchOnlyHome: settingsWithFocus.youtubeBlockAll ? false : settingsWithFocus.youtubeSearchOnlyHome
   };
 }
 
@@ -951,37 +1361,7 @@ function getTikTokModeDetail(settings) {
     : "TikTok reste accessible tant que le blocage complet n'est pas activ\u00E9.";
 }
 
-function renderSiteModes(settings) {
-  const siteModes = {
-    instagram: getInstagramMode(settings),
-    youtube: getYouTubeMode(settings),
-    tiktok: getTikTokMode(settings)
-  };
-  const siteModeDetails = {
-    instagram: getInstagramModeDetail(settings),
-    youtube: getYouTubeModeDetail(settings),
-    tiktok: getTikTokModeDetail(settings)
-  };
-
-  Object.entries(siteModeNodes).forEach(([site, node]) => {
-    if (!node) {
-      return;
-    }
-
-    const mode = siteModes[site];
-    node.textContent = mode.label;
-    node.classList.toggle("is-on", mode.tone === "on");
-    node.classList.toggle("is-strong", mode.tone === "strong");
-  });
-
-  Object.entries(siteModeDetailNodes).forEach(([site, node]) => {
-    if (!node) {
-      return;
-    }
-
-    node.textContent = siteModeDetails[site];
-  });
-}
+function renderSiteModes() {}
 
 function renderContextNotes(settings) {
   const instagramContextNode = contextNoteNodes.instagram;
@@ -1027,6 +1407,168 @@ function renderContextNotes(settings) {
   }
 }
 
+function renderDurationButtons() {
+  durationButtons.forEach((button) => {
+    const duration = Number(button.dataset.focusDuration);
+    const selected = duration === focusDurationMinutes;
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function renderMusicProviderButtons() {
+  musicProviderButtons.forEach((button) => {
+    const selected = button.dataset.musicProvider === focusMusicProvider;
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function setAccordionExpanded(key, expanded) {
+  accordionState[key] = expanded;
+
+  const toggle = accordionToggleNodes.find((node) => node.dataset.accordionToggle === key);
+  const panel = accordionPanelNodes.get(key);
+
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", String(expanded));
+  }
+
+  if (panel) {
+    panel.hidden = !expanded;
+  }
+}
+
+function toggleAccordion(key) {
+  setAccordionExpanded(key, !accordionState[key]);
+}
+
+function renderAccordions() {
+  Object.entries(accordionState).forEach(([key, expanded]) => {
+    setAccordionExpanded(key, expanded);
+  });
+}
+
+async function clearExpiredFocusSessionIfNeeded() {
+  if (focusSession || !getStorageArea(activeStorageArea)) {
+    return;
+  }
+
+  try {
+    const stored = await callStorage(activeStorageArea, "get", { [FOCUS_SESSION_KEY]: null });
+    const normalizedSession = normalizeFocusSession(stored[FOCUS_SESSION_KEY]);
+
+    if (!normalizedSession && stored[FOCUS_SESSION_KEY]) {
+      await callStorage(activeStorageArea, "set", { [FOCUS_SESSION_KEY]: null });
+    }
+  } catch (error) {
+    console.error("Fokus: failed to clear expired focus session", error);
+  }
+}
+
+function stopFocusTimerTicker() {
+  if (focusTimerInterval) {
+    clearInterval(focusTimerInterval);
+    focusTimerInterval = 0;
+  }
+}
+
+function startFocusTimerTicker() {
+  stopFocusTimerTicker();
+
+  if (!isFocusSessionActive()) {
+    return;
+  }
+
+  focusTimerInterval = window.setInterval(() => {
+    renderFocusState();
+  }, 1000);
+}
+
+function renderFocusState() {
+  let sessionJustFinished = false;
+
+  if (focusSession && !isFocusSessionActive()) {
+    focusSession = null;
+    sessionJustFinished = true;
+    callStorage(activeStorageArea, "set", { [FOCUS_SESSION_KEY]: null }).catch((error) => {
+      console.error("Fokus: failed to clear finished focus session", error);
+    });
+  }
+
+  const active = isFocusSessionActive();
+  const plan = getFocusPlan(focusDurationMinutes);
+  const phase = getFocusPhase();
+
+  focusStateBadgeNode.textContent = active ? "En cours" : "Inactif";
+  focusStateBadgeNode.classList.toggle("is-active", active);
+  focusTimerNode.textContent = active
+    ? formatDurationClock(getFocusPhaseRemainingMs())
+    : `${String(focusDurationMinutes).padStart(2, "0")}:00`;
+  focusCopyNode.textContent = active
+    ? phase === "work"
+      ? "Instagram et TikTok sont bloqués. YouTube reste limité à la recherche pendant tout le focus."
+      : "Pause en cours. Les blocages restent actifs pour t'aider à vraiment décrocher."
+    : "Lance une session pour bloquer Instagram et TikTok, puis basculer YouTube en mode recherche uniquement.";
+  focusTimerNoteNode.textContent = active
+    ? phase === "work"
+      ? `Cycle ${focusSession.cycleCount}. ${focusSession.workMinutes} minutes de focus, puis ${focusSession.breakMinutes} minutes de pause.`
+      : `Pause de ${focusSession.breakMinutes} minutes en cours. Ensuite, Fokus relancera automatiquement un nouveau cycle.`
+    : "Choisis une durée puis lance la session.";
+
+  if (focusBreakNoteNode) {
+    focusBreakNoteNode.textContent = `${plan.workMinutes} min de focus + ${plan.breakMinutes} min de pause.`;
+  }
+
+  if (startFocusSessionButton) {
+    startFocusSessionButton.textContent = active ? "Relancer une session" : "Démarrer";
+  }
+
+  if (stopFocusSessionButton) {
+    stopFocusSessionButton.disabled = !active;
+  }
+
+  renderDurationButtons();
+  renderMusicProviderButtons();
+  renderAccordions();
+
+  if (!active) {
+    stopFocusTimerTicker();
+    clearExpiredFocusSessionIfNeeded();
+    if (sessionJustFinished) {
+      applyDependencies();
+      renderStatus("Session Focus terminée.");
+      announceScreenReader("Session Focus terminée.");
+    }
+    return;
+  }
+
+  startFocusTimerTicker();
+}
+
+function renderWelcomeState() {
+  if (!welcomeCardNode || !userFirstNameNode) {
+    return;
+  }
+
+  const show = shouldShowWelcomeCard();
+  welcomeCardNode.hidden = !show;
+
+  if (show && document.activeElement !== userFirstNameNode) {
+    userFirstNameNode.focus();
+  }
+}
+
+function handleAccordionToggle(event) {
+  const key = event.currentTarget?.dataset?.accordionToggle;
+
+  if (!key) {
+    return;
+  }
+
+  toggleAccordion(key);
+}
+
 function renderSummary() {
   if (!summaryTitleNode || !summaryBodyNode) {
     return;
@@ -1037,8 +1579,8 @@ function renderSummary() {
   const enabledCount = countActiveProtections(effectiveSettings);
 
   renderSiteShortcutLabels();
-  renderSiteModes(currentSettings);
-  renderContextNotes(currentSettings);
+  renderSiteModes(effectiveSettings);
+  renderContextNotes(effectiveSettings);
 
   if (enabledCount === 0) {
     summaryTitleNode.textContent = "Aucune protection active.";
@@ -1046,12 +1588,20 @@ function renderSummary() {
     return;
   }
 
-  summaryTitleNode.textContent = `${enabledCount} protection${enabledCount > 1 ? "s" : ""} active${enabledCount > 1 ? "s" : ""}.`;
-  summaryBodyNode.textContent = [
+  summaryTitleNode.textContent = isFocusSessionActive()
+    ? `Session Focus active : ${enabledCount} protections forcées.`
+    : `${enabledCount} protection${enabledCount > 1 ? "s" : ""} active${enabledCount > 1 ? "s" : ""}.`;
+  const summaryLines = [
     getInstagramSummary(effectiveSettings),
     getYouTubeSummary(effectiveSettings),
     getTikTokSummary(effectiveSettings)
-  ].join(" ");
+  ];
+
+  if (isFocusSessionActive()) {
+    summaryLines.unshift("Le mode Focus surchargera temporairement tes réglages manuels.");
+  }
+
+  summaryBodyNode.textContent = summaryLines.join(" ");
 }
 
 function renderPresetSummaryState() {
@@ -1070,6 +1620,9 @@ function renderPresetSummaryState() {
   summaryPresetNoteNode.textContent = alreadyDefault
     ? "Tu utilises la configuration recommand\u00E9e pour garder un cadre simple et coh\u00E9rent."
     : "Tu utilises une configuration personnalis\u00E9e ; le bouton de r\u00E9initialisation permet de revenir au preset recommand\u00E9.";
+  if (isFocusSessionActive()) {
+    summaryPresetNoteNode.textContent += " Le mode Focus remplace temporairement cette base pendant la session.";
+  }
 }
 
 function renderDefaultPresetState() {
@@ -1084,6 +1637,9 @@ function renderDefaultPresetState() {
   defaultStateCopyNode.textContent = alreadyDefault
     ? "La configuration recommand\u00E9e Fokus est d\u00E9j\u00E0 active."
     : "Ta configuration s'\u00E9carte du pr\u00E9r\u00E9glage Fokus recommand\u00E9.";
+  if (isFocusSessionActive()) {
+    defaultStateCopyNode.textContent += " Le mode Focus prend temporairement le dessus jusqu'à la fin du timer.";
+  }
   renderStorageSummaryState();
   renderPresetSummaryState();
   renderActiveSiteState();
@@ -1201,10 +1757,13 @@ function getDeferredApplyHint(siteLabel = "") {
 function buildSettingSavedMessage(settingName) {
   const siteLabel = getSiteLabelForSetting(settingName);
   const shouldSuggestRefresh = shouldSuggestRefreshingActiveSiteForSetting(settingName);
+  const focusSuffix = isFocusSessionActive()
+    ? " Le mode Focus actif prendra quand même temporairement le dessus."
+    : "";
 
   return `R\u00E9glage enregistr\u00E9${getStorageStatusSuffix()}.${shouldSuggestRefresh
     ? getRefreshHint(true)
-    : getDeferredApplyHint(siteLabel)}`;
+    : getDeferredApplyHint(siteLabel)}${focusSuffix}`;
 }
 
 function buildDefaultsResetMessage(previousSettings) {
@@ -1217,6 +1776,163 @@ function buildDefaultsResetMessage(previousSettings) {
 
 async function persistUiPreference(name, value) {
   await callStorage(activeStorageArea, "set", { [name]: value });
+}
+
+async function saveFirstName() {
+  if (!userFirstNameNode) {
+    return;
+  }
+
+  const nextValue = userFirstNameNode.value.trim();
+
+  if (!nextValue) {
+    renderStatus("Entre ton prénom pour continuer.");
+    announceScreenReader("Entre ton prénom pour continuer.");
+    userFirstNameNode.focus();
+    return;
+  }
+
+  const previousValue = userFirstName;
+  userFirstName = nextValue;
+  renderFocusState();
+
+  try {
+    await persistUiPreference(USER_FIRST_NAME_KEY, nextValue);
+    renderWelcomeState();
+    renderStatus(nextValue ? `Prénom enregistré${getStorageStatusSuffix()}.` : `Prénom effacé${getStorageStatusSuffix()}.`);
+    announceScreenReader(nextValue ? `Prénom ${nextValue} enregistré.` : "Prénom effacé.");
+  } catch (error) {
+    userFirstName = previousValue;
+    if (userFirstNameNode) {
+      userFirstNameNode.value = previousValue;
+    }
+    renderFocusState();
+    renderStatus("Impossible d'enregistrer le prénom.");
+    announceScreenReader("Impossible d'enregistrer le prénom.");
+    console.error("Fokus: failed to persist first name", error);
+  }
+}
+
+async function selectFocusDuration(event) {
+  const button = event.currentTarget;
+  const duration = Number(button?.dataset.focusDuration);
+
+  if (!Number.isFinite(duration) || duration <= 0) {
+    return;
+  }
+
+  const previousDuration = focusDurationMinutes;
+  focusDurationMinutes = duration;
+  renderFocusState();
+
+  try {
+    await persistUiPreference(FOCUS_DURATION_KEY, duration);
+    renderStatus(`Durée Focus réglée sur ${duration} minutes${getStorageStatusSuffix()}.`);
+    announceScreenReader(`Durée Focus réglée sur ${duration} minutes.`);
+  } catch (error) {
+    focusDurationMinutes = previousDuration;
+    renderFocusState();
+    renderStatus("Impossible d'enregistrer cette durée Focus.");
+    announceScreenReader("Impossible d'enregistrer cette durée Focus.");
+    console.error("Fokus: failed to persist focus duration", error);
+  }
+}
+
+async function startFocusSession() {
+  if (shouldShowWelcomeCard()) {
+    userFirstNameNode?.focus();
+    renderStatus("Entre d'abord ton prénom pour personnaliser les messages.");
+    announceScreenReader("Entre d'abord ton prénom pour personnaliser les messages.");
+    return;
+  }
+
+  const plan = getFocusPlan();
+  const phaseStartedAt = Date.now();
+  const session = {
+    phase: "work",
+    phaseStartedAt,
+    phaseEndsAt: phaseStartedAt + plan.workMinutes * 60 * 1000,
+    workMinutes: plan.workMinutes,
+    breakMinutes: plan.breakMinutes,
+    cycleCount: 1
+  };
+
+  try {
+    const splashCopy = pickFocusStartCopy();
+    await callStorage(activeStorageArea, "set", {
+      [FOCUS_SESSION_KEY]: session,
+      [FOCUS_OVERLAY_EVENT_KEY]: {
+        id: `focus-start-${Date.now()}`,
+        type: "focus-start",
+        title: splashCopy.title,
+        body: splashCopy.body,
+        createdAt: Date.now(),
+        imagePath: pickFocusStartImagePath()
+      }
+    });
+    focusSession = session;
+    await nudgeActiveTabForFocusUi();
+    renderFocusState();
+    renderWelcomeState();
+    applyDependencies();
+    renderStatus(`Session Focus lancée pour ${plan.workMinutes} minutes avec ${plan.breakMinutes} minutes de pause${getStorageStatusSuffix()}.`);
+    announceScreenReader(`Session Focus lancée pour ${plan.workMinutes} minutes avec ${plan.breakMinutes} minutes de pause.`);
+    window.close();
+  } catch (error) {
+    renderStatus("Impossible de démarrer la session Focus.");
+    announceScreenReader("Impossible de démarrer la session Focus.");
+    console.error("Fokus: failed to start focus session", error);
+  }
+}
+
+async function stopFocusSession() {
+  if (!focusSession) {
+    return;
+  }
+
+  try {
+    await callStorage(activeStorageArea, "set", { [FOCUS_SESSION_KEY]: null });
+    focusSession = null;
+    await nudgeActiveTabForFocusUi();
+    renderFocusState();
+    applyDependencies();
+    renderStatus(`Session Focus arrêtée${getStorageStatusSuffix()}.`);
+    announceScreenReader("Session Focus arrêtée.");
+  } catch (error) {
+    renderStatus("Impossible d'arrêter la session Focus.");
+    announceScreenReader("Impossible d'arrêter la session Focus.");
+    console.error("Fokus: failed to stop focus session", error);
+  }
+}
+
+async function openMusicProvider(event) {
+  const button = event.currentTarget;
+  const providerKey = button?.dataset.musicProvider;
+  const provider = providerKey ? FOCUS_MUSIC_PROVIDERS[providerKey] : null;
+
+  if (!provider) {
+    return;
+  }
+
+  focusMusicProvider = providerKey;
+  setAccordionExpanded("music", false);
+  renderFocusState();
+
+  try {
+    await persistUiPreference(FOCUS_MUSIC_PROVIDER_KEY, providerKey);
+  } catch (error) {
+    console.error("Fokus: failed to persist provider before opening", error);
+  }
+
+  try {
+    await callTabs("create", { url: provider.url, active: true });
+    renderStatus(`${provider.label} ouvert dans un nouvel onglet.`);
+    announceScreenReader(`${provider.label} ouvert dans un nouvel onglet.`);
+  } catch (error) {
+    renderStatus(`Impossible d'ouvrir ${provider.label}.`);
+    announceScreenReader(`Impossible d'ouvrir ${provider.label}.`);
+    console.error("Fokus: failed to open music provider", error);
+  }
 }
 
 async function saveSetting(event) {
@@ -1384,8 +2100,15 @@ async function initialize() {
     await detectActiveTabContext();
     const storedValues = await callStorage(activeStorageArea, "get", {
       ...DEFAULT_SETTINGS,
-      ...UI_PREFERENCES_DEFAULTS
+      ...UI_PREFERENCES_DEFAULTS,
+      [FOCUS_COMPLETION_LOG_KEY]: []
     });
+
+    focusDurationMinutes = Number(storedValues[FOCUS_DURATION_KEY]) || UI_PREFERENCES_DEFAULTS.focusDurationMinutes;
+    focusMusicProvider = storedValues[FOCUS_MUSIC_PROVIDER_KEY] || UI_PREFERENCES_DEFAULTS.focusMusicProvider;
+    focusSession = normalizeFocusSession(storedValues[FOCUS_SESSION_KEY]);
+    focusCompletionLog = normalizeFocusCompletionLog(storedValues[FOCUS_COMPLETION_LOG_KEY]);
+    userFirstName = storedValues[USER_FIRST_NAME_KEY] || UI_PREFERENCES_DEFAULTS.userFirstName;
 
     settingFields.forEach((field) => {
       field.checked = Boolean(storedValues[field.name]);
@@ -1396,18 +2119,40 @@ async function initialize() {
       siteShortcutsNewTabModeNode.checked = Boolean(storedValues[SITE_SHORTCUTS_OPEN_IN_NEW_TAB_KEY]);
     }
 
+    if (userFirstNameNode) {
+      userFirstNameNode.value = userFirstName;
+      userFirstNameNode.addEventListener("change", saveFirstName);
+      userFirstNameNode.addEventListener("blur", saveFirstName);
+    }
+    saveFirstNameButton?.addEventListener("click", saveFirstName);
+
     initializeFieldAccessibility();
+    durationButtons.forEach((button) => {
+      button.addEventListener("click", selectFocusDuration);
+    });
+    musicProviderButtons.forEach((button) => {
+      button.addEventListener("click", openMusicProvider);
+    });
+    accordionToggleNodes.forEach((button) => {
+      button.addEventListener("click", handleAccordionToggle);
+    });
+    startFocusSessionButton?.addEventListener("click", startFocusSession);
+    stopFocusSessionButton?.addEventListener("click", stopFocusSession);
     resetDefaultsButton?.addEventListener("click", resetDefaults);
     refreshActiveTabButton?.addEventListener("click", refreshActiveTab);
     siteShortcutsNewTabModeNode?.addEventListener("change", handleSiteShortcutsModeChange);
     siteShortcutButtons.forEach((button) => {
       button.addEventListener("click", openSupportedSite);
     });
+    renderFocusState();
+    renderFocusStats();
+    renderWelcomeState();
     applyDependencies();
     renderStatus(
       activeStorageArea === "local"
         ? "Param\u00E8tres charg\u00E9s en stockage local."
-        : "Param\u00E8tres charg\u00E9s."
+        : "Param\u00E8tres charg\u00E9s.",
+      { persist: true }
     );
   } catch (error) {
     settingFields.forEach((field) => {
@@ -1419,7 +2164,15 @@ async function initialize() {
     siteShortcutButtons.forEach((button) => {
       button.setAttribute("disabled", "disabled");
     });
-    renderStatus("Impossible de charger les r\u00E9glages.");
+    durationButtons.forEach((button) => {
+      button.setAttribute("disabled", "disabled");
+    });
+    musicProviderButtons.forEach((button) => {
+      button.setAttribute("disabled", "disabled");
+    });
+    startFocusSessionButton?.setAttribute("disabled", "disabled");
+    stopFocusSessionButton?.setAttribute("disabled", "disabled");
+    renderStatus("Impossible de charger les r\u00E9glages.", { persist: true });
     console.error("Fokus: popup initialization failed", error);
   }
 }
@@ -1433,6 +2186,35 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     siteShortcutsNewTabModeNode.checked = Boolean(
       changes[SITE_SHORTCUTS_OPEN_IN_NEW_TAB_KEY].newValue
     );
+  }
+
+  if (FOCUS_DURATION_KEY in changes) {
+    focusDurationMinutes = Number(changes[FOCUS_DURATION_KEY].newValue) || UI_PREFERENCES_DEFAULTS.focusDurationMinutes;
+    renderFocusState();
+  }
+
+  if (FOCUS_MUSIC_PROVIDER_KEY in changes) {
+    focusMusicProvider = changes[FOCUS_MUSIC_PROVIDER_KEY].newValue || UI_PREFERENCES_DEFAULTS.focusMusicProvider;
+    renderFocusState();
+  }
+
+  if (FOCUS_SESSION_KEY in changes) {
+    focusSession = normalizeFocusSession(changes[FOCUS_SESSION_KEY].newValue);
+    renderFocusState();
+  }
+
+  if (FOCUS_COMPLETION_LOG_KEY in changes) {
+    focusCompletionLog = normalizeFocusCompletionLog(changes[FOCUS_COMPLETION_LOG_KEY].newValue);
+    renderFocusStats();
+  }
+
+  if (USER_FIRST_NAME_KEY in changes) {
+    userFirstName = changes[USER_FIRST_NAME_KEY].newValue || UI_PREFERENCES_DEFAULTS.userFirstName;
+    if (userFirstNameNode && userFirstNameNode.value !== userFirstName) {
+      userFirstNameNode.value = userFirstName;
+    }
+    renderFocusState();
+    renderWelcomeState();
   }
 
   settingFields.forEach((field) => {

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Fokus",
-  "version": "0.2.4",
+  "version": "0.3.5",
   "description": "Block distracting parts of Instagram, YouTube and TikTok with per-site focus controls.",
   "icons": {
     "16": "icons/icon16.png",
@@ -13,35 +13,32 @@
     "storage"
   ],
   "host_permissions": [
-    "https://instagram.com/*",
-    "https://www.instagram.com/*",
-    "https://m.instagram.com/*",
-    "https://youtube.com/*",
-    "https://www.youtube.com/*",
-    "https://m.youtube.com/*",
-    "https://music.youtube.com/*",
-    "https://tiktok.com/*",
-    "https://www.tiktok.com/*",
-    "https://m.tiktok.com/*"
+    "http://*/*",
+    "https://*/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "https://instagram.com/*",
-        "https://www.instagram.com/*",
-        "https://m.instagram.com/*",
-        "https://youtube.com/*",
-        "https://www.youtube.com/*",
-        "https://m.youtube.com/*",
-        "https://music.youtube.com/*",
-        "https://tiktok.com/*",
-        "https://www.tiktok.com/*",
-        "https://m.tiktok.com/*"
+        "http://*/*",
+        "https://*/*"
       ],
       "js": [
         "content.js"
       ],
       "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/motivation/*",
+        "assets/motivation/start/*",
+        "assets/motivation/end/*"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
     }
   ],
   "action": {
