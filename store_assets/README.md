@@ -2,19 +2,24 @@ Fokus store assets
 
 Generated files:
 
+- `store-small-promo.png`
+- `store-hero-banner.png`
 - `store-slide-01.png`
 - `store-slide-02.png`
 - `store-slide-03.png`
 
 Purpose:
 
-- `store-slide-01.png`: general promise and cleaned popup overview
-- `store-slide-02.png`: Focus mode and Pomodoro experience
-- `store-slide-03.png`: progress, stats, and control
+- `store-small-promo.png`: petite image promo / vignette de listing
+- `store-hero-banner.png`: bannière large pour page store
+- `store-slide-01.png`: promesse produit + aperçu du popup Fokus
+- `store-slide-02.png`: usage Instagram en mode utile
+- `store-slide-03.png`: timer flottant + blocage TikTok
 
 Source script:
 
 - `scripts/generate_brand_assets.py`
+- `store_assets/source_screenshots/*`
 
 Brand direction used:
 

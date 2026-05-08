@@ -18,7 +18,9 @@ const UI_PREFERENCES_DEFAULTS = {
   focusDurationMinutes: 25,
   focusMusicProvider: "spotify",
   focusSession: null,
-  userFirstName: ""
+  userFirstName: "",
+  focusStartImageCursor: -1,
+  focusStartCopyCursor: -1
 };
 const SITE_SHORTCUTS_OPEN_IN_NEW_TAB_KEY = "siteShortcutsOpenInNewTab";
 const FOCUS_DURATION_KEY = "focusDurationMinutes";
@@ -27,6 +29,8 @@ const FOCUS_SESSION_KEY = "focusSession";
 const FOCUS_OVERLAY_EVENT_KEY = "focusOverlayEvent";
 const FOCUS_COMPLETION_LOG_KEY = "focusCompletionLog";
 const USER_FIRST_NAME_KEY = "userFirstName";
+const FOCUS_START_IMAGE_CURSOR_KEY = "focusStartImageCursor";
+const FOCUS_START_COPY_CURSOR_KEY = "focusStartCopyCursor";
 const FOCUS_MODE_OVERRIDES = {
   instagramBlockAll: true,
   instagramMessagesOnly: false,
@@ -226,6 +230,8 @@ let focusMusicProvider = UI_PREFERENCES_DEFAULTS.focusMusicProvider;
 let focusSession = null;
 let focusCompletionLog = [];
 let userFirstName = UI_PREFERENCES_DEFAULTS.userFirstName;
+let focusStartImageCursor = UI_PREFERENCES_DEFAULTS.focusStartImageCursor;
+let focusStartCopyCursor = UI_PREFERENCES_DEFAULTS.focusStartCopyCursor;
 let accordionState = {
   music: false,
   stats: false,
@@ -311,12 +317,21 @@ function getFocusPlan(duration = focusDurationMinutes) {
   return FOCUS_PLANS[duration] ?? FOCUS_PLANS[25];
 }
 
-function pickFocusStartImagePath() {
-  return FOCUS_START_IMAGES[focusCompletionLog.length % FOCUS_START_IMAGES.length];
+function getNextRotationIndex(currentIndex, listLength) {
+  if (!Number.isFinite(listLength) || listLength <= 0) {
+    return 0;
+  }
+
+  const normalizedIndex = Number.isFinite(currentIndex) ? currentIndex : -1;
+  return (normalizedIndex + 1 + listLength) % listLength;
 }
 
-function pickFocusStartCopy() {
-  const index = focusCompletionLog.length % FOCUS_START_TITLES.length;
+function pickFocusStartImagePath(currentIndex = focusStartImageCursor) {
+  return FOCUS_START_IMAGES[getNextRotationIndex(currentIndex, FOCUS_START_IMAGES.length)];
+}
+
+function pickFocusStartCopy(currentIndex = focusStartCopyCursor) {
+  const index = getNextRotationIndex(currentIndex, FOCUS_START_TITLES.length);
   return {
     title: `${getDisplayFirstName()}, ${FOCUS_START_TITLES[index]}`,
     body: FOCUS_START_BODIES[index]
@@ -1858,19 +1873,25 @@ async function startFocusSession() {
   };
 
   try {
-    const splashCopy = pickFocusStartCopy();
+    const nextImageCursor = getNextRotationIndex(focusStartImageCursor, FOCUS_START_IMAGES.length);
+    const nextCopyCursor = getNextRotationIndex(focusStartCopyCursor, FOCUS_START_TITLES.length);
+    const splashCopy = pickFocusStartCopy(focusStartCopyCursor);
     await callStorage(activeStorageArea, "set", {
       [FOCUS_SESSION_KEY]: session,
+      [FOCUS_START_IMAGE_CURSOR_KEY]: nextImageCursor,
+      [FOCUS_START_COPY_CURSOR_KEY]: nextCopyCursor,
       [FOCUS_OVERLAY_EVENT_KEY]: {
         id: `focus-start-${Date.now()}`,
         type: "focus-start",
         title: splashCopy.title,
         body: splashCopy.body,
         createdAt: Date.now(),
-        imagePath: pickFocusStartImagePath()
+        imagePath: pickFocusStartImagePath(focusStartImageCursor)
       }
     });
     focusSession = session;
+    focusStartImageCursor = nextImageCursor;
+    focusStartCopyCursor = nextCopyCursor;
     await nudgeActiveTabForFocusUi();
     renderFocusState();
     renderWelcomeState();
@@ -2109,6 +2130,12 @@ async function initialize() {
     focusSession = normalizeFocusSession(storedValues[FOCUS_SESSION_KEY]);
     focusCompletionLog = normalizeFocusCompletionLog(storedValues[FOCUS_COMPLETION_LOG_KEY]);
     userFirstName = storedValues[USER_FIRST_NAME_KEY] || UI_PREFERENCES_DEFAULTS.userFirstName;
+    focusStartImageCursor = Number.isFinite(Number(storedValues[FOCUS_START_IMAGE_CURSOR_KEY]))
+      ? Number(storedValues[FOCUS_START_IMAGE_CURSOR_KEY])
+      : UI_PREFERENCES_DEFAULTS.focusStartImageCursor;
+    focusStartCopyCursor = Number.isFinite(Number(storedValues[FOCUS_START_COPY_CURSOR_KEY]))
+      ? Number(storedValues[FOCUS_START_COPY_CURSOR_KEY])
+      : UI_PREFERENCES_DEFAULTS.focusStartCopyCursor;
 
     settingFields.forEach((field) => {
       field.checked = Boolean(storedValues[field.name]);
@@ -2215,6 +2242,18 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     }
     renderFocusState();
     renderWelcomeState();
+  }
+
+  if (FOCUS_START_IMAGE_CURSOR_KEY in changes) {
+    focusStartImageCursor = Number.isFinite(Number(changes[FOCUS_START_IMAGE_CURSOR_KEY].newValue))
+      ? Number(changes[FOCUS_START_IMAGE_CURSOR_KEY].newValue)
+      : UI_PREFERENCES_DEFAULTS.focusStartImageCursor;
+  }
+
+  if (FOCUS_START_COPY_CURSOR_KEY in changes) {
+    focusStartCopyCursor = Number.isFinite(Number(changes[FOCUS_START_COPY_CURSOR_KEY].newValue))
+      ? Number(changes[FOCUS_START_COPY_CURSOR_KEY].newValue)
+      : UI_PREFERENCES_DEFAULTS.focusStartCopyCursor;
   }
 
   settingFields.forEach((field) => {

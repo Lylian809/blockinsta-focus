@@ -15,7 +15,11 @@ const DEFAULT_SETTINGS = {
   focusSession: null,
   focusOverlayEvent: null,
   focusCompletionLog: [],
-  userFirstName: ""
+  userFirstName: "",
+  focusStartImageCursor: -1,
+  focusStartCopyCursor: -1,
+  focusEndImageCursor: -1,
+  focusEndCopyCursor: -1
 };
 const FOCUS_MODE_OVERRIDES = {
   instagramBlockAll: true,
@@ -43,6 +47,10 @@ const FOCUS_WIDGET_ID = "focus-shield-focus-widget";
 const FOCUS_WIDGET_HANDLE_ID = "focus-shield-focus-widget-handle";
 const FOCUS_SPLASH_ID = "focus-shield-focus-splash";
 const FOCUS_COMPLETION_LOG_KEY = "focusCompletionLog";
+const FOCUS_START_IMAGE_CURSOR_KEY = "focusStartImageCursor";
+const FOCUS_START_COPY_CURSOR_KEY = "focusStartCopyCursor";
+const FOCUS_END_IMAGE_CURSOR_KEY = "focusEndImageCursor";
+const FOCUS_END_COPY_CURSOR_KEY = "focusEndCopyCursor";
 const HIDDEN_ATTR = "data-focus-shield-hidden";
 const INBOX_PATH = "/direct/inbox/";
 const YOUTUBE_HOME_PATH = "/";
@@ -193,10 +201,12 @@ function getStorageArea(areaName = activeStorageArea) {
   return chrome.storage?.[areaName] ?? null;
 }
 
-function normalizeFocusSession(session) {
+function normalizeFocusSession(session, options = {}) {
   if (!session || typeof session !== "object") {
     return null;
   }
+
+  const { allowExpired = false } = options;
 
   const phase = session.phase === "break" ? "break" : "work";
   const phaseStartedAt = Number(session.phaseStartedAt);
@@ -205,7 +215,7 @@ function normalizeFocusSession(session) {
   const breakMinutes = Number(session.breakMinutes);
   const cycleCount = Number(session.cycleCount);
 
-  if (!Number.isFinite(phaseEndsAt) || phaseEndsAt <= Date.now()) {
+  if (!Number.isFinite(phaseEndsAt) || (!allowExpired && phaseEndsAt <= Date.now())) {
     return null;
   }
 
@@ -394,6 +404,58 @@ function buildMotivationOverlayEvent(type, firstName, cycleCount, phaseLabel) {
   };
 }
 
+function getNextRotationIndex(currentIndex, listLength) {
+  if (!Number.isFinite(listLength) || listLength <= 0) {
+    return 0;
+  }
+
+  const normalizedIndex = Number.isFinite(currentIndex) ? currentIndex : -1;
+  return (normalizedIndex + 1 + listLength) % listLength;
+}
+
+function buildRotatingMotivationOverlayEvent(type, firstName, phaseLabel, rotation = {}) {
+  const displayName = getDisplayName(firstName);
+  const startTitles = [
+    `${displayName}, tu vas tout dÃ©foncer.`,
+    `${displayName}, t'es un monstre.`,
+    `${displayName}, grosse session en vue.`,
+    `${displayName}, t'as Ã§a dans les mains.`
+  ];
+  const startBodies = [
+    "Concentre-toi et massacre cette session.",
+    "Tu vas tout tuer. Une action aprÃ¨s l'autre, sans dÃ©tour.",
+    "Le mode monstre est lancÃ©. Reste dedans et fais le taf.",
+    "Coupe le bruit. Va chercher une vraie grosse session."
+  ];
+  const endTitles = [
+    `${displayName}, bien jouÃ© Ã  toi.`,
+    `${displayName}, t'as tout tuÃ©.`,
+    `${displayName}, tu peux Ãªtre fier de toi.`,
+    `${displayName}, l'univers est fier de toi.`
+  ];
+  const endBodies = [
+    `Tu viens de finir ${phaseLabel}. T'es un putain de monstre.`,
+    "Session validÃ©e. Respire un coup, mais n'oublie pas : t'es trop fort.",
+    "Tu avances pour de vrai. Garde cette Ã©nergie.",
+    "Le plus dur est fait. Continue comme Ã§a et tu vas tout retourner."
+  ];
+  const isEndOverlay = type === "focus-end";
+  const images = isEndOverlay ? FOCUS_END_IMAGES : FOCUS_START_IMAGES;
+  const titles = isEndOverlay ? endTitles : startTitles;
+  const bodies = isEndOverlay ? endBodies : startBodies;
+  const imageIndex = getNextRotationIndex(rotation.imageCursor, images.length);
+  const copyIndex = getNextRotationIndex(rotation.copyCursor, titles.length);
+
+  return {
+    id: `${type}-${Date.now()}`,
+    type,
+    title: titles[copyIndex],
+    body: bodies[copyIndex],
+    createdAt: Date.now(),
+    imagePath: images[imageIndex]
+  };
+}
+
 function getEffectiveSettings() {
   if (!isFocusSessionActive()) {
     return settings;
@@ -498,9 +560,21 @@ async function transitionFocusSession() {
 
   try {
     const stored = await callStorage(activeStorageArea, "get", DEFAULT_SETTINGS);
-    const currentSession = normalizeFocusSession(stored.focusSession);
+    const currentSession = normalizeFocusSession(stored.focusSession, { allowExpired: true });
     const focusCompletionLog = normalizeFocusCompletionLog(stored[FOCUS_COMPLETION_LOG_KEY]);
     const firstName = stored.userFirstName || "";
+    const focusStartImageCursor = Number.isFinite(Number(stored[FOCUS_START_IMAGE_CURSOR_KEY]))
+      ? Number(stored[FOCUS_START_IMAGE_CURSOR_KEY])
+      : -1;
+    const focusStartCopyCursor = Number.isFinite(Number(stored[FOCUS_START_COPY_CURSOR_KEY]))
+      ? Number(stored[FOCUS_START_COPY_CURSOR_KEY])
+      : -1;
+    const focusEndImageCursor = Number.isFinite(Number(stored[FOCUS_END_IMAGE_CURSOR_KEY]))
+      ? Number(stored[FOCUS_END_IMAGE_CURSOR_KEY])
+      : -1;
+    const focusEndCopyCursor = Number.isFinite(Number(stored[FOCUS_END_COPY_CURSOR_KEY]))
+      ? Number(stored[FOCUS_END_COPY_CURSOR_KEY])
+      : -1;
 
     if (!currentSession || Date.now() < Number(currentSession.phaseEndsAt)) {
       settings.focusSession = currentSession;
@@ -511,6 +585,10 @@ async function transitionFocusSession() {
     let nextSession;
     let overlayEvent;
     let nextCompletionLog = focusCompletionLog;
+    let nextStartImageCursor = focusStartImageCursor;
+    let nextStartCopyCursor = focusStartCopyCursor;
+    let nextEndImageCursor = focusEndImageCursor;
+    let nextEndCopyCursor = focusEndCopyCursor;
 
     if (currentSession.phase === "work") {
       nextCompletionLog = [...focusCompletionLog, {
@@ -525,11 +603,16 @@ async function transitionFocusSession() {
         breakMinutes: currentSession.breakMinutes,
         cycleCount: currentSession.cycleCount
       };
-      overlayEvent = buildMotivationOverlayEvent(
+      nextEndImageCursor = getNextRotationIndex(focusEndImageCursor, FOCUS_END_IMAGES.length);
+      nextEndCopyCursor = getNextRotationIndex(focusEndCopyCursor, 4);
+      overlayEvent = buildRotatingMotivationOverlayEvent(
         "focus-end",
         firstName,
-        currentSession.cycleCount,
-        `${currentSession.workMinutes} minutes de focus`
+        `${currentSession.workMinutes} minutes de focus`,
+        {
+          imageCursor: focusEndImageCursor,
+          copyCursor: focusEndCopyCursor
+        }
       );
     } else {
       nextSession = {
@@ -540,23 +623,36 @@ async function transitionFocusSession() {
         breakMinutes: currentSession.breakMinutes,
         cycleCount: currentSession.cycleCount + 1
       };
-      overlayEvent = buildMotivationOverlayEvent(
+      nextStartImageCursor = getNextRotationIndex(focusStartImageCursor, FOCUS_START_IMAGES.length);
+      nextStartCopyCursor = getNextRotationIndex(focusStartCopyCursor, 4);
+      overlayEvent = buildRotatingMotivationOverlayEvent(
         "focus-start",
         firstName,
-        nextSession.cycleCount,
-        `${currentSession.breakMinutes} minutes de pause`
+        `${currentSession.breakMinutes} minutes de pause`,
+        {
+          imageCursor: focusStartImageCursor,
+          copyCursor: focusStartCopyCursor
+        }
       );
     }
 
     await callStorage(activeStorageArea, "set", {
       focusSession: nextSession,
       focusOverlayEvent: overlayEvent,
-      [FOCUS_COMPLETION_LOG_KEY]: nextCompletionLog
+      [FOCUS_COMPLETION_LOG_KEY]: nextCompletionLog,
+      [FOCUS_START_IMAGE_CURSOR_KEY]: nextStartImageCursor,
+      [FOCUS_START_COPY_CURSOR_KEY]: nextStartCopyCursor,
+      [FOCUS_END_IMAGE_CURSOR_KEY]: nextEndImageCursor,
+      [FOCUS_END_COPY_CURSOR_KEY]: nextEndCopyCursor
     });
 
     settings.focusSession = nextSession;
     settings.focusOverlayEvent = overlayEvent;
     settings[FOCUS_COMPLETION_LOG_KEY] = nextCompletionLog;
+    settings[FOCUS_START_IMAGE_CURSOR_KEY] = nextStartImageCursor;
+    settings[FOCUS_START_COPY_CURSOR_KEY] = nextStartCopyCursor;
+    settings[FOCUS_END_IMAGE_CURSOR_KEY] = nextEndImageCursor;
+    settings[FOCUS_END_COPY_CURSOR_KEY] = nextEndCopyCursor;
     lastFocusOverlayId = overlayEvent.id;
     showFocusSplash(overlayEvent);
     scheduleFocusSessionExpiry();
